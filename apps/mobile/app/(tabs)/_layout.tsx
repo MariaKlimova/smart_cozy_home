@@ -2,6 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
 import type { ComponentProps } from 'react';
 
+import { copy } from '@/copy/ru';
 import { useThemeColors } from '@/hooks/useThemeColors';
 
 function TabBarIcon(props: { name: ComponentProps<typeof FontAwesome>['name']; color: string }) {
@@ -23,35 +24,35 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Дом',
+          title: copy.home.screenTitle,
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
         }}
       />
       <Tabs.Screen
         name="rituals"
         options={{
-          title: 'Ритуалы',
+          title: copy.rituals.sectionTitle,
           tabBarIcon: ({ color }) => <TabBarIcon name="moon-o" color={color} />,
         }}
       />
       <Tabs.Screen
         name="rooms"
         options={{
-          title: 'Комнаты',
+          title: copy.rooms.sectionTitle,
           tabBarIcon: ({ color }) => <TabBarIcon name="th-large" color={color} />,
         }}
       />
       <Tabs.Screen
         name="timeline"
         options={{
-          title: 'День',
+          title: copy.timeline.sectionTitle,
           tabBarIcon: ({ color }) => <TabBarIcon name="clock-o" color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Настройки',
+          title: copy.settings.screenTitle,
           tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
         }}
       />
