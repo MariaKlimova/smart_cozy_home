@@ -1,11 +1,11 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
+import { CalmCard } from '@/ui/CalmCard';
+import { CalmToggle } from '@/ui/CalmToggle';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { touchMin, typography } from '@/theme/tokens';
+import { typography } from '@/theme/tokens';
 
-import { ROOM_LIST_LIGHT_ICON_SIZE } from './RoomList.const';
 import type { IRoomListProps } from './RoomList.typings';
 import { styles } from './RoomList.styles';
 
@@ -15,10 +15,7 @@ export function RoomList({ rooms, onToggleLight }: IRoomListProps) {
   return (
     <View style={styles.list}>
       {rooms.map((room) => (
-        <View
-          key={room.id}
-          style={[styles.row, { backgroundColor: c.surface, borderColor: c.border }]}
-        >
+        <CalmCard key={room.id} padding="md" style={styles.row}>
           <View style={styles.info}>
             <Text style={[typography.subtitle, { color: c.text }]}>{room.label}</Text>
             <Text style={[typography.caption, { color: c.textMuted }]}>
@@ -26,19 +23,14 @@ export function RoomList({ rooms, onToggleLight }: IRoomListProps) {
               {room.temperature ? ` · ${room.temperature}` : ''}
             </Text>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={room.lightOn ? copy.rooms.lightOffA11y : copy.rooms.lightOnA11y}
-            onPress={() => onToggleLight(room.id)}
-            style={[styles.action, { minHeight: touchMin, minWidth: touchMin }]}
-          >
-            <FontAwesome
-              name="lightbulb-o"
-              size={ROOM_LIST_LIGHT_ICON_SIZE}
-              color={room.lightOn ? c.accent : c.textMuted}
-            />
-          </Pressable>
-        </View>
+          <CalmToggle
+            value={room.lightOn}
+            onValueChange={() => onToggleLight(room.id)}
+            accessibilityLabel={
+              room.lightOn ? copy.rooms.lightOffA11y : copy.rooms.lightOnA11y
+            }
+          />
+        </CalmCard>
       ))}
     </View>
   );
