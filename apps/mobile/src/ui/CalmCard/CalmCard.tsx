@@ -28,7 +28,6 @@ export function CalmCard({
       style={[
         styles.card,
         paddingStyles[padding],
-        isOutline && styles.outline,
         { backgroundColor, borderColor: c.border },
         style,
       ]}

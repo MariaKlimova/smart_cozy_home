@@ -1,6 +1,7 @@
 import SliderBase from '@react-native-community/slider';
 import type { SliderProps } from '@react-native-community/slider';
-import type { FC } from 'react';
+import type { ComponentType } from 'react';
+import type { AccessibilityProps } from 'react-native';
 import { View } from 'react-native';
 
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -13,7 +14,9 @@ import {
 import type { ICalmSliderProps } from './CalmSlider.typings';
 import { styles } from './CalmSlider.styles';
 
-const Slider = SliderBase as unknown as FC<SliderProps>;
+type NativeSliderProps = SliderProps & Pick<AccessibilityProps, 'accessibilityLabel'>;
+
+const Slider = SliderBase as unknown as ComponentType<NativeSliderProps>;
 
 export function CalmSlider({
   value,
@@ -22,17 +25,15 @@ export function CalmSlider({
   maximumValue = CALM_SLIDER_DEFAULT_MAX,
   step = CALM_SLIDER_DEFAULT_STEP,
   accessibilityLabel,
+  accessibilityUnits,
+  accessibilityIncrements,
   disabled,
   style,
 }: ICalmSliderProps) {
   const c = useThemeColors();
 
   return (
-    <View
-      style={[styles.wrap, style]}
-      accessibilityLabel={accessibilityLabel}
-      accessibilityRole="adjustable"
-    >
+    <View style={[styles.wrap, style]} accessible={false} importantForAccessibility="no">
       <Slider
         style={styles.slider}
         value={value}
@@ -41,6 +42,9 @@ export function CalmSlider({
         maximumValue={maximumValue}
         step={step}
         disabled={disabled}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityUnits={accessibilityUnits}
+        accessibilityIncrements={accessibilityIncrements}
         minimumTrackTintColor={c.accent}
         maximumTrackTintColor={c.border}
         thumbTintColor={c.accent}

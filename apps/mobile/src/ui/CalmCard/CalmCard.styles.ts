@@ -12,7 +12,4 @@ export const styles = StyleSheet.create({
     borderRadius: radii.md,
     borderWidth: 1,
   },
-  outline: {
-    backgroundColor: 'transparent',
-  },
 });

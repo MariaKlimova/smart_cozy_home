@@ -11,8 +11,17 @@ export interface ICalmSliderProps {
   maximumValue?: number;
   /** Шаг */
   step?: number;
-  /** Подпись для accessibility */
+  /** Подпись для screen reader (на нативном Slider) */
   accessibilityLabel?: string;
+  /**
+   * Единица для VoiceOver (множественное число), напр. «процентов».
+   * Работает вместе с `accessibilityIncrements`.
+   */
+  accessibilityUnits?: string;
+  /**
+   * Подписи шагов для VoiceOver; длина должна соответствовать диапазону слайдера.
+   */
+  accessibilityIncrements?: string[];
   /** Неактивен */
   disabled?: boolean;
   /** Дополнительные стили обёртки */
