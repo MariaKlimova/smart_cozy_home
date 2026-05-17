@@ -48,7 +48,11 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScreenLayout title="Дом" onRefresh={isConnected ? refresh : undefined} isRefreshing={isRefreshing}>
+    <ScreenLayout
+      title={copy.home.screenTitle}
+      onRefresh={isConnected ? refresh : undefined}
+      isRefreshing={isRefreshing}
+    >
       {!isConnected && (
         <Text style={[typography.caption, { color: c.warning }]}>{copy.connection.offline}</Text>
       )}

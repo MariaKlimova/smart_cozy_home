@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 
-import { clearConnectionProfile } from '@/ha/connectionStorage';
+import { copy } from '@/copy/ru';
 import { maskUrl } from '@/lib/maskSensitive';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
@@ -12,6 +12,7 @@ import { ScreenLayout } from '@/ui/ScreenLayout';
 export default function SettingsScreen() {
   const isConnected = useConnectionStore((s) => s.isConnected);
   const baseUrl = useConnectionStore((s) => s.baseUrl);
+  const disconnect = useConnectionStore((s) => s.disconnect);
   const syncDebug = useHomeStore((s) => s.syncDebug);
   const isRefreshing = useHomeStore((s) => s.isRefreshing);
   const refresh = useHomeStore((s) => s.refresh);
@@ -21,17 +22,12 @@ export default function SettingsScreen() {
   }, [isConnected, refresh]);
 
   async function handleReconnect() {
-    await clearConnectionProfile();
-    useConnectionStore.setState({
-      profile: null,
-      baseUrl: null,
-      isConnected: false,
-    });
+    await disconnect();
     router.replace('/onboarding');
   }
 
   return (
-    <ScreenLayout title="Настройки">
+    <ScreenLayout title={copy.settings.screenTitle}>
       <DataSyncStatus
         isConnected={isConnected}
         baseUrl={baseUrl ? maskUrl(baseUrl) : null}
@@ -40,13 +36,13 @@ export default function SettingsScreen() {
         onRefresh={() => void refresh()}
       />
       <CalmButton
-        label="Список устройств Home Assistant"
+        label={copy.settings.haDevicesList}
         variant="primary"
         onPress={() => router.push('/ha-entities')}
         disabled={!isConnected}
       />
       <CalmButton
-        label="Изменить подключение к дому"
+        label={copy.settings.reconnect}
         variant="secondary"
         onPress={handleReconnect}
       />

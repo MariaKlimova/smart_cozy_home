@@ -1,5 +1,6 @@
 export const copy = {
   home: {
+    screenTitle: 'Дом',
     defaultTitle: 'Дом в порядке',
     awayTitle: 'Дом ждёт тебя',
     guestsTitle: 'Гости у нас',
@@ -32,9 +33,12 @@ export const copy = {
     empty: 'Пока тихо — событий нет',
   },
   settings: {
+    screenTitle: 'Настройки',
     syncTitle: 'Проверка данных',
     syncRefresh: 'Обновить данные',
     syncRefreshing: 'Загружаем…',
+    haDevicesList: 'Список устройств',
+    reconnect: 'Изменить подключение к дому',
   },
   onboarding: {
     title: 'Подключи дом',

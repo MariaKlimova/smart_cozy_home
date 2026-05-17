@@ -20,6 +20,7 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const hasHydrated = useConnectionStore((s) => s.hasHydrated);
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
@@ -30,10 +31,14 @@ export default function RootLayout() {
   }, [error]);
 
   useEffect(() => {
-    if (loaded) SplashScreen.hideAsync();
-  }, [loaded]);
+    if (loaded && hasHydrated) {
+      void SplashScreen.hideAsync();
+    }
+  }, [loaded, hasHydrated]);
 
-  if (!loaded) return null;
+  if (!loaded || !hasHydrated) {
+    return null;
+  }
 
   return (
     <AppProviders>
@@ -50,12 +55,13 @@ function RootLayoutNav() {
   const isConnected = useConnectionStore((s) => s.isConnected);
   const profile = useConnectionStore((s) => s.profile);
 
+  // Редирект только после hydrate (см. connectionStore): иначе profile=null
+  // на холодном старте уводит на onboarding и даёт мигание экранов.
   useEffect(() => {
     if (!hasHydrated) return;
     const inOnboarding = segments[0] === 'onboarding';
-    if (!profile && !inOnboarding) {
-      router.replace('/onboarding');
-    } else if (profile && !isConnected && !inOnboarding) {
+    const needsOnboarding = !profile || !isConnected;
+    if (needsOnboarding && !inOnboarding) {
       router.replace('/onboarding');
     } else if (profile && isConnected && inOnboarding) {
       router.replace('/(tabs)');
