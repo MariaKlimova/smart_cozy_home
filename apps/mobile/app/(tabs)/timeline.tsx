@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { View } from 'react-native';
 
 import { copy } from '@/copy/ru';
 import { TimelineList } from '@/features/timeline/ui/TimelineList';
 import { GentleNotificationCard } from '@/features/notifications/ui/GentleNotificationCard';
+import { useGentleNotifications } from '@/hooks/useGentleNotifications';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
 import { ScreenLayout } from '@/ui/ScreenLayout';
@@ -11,22 +12,13 @@ import { ScreenLayout } from '@/ui/ScreenLayout';
 export default function TimelineScreen() {
   const isConnected = useConnectionStore((s) => s.isConnected);
   const timeline = useHomeStore((s) => s.timeline);
-  const gentleNotifications = useHomeStore((s) => s.gentleNotifications);
   const refresh = useHomeStore((s) => s.refresh);
   const isRefreshing = useHomeStore((s) => s.isRefreshing);
-  const acceptGentleNotification = useHomeStore((s) => s.acceptGentleNotification);
-  const [dismissed, setDismissed] = useState<string[]>([]);
+  const { visibleNotifications, handleAccept, handleDismiss } = useGentleNotifications();
 
   useEffect(() => {
     if (isConnected) void refresh();
   }, [isConnected, refresh]);
-
-  const visible = gentleNotifications.filter((n) => !dismissed.includes(n.id));
-
-  async function handleAccept(id: string) {
-    await acceptGentleNotification(id);
-    setDismissed((d) => [...d, id]);
-  }
 
   return (
     <ScreenLayout
@@ -34,12 +26,12 @@ export default function TimelineScreen() {
       onRefresh={isConnected ? refresh : undefined}
       isRefreshing={isRefreshing}
     >
-      {visible.map((n) => (
+      {visibleNotifications.map((n) => (
         <GentleNotificationCard
           key={n.id}
           notification={n}
           onAccept={handleAccept}
-          onDismiss={(id) => setDismissed((d) => [...d, id])}
+          onDismiss={handleDismiss}
         />
       ))}
       <View>

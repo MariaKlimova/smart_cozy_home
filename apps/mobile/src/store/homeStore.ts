@@ -26,18 +26,32 @@ import { loadRitualsConfig } from '@/config/ritualsConfig';
 import { useConnectionStore } from '@/store/connectionStore';
 
 interface IHomeStore {
+  /** Сводное состояние дома из StateEngine; null до первого успешного sync */
   homeState: IHomeState | null;
+  /** Список ритуалов из domain/config (без привязки к HA в UI) */
   rituals: IRitual[];
+  /** Комнаты с освещением, замапленные из entity states */
   rooms: IRoom[];
+  /** Кто дома / вне дома по person-сущностям */
   presence: IPresenceMember[];
+  /** События дня для вкладки «День», из logbook HA */
   timeline: ITimelineEvent[];
+  /** Активные мягкие уведомления (например, «в комнате темно») */
   gentleNotifications: IGentleNotification[];
+  /** ID скрытых мягких уведомлений (общие для всех табов) */
+  dismissedGentleNotificationIds: string[];
+  /** Идёт запрос refresh к Home Assistant */
   isRefreshing: boolean;
+  /** Диагностика последней синхронизации для экрана настроек */
   syncDebug: IHomeSyncDebug;
+  /** Загрузить состояния сущностей и пересобрать доменные срезы; false при ошибке или offline */
   refresh: () => Promise<boolean>;
+  /** Переключить свет в комнате по domain room id */
   toggleRoomLight: (roomId: string) => Promise<void>;
   /** Принять мягкое уведомление (включить свет по правилу из config) */
   acceptGentleNotification: (notificationId: string) => Promise<void>;
+  /** Скрыть мягкое уведомление без действия */
+  dismissGentleNotification: (notificationId: string) => void;
 }
 
 function buildStatePreview(
@@ -54,6 +68,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
   presence: [],
   timeline: [],
   gentleNotifications: [],
+  dismissedGentleNotificationIds: [],
   isRefreshing: false,
   syncDebug: createEmptySyncDebug(),
 
@@ -101,6 +116,10 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
       );
       const timeline = mapTimelineFromLogbook(logbook);
       const gentleNotifications = mapGentleNotifications(states);
+      const activeNotificationIds = new Set(gentleNotifications.map((n) => n.id));
+      const dismissedGentleNotificationIds = get().dismissedGentleNotificationIds.filter((id) =>
+        activeNotificationIds.has(id),
+      );
 
       const syncDebug: IHomeSyncDebug = {
         lastSyncAt: new Date().toISOString(),
@@ -119,6 +138,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
         presence,
         timeline,
         gentleNotifications,
+        dismissedGentleNotificationIds,
         syncDebug,
         isRefreshing: false,
       });
@@ -160,5 +180,12 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
 
     await toggleLight(baseUrl, profile.accessToken, rule.light_entity, true);
     await get().refresh();
+    get().dismissGentleNotification(notificationId);
+  },
+
+  dismissGentleNotification: (notificationId) => {
+    const { dismissedGentleNotificationIds } = get();
+    if (dismissedGentleNotificationIds.includes(notificationId)) return;
+    set({ dismissedGentleNotificationIds: [...dismissedGentleNotificationIds, notificationId] });
   },
 }));

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Text } from 'react-native';
 
 import { copy } from '@/copy/ru';
@@ -6,6 +6,7 @@ import { computeHomeState } from '@/domain/stateEngine';
 import { HomeRitualsSection } from '@/features/home/ui/HomeRitualsSection';
 import { HomeStateCard } from '@/features/home/ui/HomeStateCard';
 import { GentleNotificationCard } from '@/features/notifications/ui/GentleNotificationCard';
+import { useGentleNotifications } from '@/hooks/useGentleNotifications';
 import { useRitualRunner } from '@/hooks/useRitualRunner';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useConnectionStore } from '@/store/connectionStore';
@@ -29,23 +30,15 @@ export default function HomeScreen() {
 
   const homeState = useHomeStore((s) => s.homeState);
   const rituals = useHomeStore((s) => s.rituals);
-  const gentleNotifications = useHomeStore((s) => s.gentleNotifications);
   const isRefreshing = useHomeStore((s) => s.isRefreshing);
   const refresh = useHomeStore((s) => s.refresh);
-  const acceptGentleNotification = useHomeStore((s) => s.acceptGentleNotification);
-
-  const [dismissed, setDismissed] = useState<string[]>([]);
+  const { visibleNotifications, handleAccept, handleDismiss } = useGentleNotifications();
 
   useEffect(() => {
     if (isConnected) void refresh();
   }, [isConnected, refresh]);
 
   const displayState = homeState ?? DEMO_HOME;
-  const visibleNotifications = gentleNotifications.filter((n) => !dismissed.includes(n.id));
-  async function handleAcceptNotification(id: string) {
-    await acceptGentleNotification(id);
-    setDismissed((d) => [...d, id]);
-  }
 
   return (
     <ScreenLayout
@@ -63,8 +56,8 @@ export default function HomeScreen() {
         <GentleNotificationCard
           key={n.id}
           notification={n}
-          onAccept={handleAcceptNotification}
-          onDismiss={(id) => setDismissed((d) => [...d, id])}
+          onAccept={handleAccept}
+          onDismiss={handleDismiss}
         />
       ))}
 
