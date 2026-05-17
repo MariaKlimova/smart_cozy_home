@@ -1,0 +1,11 @@
+---
+description: В UI только domain-типы, не entity_id Home Assistant
+globs: apps/mobile/src/features/**/ui/**/*,apps/mobile/app/**/*
+alwaysApply: false
+---
+
+# Без entities в UI
+
+- Пропсы компонентов: `HomeState`, `Ritual`, `Room`, `PresenceMember`, `TimelineEvent` — не `entity_id`
+- Тексты для пользователя — из `src/copy/` или humanizers, не сырые state из HA
+- Mapping entity → domain только в `src/ha/mappers/` и config YAML

@@ -1,0 +1,16 @@
+{
+  "name": "smart-house",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Эмоциональный UI-слой умного дома поверх Home Assistant",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace=smart-house-mobile",
+    "mobile:ios": "npm run ios --workspace=smart-house-mobile",
+    "mobile:android": "npm run android --workspace=smart-house-mobile",
+    "lint": "npm run lint --workspace=smart-house-mobile",
+    "typecheck": "npm run typecheck --workspace=smart-house-mobile"
+  }
+}

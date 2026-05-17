@@ -1,0 +1,21 @@
+---
+description: Слои приложения и запрет прямых вызовов HA из UI
+globs: apps/mobile/**/*
+alwaysApply: false
+---
+
+# Архитектура mobile
+
+## Слои
+
+1. `app/` — маршруты Expo Router, композиция экранов
+2. `src/features/*/ui/` — БЭМ-блоки фич (только domain-типы в пропсах)
+3. `src/ui/` — переиспользуемые БЭМ-блоки
+4. `src/domain/` — HomeState, Ritual, StateEngine (без React)
+5. `src/ha/` — ConnectionManager, клиент, mappers
+
+## Запреты
+
+- Не вызывать `call_service` / WebSocket из компонентов в `features/*/ui` или `src/ui`
+- Использовать hooks/сервисы в `src/features/*/model` или `src/ha/`
+- Не импортировать `home-assistant-js-websocket` в UI-слое
