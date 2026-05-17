@@ -57,10 +57,11 @@ function RootLayoutNav() {
 
   // Редирект только после hydrate (см. connectionStore): иначе profile=null
   // на холодном старте уводит на onboarding и даёт мигание экранов.
+  // Onboarding — только без сохранённого профиля; офлайн с профилем остаётся на табах.
   useEffect(() => {
     if (!hasHydrated) return;
     const inOnboarding = segments[0] === 'onboarding';
-    const needsOnboarding = !profile || !isConnected;
+    const needsOnboarding = !profile;
     if (needsOnboarding && !inOnboarding) {
       router.replace('/onboarding');
     } else if (profile && isConnected && inOnboarding) {
