@@ -1,0 +1,12 @@
+---
+description: TypeScript — strict, JSDoc на полях интерфейсов
+globs: apps/mobile/**/*.ts,apps/mobile/**/*.tsx
+alwaysApply: false
+---
+
+# TypeScript
+
+- `strict: true`
+- Каждое поле публичного `interface` — с JSDoc (`/** ... */`)
+- Префикс интерфейсов пропсов: `I` (например `IHomeStateCardProps`)
+- Без nested ternary
