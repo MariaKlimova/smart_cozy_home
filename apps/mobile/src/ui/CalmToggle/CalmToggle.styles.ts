@@ -1,12 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-import { radii, touchMin } from '@/theme/tokens';
+import { touchMin } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
-  base: {
+  wrap: {
     minHeight: touchMin,
-    borderRadius: radii.sm,
-    paddingHorizontal: 20,
+    minWidth: touchMin,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -7,10 +7,6 @@ export const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
   },
   info: { flex: 1 },
-  action: { alignItems: 'center', justifyContent: 'center' },
 });

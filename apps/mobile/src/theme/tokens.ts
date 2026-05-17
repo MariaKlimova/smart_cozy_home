@@ -31,6 +31,11 @@ export const spacing = {
   xl: 32,
 } as const;
 
+export const radii = {
+  sm: 14,
+  md: 16,
+} as const;
+
 export const touchMin = 48;
 
 export const typography = {

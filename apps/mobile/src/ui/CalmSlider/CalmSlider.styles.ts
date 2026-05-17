@@ -1,13 +1,14 @@
 import { StyleSheet } from 'react-native';
 
-import { radii, touchMin } from '@/theme/tokens';
+import { touchMin } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
-  base: {
+  wrap: {
     minHeight: touchMin,
-    borderRadius: radii.sm,
-    paddingHorizontal: 20,
-    alignItems: 'center',
     justifyContent: 'center',
+  },
+  slider: {
+    width: '100%',
+    height: 40,
   },
 });

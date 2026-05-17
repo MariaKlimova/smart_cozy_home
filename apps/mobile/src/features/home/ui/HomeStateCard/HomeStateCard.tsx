@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
 
 import { HomeStateCardHint } from './HomeStateCard-Hint';
+import { CalmCard } from '@/ui/CalmCard';
 import { MetricChip } from '@/ui/MetricChip';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { typography } from '@/theme/tokens';
@@ -12,7 +13,7 @@ export function HomeStateCard({ homeState }: IHomeStateCardProps) {
   const c = useThemeColors();
 
   return (
-    <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
+    <CalmCard padding="lg">
       <Text style={[typography.title, { color: c.text }]}>{homeState.title}</Text>
       <HomeStateCardHint text={homeState.hint} />
       <View style={styles.metrics}>
@@ -20,6 +21,6 @@ export function HomeStateCard({ homeState }: IHomeStateCardProps) {
           <MetricChip key={m.id} metric={m} />
         ))}
       </View>
-    </View>
+    </CalmCard>
   );
 }

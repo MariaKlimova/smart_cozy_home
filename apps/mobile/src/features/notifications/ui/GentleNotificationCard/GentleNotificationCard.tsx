@@ -2,6 +2,7 @@ import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
 import { CalmButton } from '@/ui/CalmButton';
+import { CalmCard } from '@/ui/CalmCard';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { typography } from '@/theme/tokens';
 
@@ -16,7 +17,7 @@ export function GentleNotificationCard({
   const c = useThemeColors();
 
   return (
-    <View style={[styles.card, { backgroundColor: c.accentMuted, borderColor: c.border }]}>
+    <CalmCard padding="md" tone="muted" style={styles.card}>
       <Text style={[typography.body, { color: c.text }]}>{notification.message}</Text>
       <View style={styles.actions}>
         {notification.actionLabel && onAccept && (
@@ -36,6 +37,6 @@ export function GentleNotificationCard({
           />
         )}
       </View>
-    </View>
+    </CalmCard>
   );
 }

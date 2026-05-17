@@ -1,2 +1,2 @@
 /** Локальные константы блока */
-export const ROOM_LIST = 'RoomList' as const;
+export const CALM_CARD = 'CalmCard' as const;
