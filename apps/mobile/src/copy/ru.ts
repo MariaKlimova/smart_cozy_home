@@ -13,10 +13,15 @@ export const copy = {
     sectionTitle: 'Ритуалы',
     running: 'Запускаем…',
   },
+  notifications: {
+    dismissLater: 'Не сейчас',
+  },
   rooms: {
     sectionTitle: 'Комнаты',
     lightOn: 'Свет включён',
     lightOff: 'Свет выключен',
+    lightOnA11y: 'Включить свет',
+    lightOffA11y: 'Выключить свет',
   },
   presence: {
     sectionTitle: 'Кто дома',
@@ -28,15 +33,20 @@ export const copy = {
   },
   settings: {
     syncTitle: 'Проверка данных',
-    syncRefresh: 'Обновить данные из HA',
+    syncRefresh: 'Обновить данные',
+    syncRefreshing: 'Загружаем…',
   },
   onboarding: {
     title: 'Подключи дом',
     subtitle: 'Home Assistant остаётся за кадром — ты видишь только уют.',
+    remoteOnlyHint:
+      'Только удалённый URL? Оставь локальный пустым — подключимся сразу к Nabu Casa.',
     name: 'Название',
     localUrl: 'Локальный URL (LAN)',
     remoteUrl: 'Удалённый URL (опционально)',
-    token: 'Access token',
+    token: 'Токен доступа',
+    localUrlPlaceholder: 'http://192.168.x.x:8123 (опционально)',
+    remoteUrlPlaceholder: 'https://….ui.nabu.casa',
     save: 'Сохранить',
   },
   notFound: {
@@ -45,6 +55,12 @@ export const copy = {
     link: 'На главную',
   },
   haEntities: {
+    screenTitle: 'Список устройств',
     hint: 'Скопируй идентификатор устройства в config — ищи свет, датчики, людей',
+    searchPlaceholder: 'Поиск: свет, датчик, кухня…',
+    loading: 'Загрузка…',
+    shownCount: 'Показано: {shown} из {total}',
+    emptySearch: 'Ничего не найдено',
+    emptyList: 'Список пуст',
   },
 } as const;

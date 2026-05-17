@@ -11,8 +11,10 @@ interface IConnectionStore {
   baseUrl: string | null;
   /** Подключение установлено */
   isConnected: boolean;
-  /** Идёт проверка */
+  /** Идёт проверка / hydrate */
   isLoading: boolean;
+  /** Первичная загрузка профиля из storage завершена */
+  hasHydrated: boolean;
   /** Ошибка подключения */
   error: string | null;
   /** Загрузить профиль и подключиться */
@@ -21,33 +23,42 @@ interface IConnectionStore {
   connect: (profile: IConnectionProfile) => Promise<void>;
 }
 
+let hydratePromise: Promise<void> | null = null;
+
 export const useConnectionStore = create<IConnectionStore>((set) => ({
   profile: null,
   baseUrl: null,
   isConnected: false,
   isLoading: true,
+  hasHydrated: false,
   error: null,
 
-  hydrate: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const profile = await loadConnectionProfile();
-      if (!profile) {
-        set({ profile: null, isConnected: false });
-        return;
+  hydrate: () => {
+    if (hydratePromise) return hydratePromise;
+
+    hydratePromise = (async () => {
+      set({ isLoading: true, error: null });
+      try {
+        const profile = await loadConnectionProfile();
+        if (!profile) {
+          set({ profile: null, isConnected: false });
+          return;
+        }
+        const health = await resolveActiveBaseUrl(profile);
+        set({
+          profile,
+          baseUrl: health.ok ? health.baseUrl : null,
+          isConnected: health.ok,
+          error: health.ok ? null : health.error ?? 'Ошибка подключения',
+        });
+      } catch {
+        set({ profile: null, isConnected: false, error: 'Не удалось загрузить настройки' });
+      } finally {
+        set({ isLoading: false, hasHydrated: true });
       }
-      const health = await resolveActiveBaseUrl(profile);
-      set({
-        profile,
-        baseUrl: health.ok ? health.baseUrl : null,
-        isConnected: health.ok,
-        error: health.ok ? null : health.error ?? 'Ошибка подключения',
-      });
-    } catch {
-      set({ profile: null, isConnected: false, error: 'Не удалось загрузить настройки' });
-    } finally {
-      set({ isLoading: false });
-    }
+    })();
+
+    return hydratePromise;
   },
 
   connect: async (profile) => {
@@ -73,3 +84,5 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
     }
   },
 }));
+
+void useConnectionStore.getState().hydrate();

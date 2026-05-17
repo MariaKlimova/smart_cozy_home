@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 
 import { copy } from '@/copy/ru';
 import { computeHomeState } from '@/domain/stateEngine';
+import { HomeRitualsSection } from '@/features/home/ui/HomeRitualsSection';
 import { HomeStateCard } from '@/features/home/ui/HomeStateCard';
 import { GentleNotificationCard } from '@/features/notifications/ui/GentleNotificationCard';
-import { RitualGrid } from '@/features/rituals/ui/RitualGrid';
-import { runRitual } from '@/domain/ritualRunner';
+import { useRitualRunner } from '@/hooks/useRitualRunner';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
@@ -25,8 +25,7 @@ const DEMO_HOME = computeHomeState({
 export default function HomeScreen() {
   const c = useThemeColors();
   const isConnected = useConnectionStore((s) => s.isConnected);
-  const baseUrl = useConnectionStore((s) => s.baseUrl);
-  const profile = useConnectionStore((s) => s.profile);
+  const { runningId, runRitualById } = useRitualRunner();
 
   const homeState = useHomeStore((s) => s.homeState);
   const rituals = useHomeStore((s) => s.rituals);
@@ -35,7 +34,6 @@ export default function HomeScreen() {
   const refresh = useHomeStore((s) => s.refresh);
   const acceptGentleNotification = useHomeStore((s) => s.acceptGentleNotification);
 
-  const [runningId, setRunningId] = useState<string>();
   const [dismissed, setDismissed] = useState<string[]>([]);
 
   useEffect(() => {
@@ -44,18 +42,6 @@ export default function HomeScreen() {
 
   const displayState = homeState ?? DEMO_HOME;
   const visibleNotifications = gentleNotifications.filter((n) => !dismissed.includes(n.id));
-
-  async function handleRitual(ritualId: string) {
-    if (!baseUrl || !profile) return;
-    setRunningId(ritualId);
-    try {
-      await runRitual(ritualId, baseUrl, profile.accessToken);
-      await refresh();
-    } finally {
-      setRunningId(undefined);
-    }
-  }
-
   async function handleAcceptNotification(id: string) {
     await acceptGentleNotification(id);
     setDismissed((d) => [...d, id]);
@@ -78,16 +64,7 @@ export default function HomeScreen() {
         />
       ))}
 
-      <View>
-        <Text style={[typography.subtitle, { color: c.text, marginBottom: 12 }]}>
-          {copy.rituals.sectionTitle}
-        </Text>
-        <RitualGrid
-          rituals={rituals.filter((r) => r.id === 'evening' || r.id === 'sleep')}
-          runningId={runningId}
-          onRitualPress={handleRitual}
-        />
-      </View>
+      <HomeRitualsSection rituals={rituals} runningId={runningId} onRitualPress={runRitualById} />
     </ScreenLayout>
   );
 }

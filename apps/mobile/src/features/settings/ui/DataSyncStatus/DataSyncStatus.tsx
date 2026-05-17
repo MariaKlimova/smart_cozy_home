@@ -1,9 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import type { IDataSyncStatusProps } from '@/features/settings/ui/DataSyncStatus/DataSyncStatus.typings';
+import { copy } from '@/copy/ru';
 import { CalmButton } from '@/ui/CalmButton';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { spacing, typography } from '@/theme/tokens';
+import { typography } from '@/theme/tokens';
+
+import { DATA_SYNC_PREVIEW_FONT_SIZE } from './DataSyncStatus.const';
+import type { IDataSyncStatusProps } from './DataSyncStatus.typings';
+import { styles } from './DataSyncStatus.styles';
 
 function formatSyncTime(iso: string | null): string {
   if (!iso) return 'ещё не было';
@@ -31,7 +35,7 @@ export function DataSyncStatus({
 
   return (
     <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
-      <Text style={[typography.subtitle, { color: c.text }]}>Проверка данных</Text>
+      <Text style={[typography.subtitle, { color: c.text }]}>{copy.settings.syncTitle}</Text>
       <Text style={[typography.caption, styles.row, { color: c.textMuted }]}>
         Подключение: {isConnected ? 'есть' : 'нет'}
       </Text>
@@ -68,7 +72,10 @@ export function DataSyncStatus({
                 Не найдены в HA (обнови config):
               </Text>
               {syncDebug.missingEntityIds.map((id) => (
-                <Text key={id} style={[typography.caption, { color: c.textMuted, fontFamily: 'monospace' }]}>
+                <Text
+                  key={id}
+                  style={[typography.caption, styles.mono, { color: c.textMuted }]}
+                >
                   {id}
                 </Text>
               ))}
@@ -77,13 +84,22 @@ export function DataSyncStatus({
 
           {syncDebug.statePreview.length > 0 && (
             <View style={[styles.preview, { backgroundColor: c.background }]}>
-              <Text style={[typography.caption, { color: c.textMuted, marginBottom: spacing.xs }]}>
+              <Text
+                style={[
+                  typography.caption,
+                  styles.previewCaption,
+                  { color: c.textMuted },
+                ]}
+              >
                 Состояния (первые {syncDebug.statePreview.length}):
               </Text>
               {syncDebug.statePreview.map((line) => (
                 <Text
                   key={line}
-                  style={[typography.caption, { color: c.text, fontSize: 11 }]}
+                  style={[
+                    typography.caption,
+                    { color: c.text, fontSize: DATA_SYNC_PREVIEW_FONT_SIZE },
+                  ]}
                 >
                   {line}
                 </Text>
@@ -94,7 +110,7 @@ export function DataSyncStatus({
       )}
 
       <CalmButton
-        label={isRefreshing ? 'Загружаем…' : 'Обновить данные из HA'}
+        label={isRefreshing ? copy.settings.syncRefreshing : copy.settings.syncRefresh}
         variant="secondary"
         onPress={onRefresh}
         isLoading={isRefreshing}
@@ -104,21 +120,3 @@ export function DataSyncStatus({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: 1,
-    gap: spacing.xs,
-  },
-  row: { marginTop: spacing.xs },
-  error: { marginTop: spacing.sm },
-  missing: { marginTop: spacing.sm, gap: 2 },
-  preview: {
-    marginTop: spacing.sm,
-    padding: spacing.sm,
-    borderRadius: 8,
-  },
-  button: { marginTop: spacing.md },
-});

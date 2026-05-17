@@ -1,33 +1,12 @@
-import { useState } from 'react';
-
-import { copy } from '@/copy/ru';
-import { runRitual } from '@/domain/ritualRunner';
-import { RitualGrid } from '@/features/rituals/ui/RitualGrid';
-import { useConnectionStore } from '@/store/connectionStore';
+import { RitualsScreen } from '@/features/rituals/ui/RitualsScreen';
+import { useRitualRunner } from '@/hooks/useRitualRunner';
 import { useHomeStore } from '@/store/homeStore';
-import { ScreenLayout } from '@/ui/ScreenLayout';
 
-export default function RitualsScreen() {
+export default function RitualsTab() {
   const rituals = useHomeStore((s) => s.rituals);
-  const refresh = useHomeStore((s) => s.refresh);
-  const baseUrl = useConnectionStore((s) => s.baseUrl);
-  const profile = useConnectionStore((s) => s.profile);
-  const [runningId, setRunningId] = useState<string>();
-
-  async function handleRitual(ritualId: string) {
-    if (!baseUrl || !profile) return;
-    setRunningId(ritualId);
-    try {
-      await runRitual(ritualId, baseUrl, profile.accessToken);
-      await refresh();
-    } finally {
-      setRunningId(undefined);
-    }
-  }
+  const { runningId, runRitualById } = useRitualRunner();
 
   return (
-    <ScreenLayout title={copy.rituals.sectionTitle}>
-      <RitualGrid rituals={rituals} runningId={runningId} onRitualPress={handleRitual} />
-    </ScreenLayout>
+    <RitualsScreen rituals={rituals} runningId={runningId} onRitualPress={runRitualById} />
   );
 }

@@ -1,8 +1,11 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 
-import type { ICalmButtonProps } from '@/ui/CalmButton/CalmButton.typings';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { touchMin, typography } from '@/theme/tokens';
+import { typography } from '@/theme/tokens';
+
+import { CALM_BUTTON_PRIMARY_TEXT } from './CalmButton.const';
+import type { ICalmButtonProps } from './CalmButton.typings';
+import { styles } from './CalmButton.styles';
 
 export function CalmButton({
   label,
@@ -14,6 +17,7 @@ export function CalmButton({
 }: ICalmButtonProps) {
   const c = useThemeColors();
   const isPrimary = variant === 'primary';
+  const isSecondary = variant === 'secondary';
 
   return (
     <Pressable
@@ -24,7 +28,7 @@ export function CalmButton({
         {
           backgroundColor: isPrimary ? c.accent : 'transparent',
           borderColor: c.border,
-          borderWidth: variant === 'secondary' ? 1 : 0,
+          borderWidth: isSecondary ? 1 : 0,
           opacity: pressed ? 0.85 : 1,
         },
         style,
@@ -32,12 +36,12 @@ export function CalmButton({
       {...rest}
     >
       {isLoading ? (
-        <ActivityIndicator color={isPrimary ? '#fff' : c.accent} />
+        <ActivityIndicator color={isPrimary ? CALM_BUTTON_PRIMARY_TEXT : c.accent} />
       ) : (
         <Text
           style={[
             typography.subtitle,
-            { color: isPrimary ? '#FFFFFF' : c.text },
+            { color: isPrimary ? CALM_BUTTON_PRIMARY_TEXT : c.text },
           ]}
         >
           {label}
@@ -46,13 +50,3 @@ export function CalmButton({
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    minHeight: touchMin,
-    borderRadius: 14,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

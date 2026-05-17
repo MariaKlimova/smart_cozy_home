@@ -1,4 +1,4 @@
-# Bugbot — smart_house
+# Bugbot — smart_cozy_home
 
 Проект: эмоциональный UI-слой умного дома поверх Home Assistant. Основной код — `apps/mobile` (Expo Router, TypeScript strict).
 

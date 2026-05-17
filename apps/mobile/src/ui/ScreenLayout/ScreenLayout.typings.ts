@@ -8,3 +8,10 @@ export interface IScreenLayoutProps {
   /** Поднимать контент над клавиатурой (формы, onboarding) */
   keyboardAware?: boolean;
 }
+
+export interface IScreenLayoutWithRefreshProps extends IScreenLayoutProps {
+  /** Pull to refresh */
+  onRefresh?: () => void;
+  /** Идёт обновление */
+  isRefreshing?: boolean;
+}

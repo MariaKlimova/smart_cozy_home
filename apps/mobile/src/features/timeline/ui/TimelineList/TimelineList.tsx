@@ -1,10 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
 import { formatRelativeTime, humanizeTimelineEvent } from '@/copy/timeline';
-import type { ITimelineListProps } from '@/features/timeline/ui/TimelineList/TimelineList.typings';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { spacing, typography } from '@/theme/tokens';
+import { typography } from '@/theme/tokens';
+
+import type { ITimelineListProps } from './TimelineList.typings';
+import { styles } from './TimelineList.styles';
 
 export function TimelineList({ events }: ITimelineListProps) {
   const c = useThemeColors();
@@ -18,14 +20,11 @@ export function TimelineList({ events }: ITimelineListProps) {
   return (
     <View style={styles.list}>
       {events.map((event) => (
-        <View
-          key={event.id}
-          style={[styles.row, { borderBottomColor: c.border }]}
-        >
+        <View key={event.id} style={[styles.row, { borderBottomColor: c.border }]}>
           <Text style={[typography.body, { color: c.text }]}>
             {humanizeTimelineEvent(event)}
           </Text>
-          <Text style={[typography.caption, { color: c.textMuted, marginTop: 4 }]}>
+          <Text style={[typography.caption, styles.time, { color: c.textMuted }]}>
             {formatRelativeTime(event.at)}
           </Text>
         </View>
@@ -33,11 +32,3 @@ export function TimelineList({ events }: ITimelineListProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  list: { gap: spacing.sm },
-  row: {
-    paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-});

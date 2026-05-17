@@ -1,10 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { HomeStateCardHint } from '@/features/home/ui/HomeStateCard/HomeStateCard-Hint';
-import type { IHomeStateCardProps } from '@/features/home/ui/HomeStateCard/HomeStateCard.typings';
+import { HomeStateCardHint } from './HomeStateCard-Hint';
 import { MetricChip } from '@/ui/MetricChip';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { spacing, typography } from '@/theme/tokens';
+import { typography } from '@/theme/tokens';
+
+import type { IHomeStateCardProps } from './HomeStateCard.typings';
+import { styles } from './HomeStateCard.styles';
 
 export function HomeStateCard({ homeState }: IHomeStateCardProps) {
   const c = useThemeColors();
@@ -21,17 +23,3 @@ export function HomeStateCard({ homeState }: IHomeStateCardProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    padding: spacing.lg,
-    borderRadius: 16,
-    borderWidth: 1,
-  },
-  metrics: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.lg,
-  },
-});

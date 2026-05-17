@@ -6,6 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
+import { copy } from '@/copy/ru';
 import { AppProviders } from '@/providers/AppProviders';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useConnectionStore } from '@/store/connectionStore';
@@ -32,10 +33,6 @@ export default function RootLayout() {
     if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
 
-  useEffect(() => {
-    void useConnectionStore.getState().hydrate();
-  }, []);
-
   if (!loaded) return null;
 
   return (
@@ -49,12 +46,12 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const router = useRouter();
   const segments = useSegments();
-  const isLoading = useConnectionStore((s) => s.isLoading);
+  const hasHydrated = useConnectionStore((s) => s.hasHydrated);
   const isConnected = useConnectionStore((s) => s.isConnected);
   const profile = useConnectionStore((s) => s.profile);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!hasHydrated) return;
     const inOnboarding = segments[0] === 'onboarding';
     if (!profile && !inOnboarding) {
       router.replace('/onboarding');
@@ -63,7 +60,7 @@ function RootLayoutNav() {
     } else if (profile && isConnected && inOnboarding) {
       router.replace('/(tabs)');
     }
-  }, [isLoading, isConnected, profile, segments, router]);
+  }, [hasHydrated, isConnected, profile, segments, router]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -72,7 +69,7 @@ function RootLayoutNav() {
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen
           name="ha-entities"
-          options={{ title: 'Устройства HA', headerShown: true }}
+          options={{ title: copy.haEntities.screenTitle, headerShown: true }}
         />
       </Stack>
     </ThemeProvider>

@@ -40,7 +40,7 @@ Bugbot анализирует diff и оставляет inline-коммента
 ### Подключение (один раз)
 
 1. [Cursor → Integrations → GitHub](https://cursor.com/docs/integrations/github) — установить GitHub App на организацию или репозиторий.
-2. [Bugbot dashboard](https://cursor.com/dashboard/bugbot) — включить репозиторий `smart_house`.
+2. [Bugbot dashboard](https://cursor.com/dashboard/bugbot) — включить репозиторий `MariaKlimova/smart_cozy_home`.
 3. (Команда) При необходимости — Team rules в dashboard для общих стандартов.
 
 ### Поведение

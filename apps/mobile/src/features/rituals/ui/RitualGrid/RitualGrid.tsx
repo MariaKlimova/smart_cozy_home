@@ -1,9 +1,10 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
-import type { IRitualGridProps } from '@/features/rituals/ui/RitualGrid/RitualGrid.typings';
+import type { IRitualGridProps } from './RitualGrid.typings';
+import { styles } from './RitualGrid.styles';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { spacing, touchMin, typography } from '@/theme/tokens';
+import { typography } from '@/theme/tokens';
 
 export function RitualGrid({ rituals, runningId, onRitualPress }: IRitualGridProps) {
   const c = useThemeColors();
@@ -42,24 +43,3 @@ export function RitualGrid({ rituals, runningId, onRitualPress }: IRitualGridPro
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-  },
-  tile: {
-    width: '47%',
-    minHeight: touchMin + 24,
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-  label: {
-    textAlign: 'center',
-  },
-});

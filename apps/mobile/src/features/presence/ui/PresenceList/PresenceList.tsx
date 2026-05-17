@@ -1,9 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
-import type { IPresenceListProps } from '@/features/presence/ui/PresenceList/PresenceList.typings';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { spacing, typography } from '@/theme/tokens';
+import { typography } from '@/theme/tokens';
+
+import type { IPresenceListProps } from './PresenceList.typings';
+import { styles } from './PresenceList.styles';
 
 export function PresenceList({ members }: IPresenceListProps) {
   const c = useThemeColors();
@@ -28,13 +30,3 @@ export function PresenceList({ members }: IPresenceListProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  list: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-});

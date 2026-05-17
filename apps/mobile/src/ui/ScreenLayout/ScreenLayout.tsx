@@ -4,22 +4,17 @@ import {
   Platform,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   type ScrollView as ScrollViewType,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { IScreenLayoutProps } from '@/ui/ScreenLayout/ScreenLayout.typings';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { spacing, typography } from '@/theme/tokens';
 
-export interface IScreenLayoutWithRefreshProps extends IScreenLayoutProps {
-  /** Pull to refresh */
-  onRefresh?: () => void;
-  /** Идёт обновление */
-  isRefreshing?: boolean;
-}
+import { SCREEN_LAYOUT_KEYBOARD_PADDING_MULTIPLIER } from './ScreenLayout.const';
+import type { IScreenLayoutWithRefreshProps } from './ScreenLayout.typings';
+import { styles } from './ScreenLayout.styles';
 
 export const ScreenLayout = forwardRef<ScrollViewType, IScreenLayoutWithRefreshProps>(
   function ScreenLayout(
@@ -39,7 +34,9 @@ export const ScreenLayout = forwardRef<ScrollViewType, IScreenLayoutWithRefreshP
       }
     };
 
-    const keyboardBottomPadding = keyboardAware ? spacing.xl * 3 : spacing.xl;
+    const keyboardBottomPadding = keyboardAware
+      ? spacing.xl * SCREEN_LAYOUT_KEYBOARD_PADDING_MULTIPLIER
+      : spacing.xl;
 
     return (
       <KeyboardAvoidingView
@@ -74,13 +71,3 @@ export const ScreenLayout = forwardRef<ScrollViewType, IScreenLayoutWithRefreshP
     );
   },
 );
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  content: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    gap: spacing.lg,
-  },
-  title: { marginBottom: spacing.sm },
-});

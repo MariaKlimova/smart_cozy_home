@@ -27,44 +27,76 @@ export interface IRoomMapping {
   climate?: string;
 }
 
+/** Ссылка на одну entity в HA */
+export interface IHaEntityRef {
+  /** entity_id в Home Assistant */
+  entity: string;
+}
+
+/** Ссылка на несколько entities в HA */
+export interface IHaEntitiesRef {
+  /** entity_id для агрегации (например, сводка света) */
+  entities: string[];
+}
+
+/** Маппинг сущностей для карточки состояния дома */
+export interface IHomeStateMapping {
+  /** Датчик температуры */
+  temperature: IHaEntityRef;
+  /** Свет для сводки вкл/выкл */
+  light_summary: IHaEntitiesRef;
+  /** Охрана / сигнализация */
+  security: IHaEntityRef;
+}
+
+/** Person в конфиге присутствия */
+export interface IPresencePersonMapping {
+  /** entity_id person.* */
+  entity: string;
+  /** Подпись в UI */
+  label: string;
+}
+
+/** Маппинг присутствия людей */
+export interface IPresenceMapping {
+  /** Список person entities */
+  persons: IPresencePersonMapping[];
+}
+
+/** Маппинг сущностей для ленты дня */
+export interface ITimelineMapping {
+  /** entity_id для отслеживания в logbook */
+  entity_watch: string[];
+}
+
+/** Мягкое уведомление в конфиге */
+export interface IGentleNotificationMapping {
+  /** id уведомления */
+  id: string;
+  /** id комнаты */
+  room_id: string;
+  /** entity_id света для включения */
+  light_entity: string;
+  /** entity_id датчика присутствия */
+  occupancy_entity: string;
+  /** Текст предложения */
+  message: string;
+}
+
 /** Конфигурация ритуалов и маппинга HA → domain */
 export interface IRitualsConfig {
   /** Ритуалы по id */
   rituals: Record<string, IRitualMapping>;
   /** Сущности для карточки состояния дома */
-  home_state: {
-    /** Датчик температуры */
-    temperature: { entity: string };
-    /** Свет для сводки вкл/выкл */
-    light_summary: { entities: string[] };
-    /** Охрана / сигнализация */
-    security: { entity: string };
-  };
+  home_state: IHomeStateMapping;
   /** Комнаты */
   rooms: IRoomMapping[];
   /** Присутствие людей */
-  presence: {
-    /** person entities */
-    persons: { entity: string; label: string }[];
-  };
+  presence: IPresenceMapping;
   /** Сущности для ленты дня */
-  timeline: {
-    /** entity_id для logbook */
-    entity_watch: string[];
-  };
+  timeline: ITimelineMapping;
   /** Мягкие уведомления */
-  gentle_notifications: {
-    /** id уведомления */
-    id: string;
-    /** id комнаты */
-    room_id: string;
-    /** entity_id света для включения */
-    light_entity: string;
-    /** entity_id датчика присутствия */
-    occupancy_entity: string;
-    /** Текст предложения */
-    message: string;
-  }[];
+  gentle_notifications: IGentleNotificationMapping[];
 }
 
 export const RITUALS_CONFIG: IRitualsConfig = {

@@ -28,3 +28,15 @@
 ## Skills
 
 См. `.cursor/skills/` — `bem-components`, `product-voice`, `domain-model`, `ha-integration`, `rn-calm-ui`, `human-timeline`.
+
+## Subagents
+
+См. `.cursor/agents/` — отдельные исполнители с изолированным контекстом.
+
+| Subagent | Файл | Когда вызывать |
+|----------|------|----------------|
+| **HA Bridge** | [`ha-bridge.md`](.cursor/agents/ha-bridge.md) | любые правки в `apps/mobile/src/ha/**`, новый mapping HA → domain, reconnect/failover, secure storage профиля |
+
+Вызов вручную: `/ha-bridge <задача>` или «делегируй HA Bridge …». Главный агент сам делегирует, когда видит совпадение по `description`.
+
+Остальные роли (Product Guardian, Calm Design, Mobile Craft, Domain Architect, Automation Composer) живут через **skills + rules + BUGBOT**, без отдельных subagents — этого хватает на текущем размере проекта.

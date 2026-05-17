@@ -1,3 +1,2 @@
-export { ScreenLayout } from './ScreenLayoutView';
-export type { IScreenLayoutWithRefreshProps } from './ScreenLayoutView';
-export type { IScreenLayoutProps } from './ScreenLayout.typings';
+export { ScreenLayout } from './ScreenLayout';
+export type { IScreenLayoutProps, IScreenLayoutWithRefreshProps } from './ScreenLayout.typings';
