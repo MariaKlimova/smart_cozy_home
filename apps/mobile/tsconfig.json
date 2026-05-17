@@ -7,7 +7,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "exclude": ["components"],
   "include": [
     "**/*.ts",
     "**/*.tsx",
