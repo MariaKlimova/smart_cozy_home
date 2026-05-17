@@ -48,14 +48,38 @@ If a changed file contains a nested ternary expression:
 
 ---
 
-## UI: БЭМ и структура
+## UI: БЭМ и структура файлов
 
 When reviewing `apps/mobile/src/ui/**` or `apps/mobile/src/features/**/ui/**`:
 
-- Block должен быть в папке PascalCase (`BlockName/`).
-- Типы пропсов: `IBlockNameProps` в `BlockName.typings.ts`.
-- Публичный экспорт только блока через `index.ts`; элементы блока не экспортируются наружу.
-- Элементы: папка `BlockName-ElementName/` или `-ElementName/`, компонент `BlockNameElementName`.
+Каждый **блок** и **элемент** — отдельная папка PascalCase с **пятью файлами**:
+
+1. `BlockName.tsx` — разметка/логика (без `StyleSheet.create` и без локальных magic strings)
+2. `BlockName.typings.ts` — `IBlockNameProps`, JSDoc на полях
+3. `BlockName.styles.ts` — `StyleSheet.create`
+4. `BlockName.const.ts` — локальные константы (testID, пороги, длительности)
+5. `index.ts` — публичный реэкспорт
+
+Правила:
+
+- Импорт снаружи — только из `index.ts` папки (`@/ui/BlockName`, не из `.tsx` напрямую).
+- Элементы: папка `BlockName-ElementName/` или `-ElementName/`, та же пятёрка файлов; снаружи родительского блока не экспортируются.
+
+If a new or changed component is a single `.tsx` file without its own folder:
+
+- Add a **blocking** finding: «Каждый UI-компонент — папка с .tsx, .typings.ts, .styles.ts, .const.ts, index.ts».
+
+If `StyleSheet.create` appears in `*.tsx` under `src/ui/**` or `features/**/ui/**` (not in `*.styles.ts`):
+
+- Add a **blocking** finding: «Стили выноси в BlockName.styles.ts».
+
+If component-local string/number literals (testID, durations, labels not from `src/copy/`) live in `.tsx` instead of `*.const.ts`:
+
+- Add a non-blocking finding: «Константы — в BlockName.const.ts».
+
+If a folder is missing `index.ts`, `.typings.ts`, `.styles.ts`, or `.const.ts`:
+
+- Add a **blocking** finding with the list of missing files.
 
 If a new UI component is placed directly in `app/` with substantial markup instead of `src/features/*/ui/` or `src/ui/`:
 

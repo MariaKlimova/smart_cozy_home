@@ -25,7 +25,7 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
   profile: null,
   baseUrl: null,
   isConnected: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
 
   hydrate: async () => {

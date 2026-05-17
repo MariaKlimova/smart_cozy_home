@@ -37,7 +37,7 @@ export function mapHaStatesToListItems(states: IHaEntityState[]): IHaEntityListI
 
 export function groupByDomain(
   items: IHaEntityListItem[],
-): Array<{ domain: string; data: IHaEntityListItem[] }> {
+): { domain: string; data: IHaEntityListItem[] }[] {
   const map = new Map<string, IHaEntityListItem[]>();
   for (const item of items) {
     const list = map.get(item.domain) ?? [];

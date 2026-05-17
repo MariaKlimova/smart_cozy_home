@@ -36,10 +36,12 @@ interface IHomeStore {
   syncDebug: IHomeSyncDebug;
   refresh: () => Promise<boolean>;
   toggleRoomLight: (roomId: string) => Promise<void>;
+  /** Принять мягкое уведомление (включить свет по правилу из config) */
+  acceptGentleNotification: (notificationId: string) => Promise<void>;
 }
 
 function buildStatePreview(
-  states: Array<{ entityId: string; state: string }>,
+  states: { entityId: string; state: string }[],
   limit = 8,
 ): string[] {
   return states.slice(0, limit).map((s) => `${s.entityId} → ${s.state}`);
@@ -146,6 +148,17 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     if (!mapping) return;
 
     await toggleLight(baseUrl, profile.accessToken, mapping.light, !room.lightOn);
+    await get().refresh();
+  },
+
+  acceptGentleNotification: async (notificationId) => {
+    const { baseUrl, profile, isConnected } = useConnectionStore.getState();
+    if (!isConnected || !baseUrl || !profile) return;
+
+    const rule = loadRitualsConfig().gentle_notifications.find((n) => n.id === notificationId);
+    if (!rule) return;
+
+    await toggleLight(baseUrl, profile.accessToken, rule.light_entity, true);
     await get().refresh();
   },
 }));

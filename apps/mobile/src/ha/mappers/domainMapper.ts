@@ -71,7 +71,7 @@ export function mapSecurityStatus(states: IHaEntityState[]): 'ok' | 'attention' 
 }
 
 export function mapTimelineFromLogbook(
-  entries: Array<{ when: string; message: string; entity_id?: string; name: string }>,
+  entries: { when: string; message: string; entity_id?: string; name: string }[],
 ): ITimelineEvent[] {
   return entries.slice(0, 30).map((e, i) => {
     let kind: ITimelineEvent['kind'] = 'generic';

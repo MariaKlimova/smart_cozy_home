@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { copy } from '@/copy/ru';
 import { HaEntityRow } from '@/features/settings/ui/HaEntityRow';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useEntitiesStore } from '@/store/entitiesStore';
@@ -27,7 +28,7 @@ export default function HaEntitiesScreen() {
 
   const [search, setSearch] = useState('');
 
-  const sections = useMemo(() => getSections(search), [getSections, search, items]);
+  const sections = useMemo(() => getSections(search), [getSections, search]);
 
   const totalShown = useMemo(
     () => sections.reduce((sum, s) => sum + s.data.length, 0),
@@ -44,7 +45,7 @@ export default function HaEntitiesScreen() {
 
       <View style={styles.header}>
         <Text style={[typography.caption, { color: c.textMuted }]}>
-          entity_id для config — найди свои light, sensor, person
+          {copy.haEntities.hint}
         </Text>
         <TextInput
           value={search}

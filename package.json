@@ -11,6 +11,11 @@
     "mobile:ios": "npm run ios --workspace=smart-house-mobile",
     "mobile:android": "npm run android --workspace=smart-house-mobile",
     "lint": "npm run lint --workspace=smart-house-mobile",
-    "typecheck": "npm run typecheck --workspace=smart-house-mobile"
+    "typecheck": "npm run typecheck --workspace=smart-house-mobile",
+    "quality": "npm run typecheck && npm run lint",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }

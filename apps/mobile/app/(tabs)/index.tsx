@@ -12,8 +12,6 @@ import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
 import { ScreenLayout } from '@/ui/ScreenLayout';
 import { typography } from '@/theme/tokens';
-import { loadRitualsConfig } from '@/config/ritualsConfig';
-import { toggleLight } from '@/ha/haClient';
 
 const DEMO_HOME = computeHomeState({
   hour: 20,
@@ -35,6 +33,7 @@ export default function HomeScreen() {
   const gentleNotifications = useHomeStore((s) => s.gentleNotifications);
   const isRefreshing = useHomeStore((s) => s.isRefreshing);
   const refresh = useHomeStore((s) => s.refresh);
+  const acceptGentleNotification = useHomeStore((s) => s.acceptGentleNotification);
 
   const [runningId, setRunningId] = useState<string>();
   const [dismissed, setDismissed] = useState<string[]>([]);
@@ -58,11 +57,7 @@ export default function HomeScreen() {
   }
 
   async function handleAcceptNotification(id: string) {
-    const rule = loadRitualsConfig().gentle_notifications.find((n) => n.id === id);
-    if (rule && baseUrl && profile) {
-      await toggleLight(baseUrl, profile.accessToken, rule.light_entity, true);
-      await refresh();
-    }
+    await acceptGentleNotification(id);
     setDismissed((d) => [...d, id]);
   }
 

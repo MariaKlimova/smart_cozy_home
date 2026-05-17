@@ -3,41 +3,68 @@
  * При изменении YAML обновите и этот файл.
  */
 
+/** Маппинг ритуала на script HA */
 export interface IRitualMapping {
+  /** Подпись в UI */
   label: string;
+  /** entity_id script в HA */
   script: string;
+  /** Имя иконки FontAwesome */
   icon: string;
 }
 
+/** Маппинг комнаты на entities HA */
 export interface IRoomMapping {
+  /** id комнаты в domain */
   id: string;
+  /** Подпись в UI */
   label: string;
+  /** area_id в HA */
   area_id: string;
+  /** entity_id света */
   light: string;
+  /** entity_id климата (опционально) */
   climate?: string;
 }
 
+/** Конфигурация ритуалов и маппинга HA → domain */
 export interface IRitualsConfig {
+  /** Ритуалы по id */
   rituals: Record<string, IRitualMapping>;
+  /** Сущности для карточки состояния дома */
   home_state: {
+    /** Датчик температуры */
     temperature: { entity: string };
+    /** Свет для сводки вкл/выкл */
     light_summary: { entities: string[] };
+    /** Охрана / сигнализация */
     security: { entity: string };
   };
+  /** Комнаты */
   rooms: IRoomMapping[];
+  /** Присутствие людей */
   presence: {
-    persons: Array<{ entity: string; label: string }>;
+    /** person entities */
+    persons: { entity: string; label: string }[];
   };
+  /** Сущности для ленты дня */
   timeline: {
+    /** entity_id для logbook */
     entity_watch: string[];
   };
-  gentle_notifications: Array<{
+  /** Мягкие уведомления */
+  gentle_notifications: {
+    /** id уведомления */
     id: string;
+    /** id комнаты */
     room_id: string;
+    /** entity_id света для включения */
     light_entity: string;
+    /** entity_id датчика присутствия */
     occupancy_entity: string;
+    /** Текст предложения */
     message: string;
-  }>;
+  }[];
 }
 
 export const RITUALS_CONFIG: IRitualsConfig = {

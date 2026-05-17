@@ -18,9 +18,14 @@ npm run lint        # eslint в apps/mobile
 
 ```bash
 npm ci
-npm run typecheck
-npm run lint
+npm run quality   # typecheck + lint
 ```
+
+### Pre-commit (Husky)
+
+После `npm install` хук ставится автоматически (`prepare` → `husky`).
+
+Перед каждым коммитом выполняется `npm run quality`. Обойти в крайнем случае: `git commit --no-verify`.
 
 ### Branch protection
 

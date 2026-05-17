@@ -39,4 +39,12 @@ export const copy = {
     token: 'Access token',
     save: 'Сохранить',
   },
+  notFound: {
+    screenTitle: 'Страница не найдена',
+    title: 'Такой страницы нет',
+    link: 'На главную',
+  },
+  haEntities: {
+    hint: 'Скопируй идентификатор устройства в config — ищи свет, датчики, людей',
+  },
 } as const;

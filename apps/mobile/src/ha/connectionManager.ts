@@ -91,7 +91,7 @@ export async function resolveActiveBaseUrl(
     };
   }
 
-  const failures: Array<{ url: string; error: string }> = [];
+  const failures: { url: string; error: string }[] = [];
 
   for (const url of tryOrder) {
     const health = await checkEndpoint(url, profile.accessToken);

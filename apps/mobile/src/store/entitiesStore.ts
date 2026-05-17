@@ -19,7 +19,7 @@ interface IEntitiesStore {
   /** Загрузить список из HA */
   load: () => Promise<void>;
   /** Отфильтрованные + сгруппированные для SectionList */
-  getSections: (searchQuery: string) => Array<{ title: string; data: IHaEntityListItem[] }>;
+  getSections: (searchQuery: string) => { title: string; data: IHaEntityListItem[] }[];
 }
 
 export const useEntitiesStore = create<IEntitiesStore>((set, get) => ({

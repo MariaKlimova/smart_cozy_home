@@ -89,7 +89,7 @@ export async function fetchLogbook(
   baseUrl: string,
   token: string,
   entityIds: string[],
-): Promise<Array<{ when: string; name: string; message: string; entity_id?: string }>> {
+): Promise<{ when: string; name: string; message: string; entity_id?: string }[]> {
   const end = new Date();
   const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
   const params = new URLSearchParams({
