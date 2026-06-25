@@ -1,7 +1,9 @@
+import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
+import { isVisibleRoomId } from '@/config/visibleRooms';
 import { RoomList } from '@/features/rooms/ui/RoomList';
 import { PresenceList } from '@/features/presence/ui/PresenceList';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -16,7 +18,6 @@ export default function RoomsScreen() {
   const rooms = useHomeStore((s) => s.rooms);
   const presence = useHomeStore((s) => s.presence);
   const refresh = useHomeStore((s) => s.refresh);
-  const toggleRoomLight = useHomeStore((s) => s.toggleRoomLight);
   const isRefreshing = useHomeStore((s) => s.isRefreshing);
 
   useEffect(() => {
@@ -35,7 +36,14 @@ export default function RoomsScreen() {
         </Text>
         <PresenceList members={presence} />
       </View>
-      <RoomList rooms={rooms} onToggleLight={(id) => void toggleRoomLight(id)} />
+      <RoomList
+        rooms={rooms}
+        onOpenRoom={(id) => {
+          if (isVisibleRoomId(id) && id === 'bedroom') {
+            router.push('/bedroom');
+          }
+        }}
+      />
     </ScreenLayout>
   );
 }

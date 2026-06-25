@@ -30,41 +30,44 @@ describe('mapBedroomDevices', () => {
     }
   });
 
-  it('maps climate current_temperature', () => {
-    const states = [haState('climate.bedroom', 'heat', { current_temperature: 20 })];
+  it('maps air conditioner setpoint temperature when available', () => {
+    const states = [
+      haState('climate.bedroom_ac', 'cool', { temperature: 22, current_temperature: 24 }),
+    ];
     const devices = mapBedroomDevices(states);
-    const climate = devices.find((d) => d.id === 'climate');
+    const ac = devices.find((d) => d.id === 'air_conditioner');
 
-    assert.ok(climate);
-    assert.equal(climate.isAvailable, true);
-    if (climate.value && 'current' in climate.value) {
-      assert.equal(climate.value.current, 20);
+    assert.ok(ac);
+    assert.equal(ac.isAvailable, true);
+    if (ac.value && 'current' in ac.value) {
+      assert.equal(ac.value.current, 22);
+    } else {
+      assert.fail('expected climate slider value');
+    }
+  });
+
+  it('falls back to current_temperature without setpoint', () => {
+    const states = [haState('climate.bedroom_radiator', 'heat', { current_temperature: 20 })];
+    const devices = mapBedroomDevices(states);
+    const radiator = devices.find((d) => d.id === 'radiator');
+
+    assert.ok(radiator);
+    assert.equal(radiator.isAvailable, true);
+    if (radiator.value && 'current' in radiator.value) {
+      assert.equal(radiator.value.current, 20);
     } else {
       assert.fail('expected climate slider value');
     }
   });
 
   it('maps climate temperature below slider min without clamping', () => {
-    const states = [haState('climate.bedroom', 'heat', { current_temperature: 14 })];
+    const states = [haState('climate.bedroom_ventilation', 'heat', { current_temperature: 14 })];
     const devices = mapBedroomDevices(states);
-    const climate = devices.find((d) => d.id === 'climate');
+    const ventilation = devices.find((d) => d.id === 'ventilation');
 
-    assert.ok(climate);
-    if (climate.value && 'current' in climate.value) {
-      assert.equal(climate.value.current, 14);
-    } else {
-      assert.fail('expected climate slider value');
-    }
-  });
-
-  it('maps climate temperature above slider max without clamping', () => {
-    const states = [haState('climate.bedroom', 'heat', { current_temperature: 30 })];
-    const devices = mapBedroomDevices(states);
-    const climate = devices.find((d) => d.id === 'climate');
-
-    assert.ok(climate);
-    if (climate.value && 'current' in climate.value) {
-      assert.equal(climate.value.current, 30);
+    assert.ok(ventilation);
+    if (ventilation.value && 'current' in ventilation.value) {
+      assert.equal(ventilation.value.current, 14);
     } else {
       assert.fail('expected climate slider value');
     }
@@ -96,6 +99,22 @@ describe('mapBedroomDevices', () => {
     }
   });
 
+  it('maps switch humidifier as toggle', () => {
+    const states = [haState('switch.bedroom_humidifier', 'on')];
+    const devices = mapBedroomDevices(states, {
+      entities: { humidifier: 'switch.bedroom_humidifier' },
+      hiddenSlots: [],
+    });
+    const humidifier = devices.find((d) => d.id === 'humidifier');
+
+    assert.ok(humidifier);
+    if (humidifier.value && 'isOn' in humidifier.value) {
+      assert.equal(humidifier.value.isOn, true);
+    } else {
+      assert.fail('expected toggle value');
+    }
+  });
+
   it('marks unavailable entities', () => {
     const states = [haState('light.bedroom', 'unavailable')];
     const devices = mapBedroomDevices(states);
@@ -108,7 +127,7 @@ describe('mapBedroomDevices', () => {
 
   it('returns all devices unavailable when states are empty', () => {
     const devices = mapBedroomDevices([]);
-    assert.equal(devices.length, 5);
+    assert.equal(devices.length, 7);
     assert.ok(devices.every((d) => d.isAvailable === false));
   });
 
@@ -127,7 +146,9 @@ describe('collectBedroomDeviceEntityIds', () => {
     const ids = collectBedroomDeviceEntityIds();
     assert.deepEqual(ids, [
       'light.bedroom',
-      'climate.bedroom',
+      'climate.bedroom_ac',
+      'climate.bedroom_ventilation',
+      'climate.bedroom_radiator',
       'cover.bedroom_curtains',
       'humidifier.bedroom',
       'cover.bedroom_window',

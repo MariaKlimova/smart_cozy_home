@@ -1,8 +1,8 @@
 export const copy = {
   now: {
     screenTitle: 'Сейчас',
-    setupSensorsHint: 'Подключи датчики спальни — тогда увидишь температуру, влажность и CO₂.',
-    setupSensorsButton: 'Настроить датчики',
+    setupSensorsHint: 'Настрой датчики в спальне — тогда увидишь температуру, влажность и CO₂.',
+    setupSensorsButton: 'Открыть спальню',
     phrases: {
       stuffyVentilate: 'Душно — стоит проветрить',
       slightlyStuffy: 'Немного душновато',
@@ -39,10 +39,7 @@ export const copy = {
   },
   rooms: {
     sectionTitle: 'Комнаты',
-    lightOn: 'Свет включён',
-    lightOff: 'Свет выключен',
-    lightOnA11y: 'Включить свет',
-    lightOffA11y: 'Выключить свет',
+    openRoomA11y: 'Открыть',
   },
   presence: {
     sectionTitle: 'Кто дома',
@@ -58,16 +55,11 @@ export const copy = {
     syncRefresh: 'Обновить данные',
     syncRefreshing: 'Загружаем…',
     haDevicesList: 'Список устройств',
-    bedroomSensorsButton: 'Датчики спальни',
     reconnect: 'Изменить подключение к дому',
-    bedroomSensors: {
-      screenTitle: 'Датчики спальни',
-      hint: 'Выбери устройства из Home Assistant. В приложении — только температура, влажность и CO₂.',
-      notSelected: 'Не выбрано',
-      notUsed: 'Не используется',
-      change: 'Изменить',
-      clear: 'Не использовать',
-      unavailable: 'Сейчас недоступен',
+    bedroomDevices: {
+      screenTitle: 'Устройства в спальне',
+      hint: 'Выбери, что показывать на экране спальни. Привязку к дому настраивай шестерёнкой на карточке.',
+      showInListA11y: 'Показывать в списке',
     },
   },
   sensorPicker: {
@@ -80,6 +72,32 @@ export const copy = {
     recommended: 'Подходят',
     other: 'Остальные',
     nonNumericHint: 'Похоже, это не датчик с цифрами',
+  },
+  devicePicker: {
+    screenTitle: 'Выбор устройства',
+    searchPlaceholder: 'Поиск по названию…',
+    loading: 'Загрузка…',
+    emptySearch: 'Ничего не найдено',
+    emptyList: 'Нет устройств',
+    shownCount: 'Показано: {shown}',
+    recommended: 'Подходят',
+    other: 'Остальные',
+  },
+  bedroom: {
+    screenTitle: 'Спальня',
+    unavailable: 'Сейчас недоступен',
+    setupDevicesButton: 'Состав устройств',
+    configureDeviceA11y: 'Настроить устройство',
+    emptyDevicesHint: 'Включи устройства в составе — тогда ими можно управлять здесь.',
+    tabs: {
+      devices: 'Устройства',
+      sensors: 'Датчики',
+    },
+    sensors: {
+      configureA11y: 'Настроить датчик',
+      notConfigured: 'Не выбрано',
+      notUsed: 'Не используется',
+    },
   },
   onboarding: {
     title: 'Подключи дом',

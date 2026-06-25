@@ -1,0 +1,1 @@
+export { BedroomDevicesScreen } from './BedroomDevicesScreen';

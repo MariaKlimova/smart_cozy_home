@@ -34,7 +34,7 @@ export function SensorPickerRow({ slot, item, onPress }: ISensorPickerRowProps) 
       {isUnavailable ? (
         <View style={[styles.badge, { backgroundColor: c.accentMuted }]}>
           <Text style={[typography.caption, { color: c.warning }]}>
-            {copy.settings.bedroomSensors.unavailable}
+            {copy.bedroom.unavailable}
           </Text>
         </View>
       ) : null}

@@ -71,7 +71,7 @@ export default function NowScreen() {
           <CalmButton
             label={copy.now.setupSensorsButton}
             variant="secondary"
-            onPress={() => router.push('/bedroom-sensors')}
+            onPress={() => router.push({ pathname: '/bedroom', params: { tab: 'sensors' } })}
           />
         </View>
       ) : null}

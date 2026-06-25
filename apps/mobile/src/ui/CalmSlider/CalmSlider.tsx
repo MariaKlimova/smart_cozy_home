@@ -21,6 +21,7 @@ const Slider = SliderBase as unknown as ComponentType<NativeSliderProps>;
 export function CalmSlider({
   value,
   onValueChange,
+  onSlidingComplete,
   minimumValue = CALM_SLIDER_DEFAULT_MIN,
   maximumValue = CALM_SLIDER_DEFAULT_MAX,
   step = CALM_SLIDER_DEFAULT_STEP,
@@ -38,6 +39,7 @@ export function CalmSlider({
         style={styles.slider}
         value={value}
         onValueChange={onValueChange}
+        onSlidingComplete={onSlidingComplete}
         minimumValue={minimumValue}
         maximumValue={maximumValue}
         step={step}

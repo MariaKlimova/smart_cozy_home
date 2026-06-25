@@ -102,6 +102,62 @@ export async function toggleLight(
   await callHaService(baseUrl, token, 'light', service, { entity_id: entityId });
 }
 
+/** Яркость света 0–100 %; при 0 — выключить */
+export async function setLightBrightness(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  percent: number,
+): Promise<void> {
+  if (percent <= 0) {
+    await callHaService(baseUrl, token, 'light', 'turn_off', { entity_id: entityId });
+    return;
+  }
+  const brightness = Math.round((percent / 100) * 255);
+  await callHaService(baseUrl, token, 'light', 'turn_on', {
+    entity_id: entityId,
+    brightness,
+  });
+}
+
+/** Уставка температуры климата */
+export async function setClimateTemperature(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  temperature: number,
+): Promise<void> {
+  await callHaService(baseUrl, token, 'climate', 'set_temperature', {
+    entity_id: entityId,
+    temperature,
+  });
+}
+
+/** Позиция штор/окна 0–100 */
+export async function setCoverPosition(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  position: number,
+): Promise<void> {
+  await callHaService(baseUrl, token, 'cover', 'set_cover_position', {
+    entity_id: entityId,
+    position,
+  });
+}
+
+/** Вкл/выкл entity с turn_on/turn_off (switch, fan, humidifier…) */
+export async function setEntityPower(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  turnOn: boolean,
+): Promise<void> {
+  const domain = entityId.includes('.') ? entityId.slice(0, entityId.indexOf('.')) : entityId;
+  const service = turnOn ? 'turn_on' : 'turn_off';
+  await callHaService(baseUrl, token, domain, service, { entity_id: entityId });
+}
+
 export async function fetchLogbook(
   baseUrl: string,
   token: string,
