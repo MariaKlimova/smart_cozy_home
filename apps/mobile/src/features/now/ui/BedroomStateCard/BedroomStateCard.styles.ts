@@ -36,7 +36,7 @@ export const styles = StyleSheet.create({
   watermark: {
     fontSize: 40,
     lineHeight: 44,
-    opacity: 0.22,
+    opacity: 0.7,
     marginTop: -4,
   },
 });
