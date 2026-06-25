@@ -23,8 +23,8 @@ export interface IUseBedroomControlsResult {
   isRefreshing: boolean;
   /** id устройства с активной командой */
   pendingDeviceId: string | undefined;
-  /** Установить значение slider */
-  setSlider: (deviceId: string, value: number) => Promise<void>;
+  /** Установить значение slider; false — команда не применилась */
+  setSlider: (deviceId: string, value: number) => Promise<boolean>;
   /** Переключить toggle */
   setToggle: (deviceId: string, isOn: boolean) => Promise<void>;
   /** Выбрать сегмент */
@@ -59,16 +59,18 @@ export function useBedroomControls(): IUseBedroomControlsResult {
   });
 
   const runAction = useCallback(
-    async (deviceId: string, action: TBedroomDeviceAction) => {
-      if (!baseUrl || !token) return;
+    async (deviceId: string, action: TBedroomDeviceAction): Promise<boolean> => {
+      if (!baseUrl || !token) return false;
       setPendingDeviceId(deviceId);
       try {
         await setBedroomDevice(deviceId, action, baseUrl, token, config);
         await queryClient.invalidateQueries({
           queryKey: ['bedroom-devices', baseUrl, mappingKey],
         });
+        return true;
       } catch {
         // entity может отсутствовать в HA
+        return false;
       } finally {
         setPendingDeviceId(undefined);
       }
@@ -78,7 +80,7 @@ export function useBedroomControls(): IUseBedroomControlsResult {
 
   const setSlider = useCallback(
     async (deviceId: string, value: number) => {
-      await runAction(deviceId, { kind: 'slider', value });
+      return runAction(deviceId, { kind: 'slider', value });
     },
     [runAction],
   );

@@ -15,8 +15,3 @@ export interface IBedroomDeviceUserConfig {
   /** Слоты, скрытые из списка на экране спальни */
   hiddenSlots: TBedroomDeviceSlot[];
 }
-
-/** @deprecated Старый формат storage; мигрируется при загрузке */
-export type ILegacyBedroomDeviceSlotOverrides = Partial<
-  Record<TBedroomDeviceSlot, string | null>
->;

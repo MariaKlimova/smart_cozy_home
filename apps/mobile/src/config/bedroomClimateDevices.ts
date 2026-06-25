@@ -5,13 +5,13 @@ export const BEDROOM_CLIMATE_SLIDER_IDS = [
   'air_conditioner',
   'ventilation',
   'radiator',
-] as const;
+];
 
 /** id климатического slider-устройства */
 export type TBedroomClimateSliderId = (typeof BEDROOM_CLIMATE_SLIDER_IDS)[number];
 
 export function isBedroomClimateSliderId(deviceId: string): deviceId is TBedroomClimateSliderId {
-  return (BEDROOM_CLIMATE_SLIDER_IDS as readonly string[]).includes(deviceId);
+  return BEDROOM_CLIMATE_SLIDER_IDS.some((id) => id === deviceId);
 }
 
 export function isBedroomClimateSliderSlot(slot: TBedroomDeviceSlot): boolean {

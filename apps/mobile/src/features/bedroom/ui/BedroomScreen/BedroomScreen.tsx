@@ -79,6 +79,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
   const {
     devices,
     isLoading: isDevicesLoading,
+    isError: isDevicesError,
     isRefreshing: isDevicesRefreshing,
     pendingDeviceId,
     setSlider,
@@ -91,10 +92,11 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
     readings,
     isLoading: isSensorsLoading,
     isError: isSensorsError,
+    isRefreshing: isSensorsRefreshing,
   } = useBedroom();
 
   const isRefreshing =
-    activeTab === 'devices' ? isDevicesRefreshing : isSensorsLoading;
+    activeTab === 'devices' ? isDevicesRefreshing : isSensorsRefreshing;
 
   const handleRefresh = useCallback(async () => {
     if (activeTab === 'devices') {
@@ -135,6 +137,9 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
           {isDevicesLoading ? (
             <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.checking}</Text>
           ) : null}
+          {isDevicesError && hasActiveDevices ? (
+            <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
+          ) : null}
           {!hasActiveDevices ? (
             <Text style={[typography.body, { color: c.textMuted }]}>
               {copy.bedroom.emptyDevicesHint}
@@ -144,7 +149,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
             <BedroomDeviceControls
               devices={devices}
               pendingDeviceId={pendingDeviceId}
-              onSliderComplete={(deviceId, value) => void setSlider(deviceId, value)}
+              onSliderComplete={(deviceId, value) => setSlider(deviceId, value)}
               onToggle={(deviceId, isOn) => void setToggle(deviceId, isOn)}
               onSegmentSelect={(deviceId, optionId) => void setSegment(deviceId, optionId)}
               onConfigureDevice={(deviceId) => {

@@ -5,8 +5,8 @@ export interface IBedroomDeviceControlsCardProps {
   device: IBedroomDeviceState;
   /** Команда в процессе */
   isPending: boolean;
-  /** Slider отпущен */
-  onSliderComplete: (value: number) => void;
+  /** Slider отпущен; false — откатить локальное значение */
+  onSliderComplete: (value: number) => Promise<boolean>;
   /** Toggle переключён */
   onToggle: (isOn: boolean) => void;
   /** Сегмент выбран */

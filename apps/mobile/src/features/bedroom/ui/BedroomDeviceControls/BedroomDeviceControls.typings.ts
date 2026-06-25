@@ -5,8 +5,8 @@ export interface IBedroomDeviceControlsProps {
   devices: IBedroomDeviceState[];
   /** id устройства с активной командой */
   pendingDeviceId?: string;
-  /** Slider отпущен — отправить в HA */
-  onSliderComplete: (deviceId: string, value: number) => void;
+  /** Slider отпущен — отправить в HA; false, если команда не применилась */
+  onSliderComplete: (deviceId: string, value: number) => Promise<boolean>;
   /** Toggle переключён */
   onToggle: (deviceId: string, isOn: boolean) => void;
   /** Сегмент выбран */

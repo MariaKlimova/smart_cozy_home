@@ -48,8 +48,12 @@ export const useBedroomDeviceStore = create<IBedroomDeviceStore>((set, get) => (
     if (hydratePromise) return hydratePromise;
 
     hydratePromise = (async () => {
-      const config = await loadBedroomDeviceUserConfig();
-      set({ config, hasHydrated: true });
+      try {
+        const config = await loadBedroomDeviceUserConfig();
+        set({ config, hasHydrated: true });
+      } catch {
+        set({ config: null, hasHydrated: true });
+      }
     })();
 
     return hydratePromise;

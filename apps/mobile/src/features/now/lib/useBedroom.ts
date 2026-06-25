@@ -17,6 +17,8 @@ export interface IUseBedroomResult {
   isLoading: boolean;
   /** Ошибка запроса */
   isError: boolean;
+  /** Идёт обновление (pull-to-refresh) */
+  isRefreshing: boolean;
 }
 
 /** Загружает стейты датчиков спальни из HA (обновление каждые 30 с) */
@@ -47,5 +49,6 @@ export function useBedroom(): IUseBedroomResult {
     readings: query.data,
     isLoading: query.isPending,
     isError: query.isError,
+    isRefreshing: query.isFetching && !query.isPending,
   };
 }

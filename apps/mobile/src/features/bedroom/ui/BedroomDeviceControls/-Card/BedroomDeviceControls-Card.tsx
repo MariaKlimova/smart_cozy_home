@@ -64,6 +64,13 @@ export function BedroomDeviceControlsCard({
     valueCaption = formatSliderValue(sliderValue);
   }
 
+  async function handleSliderComplete(value: number) {
+    const applied = await onSliderComplete(value);
+    if (!applied && sliderCurrent !== undefined) {
+      setLocalSliderValue(sliderCurrent);
+    }
+  }
+
   return (
     <CalmCard padding="md" style={styles.card}>
       <View style={styles.header}>
@@ -102,7 +109,7 @@ export function BedroomDeviceControlsCard({
           <CalmSlider
             value={localSliderValue}
             onValueChange={setLocalSliderValue}
-            onSlidingComplete={onSliderComplete}
+            onSlidingComplete={(value) => void handleSliderComplete(value)}
             minimumValue={device.slider.min}
             maximumValue={device.slider.max}
             step={device.slider.step}
