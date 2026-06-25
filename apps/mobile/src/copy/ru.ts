@@ -10,6 +10,7 @@ export const copy = {
       coolBedroom: 'Прохладно в спальне',
       dryHumidifier: 'Суховато — увлажнитель поможет',
       comfortable: 'В спальне комфортно',
+      noData: 'Данных пока нет',
     },
     metricsUnavailable: '—',
     metrics: {

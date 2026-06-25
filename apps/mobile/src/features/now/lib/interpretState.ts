@@ -3,7 +3,16 @@ import { copy } from '@/copy/ru';
 import type { IBedroomReadings } from './bedroomReadings.typings';
 
 /** Визуальный тон карточки по доминирующему отклонению */
-export type TBedroomStateTone = 'comfort' | 'air' | 'warm' | 'cool' | 'dry';
+export type TBedroomStateTone = 'neutral' | 'comfort' | 'air' | 'warm' | 'cool' | 'dry';
+
+/** Есть хотя бы одно числовое показание */
+export function hasAnyBedroomReading(readings: IBedroomReadings): boolean {
+  return (
+    readings.co2Ppm !== undefined ||
+    readings.temperatureC !== undefined ||
+    readings.humidityPct !== undefined
+  );
+}
 
 /** Одна метрика для отображения в карточке */
 export interface IBedroomMetricView {
@@ -21,6 +30,10 @@ export interface IBedroomMetricView {
 export function interpretBedroomState(readings: IBedroomReadings): string {
   const { co2Ppm, temperatureC, humidityPct } = readings;
   const phrases = copy.now.phrases;
+
+  if (!hasAnyBedroomReading(readings)) {
+    return phrases.noData;
+  }
 
   if (co2Ppm !== undefined) {
     if (co2Ppm > 1200) return phrases.stuffyVentilate;
@@ -42,6 +55,8 @@ export function interpretBedroomState(readings: IBedroomReadings): string {
 /** Тон акцента карточки (синхронен с приоритетом interpretBedroomState) */
 export function getBedroomStateTone(readings: IBedroomReadings): TBedroomStateTone {
   const { co2Ppm, temperatureC, humidityPct } = readings;
+
+  if (!hasAnyBedroomReading(readings)) return 'neutral';
 
   if (co2Ppm !== undefined && co2Ppm >= 800) return 'air';
   if (temperatureC !== undefined && temperatureC > 22) return 'warm';
