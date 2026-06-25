@@ -19,12 +19,12 @@
 ## Комнаты
 
 - Назначьте устройствам **Areas** в HA.
-- Обновите `config/rituals.default.yaml` → секция `rooms`.
+- Обновите `config/home.default.yaml` → секция `rooms`.
 
 ## Presence
 
 - Настройте **Person** entities.
-- Укажите их в `config/rituals.default.yaml` → `presence.persons`.
+- Укажите их в `config/home.default.yaml` → `presence.persons`.
 
 ## Токен доступа
 

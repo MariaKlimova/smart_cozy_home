@@ -1,4 +1,4 @@
-import { loadRitualsConfig } from '@/config/ritualsConfig';
+import { loadHomeConfig } from '@/config/homeConfig';
 import type { IHaEntityState } from '@/ha/types';
 import type {
   IGentleNotification,
@@ -12,7 +12,7 @@ function stateMap(states: IHaEntityState[]): Map<string, IHaEntityState> {
 }
 
 export function mapPresence(states: IHaEntityState[]): IPresenceMember[] {
-  const config = loadRitualsConfig();
+  const config = loadHomeConfig();
   const map = stateMap(states);
   return config.presence.persons.map((p) => {
     const st = map.get(p.entity);
@@ -26,7 +26,7 @@ export function mapPresence(states: IHaEntityState[]): IPresenceMember[] {
 }
 
 export function mapRooms(states: IHaEntityState[]): IRoom[] {
-  const config = loadRitualsConfig();
+  const config = loadHomeConfig();
   const map = stateMap(states);
   return config.rooms.map((room) => {
     const light = map.get(room.light);
@@ -42,7 +42,7 @@ export function mapRooms(states: IHaEntityState[]): IRoom[] {
 }
 
 export function mapTemperature(states: IHaEntityState[]): string | undefined {
-  const config = loadRitualsConfig();
+  const config = loadHomeConfig();
   const entity = config.home_state.temperature.entity;
   const st = stateMap(states).get(entity);
   if (!st || st.state === 'unavailable') return undefined;
@@ -53,7 +53,7 @@ export function mapTemperature(states: IHaEntityState[]): string | undefined {
 export function mapLightsSummary(
   states: IHaEntityState[],
 ): { on: number; total: number } {
-  const entities = loadRitualsConfig().home_state.light_summary.entities;
+  const entities = loadHomeConfig().home_state.light_summary.entities;
   const map = stateMap(states);
   let on = 0;
   for (const id of entities) {
@@ -63,7 +63,7 @@ export function mapLightsSummary(
 }
 
 export function mapSecurityStatus(states: IHaEntityState[]): 'ok' | 'attention' {
-  const entity = loadRitualsConfig().home_state.security.entity;
+  const entity = loadHomeConfig().home_state.security.entity;
   const st = stateMap(states).get(entity);
   if (!st) return 'ok';
   if (st.state === 'triggered' || st.state === 'arming') return 'attention';
@@ -96,7 +96,7 @@ export function mapTimelineFromLogbook(
 }
 
 export function mapGentleNotifications(states: IHaEntityState[]): IGentleNotification[] {
-  const config = loadRitualsConfig();
+  const config = loadHomeConfig();
   const map = stateMap(states);
   const result: IGentleNotification[] = [];
 
@@ -118,7 +118,7 @@ export function mapGentleNotifications(states: IHaEntityState[]): IGentleNotific
 }
 
 export function collectWatchedEntityIds(): string[] {
-  const config = loadRitualsConfig();
+  const config = loadHomeConfig();
   const ids = new Set<string>();
   ids.add(config.home_state.temperature.entity);
   ids.add(config.home_state.security.entity);
@@ -135,3 +135,5 @@ export function collectWatchedEntityIds(): string[] {
   }
   return [...ids];
 }
+
+export { collectBedroomDeviceEntityIds, mapBedroomDevices } from './mapBedroomDevices';

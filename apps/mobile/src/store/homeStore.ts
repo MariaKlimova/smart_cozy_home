@@ -22,7 +22,7 @@ import {
   mapTemperature,
   mapTimelineFromLogbook,
 } from '@/ha/mappers/domainMapper';
-import { loadRitualsConfig } from '@/config/ritualsConfig';
+import { loadHomeConfig } from '@/config/homeConfig';
 import { useConnectionStore } from '@/store/connectionStore';
 
 interface IHomeStore {
@@ -108,7 +108,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
         securityStatus,
       });
 
-      const config = loadRitualsConfig();
+      const config = loadHomeConfig();
       const logbook = await fetchLogbook(
         baseUrl,
         profile.accessToken,
@@ -163,7 +163,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     const room = get().rooms.find((r) => r.id === roomId);
     if (!room) return;
 
-    const config = loadRitualsConfig();
+    const config = loadHomeConfig();
     const mapping = config.rooms.find((r) => r.id === roomId);
     if (!mapping) return;
 
@@ -179,7 +179,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     const { baseUrl, profile, isConnected } = useConnectionStore.getState();
     if (!isConnected || !baseUrl || !profile) return;
 
-    const rule = loadRitualsConfig().gentle_notifications.find((n) => n.id === notificationId);
+    const rule = loadHomeConfig().gentle_notifications.find((n) => n.id === notificationId);
     if (!rule) return;
 
     try {

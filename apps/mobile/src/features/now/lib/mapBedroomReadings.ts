@@ -1,4 +1,4 @@
-import type { IBedroomSensorsMapping } from '@/config/ritualsConfig';
+import type { IBedroomSensorsMapping } from '@/config/homeConfig.typings';
 import type { IHaEntityState } from '@/ha/types';
 
 import type { IBedroomReadings } from './bedroomReadings.typings';

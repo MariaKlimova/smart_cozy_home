@@ -59,7 +59,7 @@ export function DataSyncStatus({
           <Text style={[typography.body, styles.row, { color: hasData ? c.success : c.warning }]}>
             {hasData
               ? `Данные приходят: ${syncDebug.entitiesReceived} из ${syncDebug.entitiesRequested} сущностей`
-              : 'Ответ пустой — проверь mapping в ritualsConfig'}
+              : 'Ответ пустой — проверь mapping в homeConfig'}
           </Text>
 
           <Text style={[typography.caption, styles.row, { color: c.textMuted }]}>

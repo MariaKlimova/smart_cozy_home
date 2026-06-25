@@ -20,12 +20,12 @@ description: >-
 
 ## Подписки
 
-Только entity_id из `config/rituals.default.yaml` — не весь HA.
+Только entity_id из `config/home.default.yaml` — не весь HA.
 
 ## Сервисы
 
 `callScript(domain, service)` через REST `POST /api/services/{domain}/{service}`.
 
-Mapping: `loadRitualsConfig()` → typed config из YAML.
+Mapping: `loadHomeConfig()` → typed config из YAML.
 
 Отладка подключения — экран «Проверка данных» и «Список устройств HA» в настройках, без console.log в production.

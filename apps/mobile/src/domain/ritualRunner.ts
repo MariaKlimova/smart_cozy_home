@@ -1,9 +1,9 @@
-import { loadRitualsConfig } from '@/config/ritualsConfig';
+import { loadHomeConfig } from '@/config/homeConfig';
 import { runHaScript } from '@/ha/haClient';
 import type { IRitual } from '@/domain/types';
 
 export function listRituals(): IRitual[] {
-  const config = loadRitualsConfig();
+  const config = loadHomeConfig();
   return Object.entries(config.rituals).map(([id, r]) => ({
     id,
     label: r.label,
@@ -12,7 +12,7 @@ export function listRituals(): IRitual[] {
 }
 
 export async function runRitual(ritualId: string, baseUrl: string, token: string): Promise<void> {
-  const config = loadRitualsConfig();
+  const config = loadHomeConfig();
   const mapping = config.rituals[ritualId];
   if (!mapping) {
     throw new Error(`Unknown ritual: ${ritualId}`);
