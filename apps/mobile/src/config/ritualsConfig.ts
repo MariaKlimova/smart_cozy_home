@@ -39,6 +39,16 @@ export interface IHaEntitiesRef {
   entities: string[];
 }
 
+/** Датчики спальни для таба «Сейчас» */
+export interface IBedroomSensorsMapping {
+  /** CO₂, ppm */
+  co2: IHaEntityRef;
+  /** Температура, °C */
+  temperature: IHaEntityRef;
+  /** Влажность, % */
+  humidity: IHaEntityRef;
+}
+
 /** Маппинг сущностей для карточки состояния дома */
 export interface IHomeStateMapping {
   /** Датчик температуры */
@@ -87,6 +97,8 @@ export interface IGentleNotificationMapping {
 export interface IRitualsConfig {
   /** Ритуалы по id */
   rituals: Record<string, IRitualMapping>;
+  /** Датчики спальни */
+  bedroom_sensors: IBedroomSensorsMapping;
   /** Сущности для карточки состояния дома */
   home_state: IHomeStateMapping;
   /** Комнаты */
@@ -106,6 +118,11 @@ export const RITUALS_CONFIG: IRitualsConfig = {
     focus: { label: 'Фокус', script: 'script.ritual_focus', icon: 'laptop' },
     cozy: { label: 'Уют', script: 'script.ritual_cozy', icon: 'coffee' },
     away: { label: 'Уехали', script: 'script.ritual_away', icon: 'sign-out' },
+  },
+  bedroom_sensors: {
+    co2: { entity: 'sensor.bedroom_co2' },
+    temperature: { entity: 'sensor.bedroom_temperature' },
+    humidity: { entity: 'sensor.bedroom_humidity' },
   },
   home_state: {
     temperature: { entity: 'sensor.living_room_temperature' },

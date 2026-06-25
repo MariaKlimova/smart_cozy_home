@@ -9,6 +9,7 @@ import 'react-native-reanimated';
 import { copy } from '@/copy/ru';
 import { AppProviders } from '@/providers/AppProviders';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useConnectionStore } from '@/store/connectionStore';
 
 export { ErrorBoundary } from 'expo-router';
@@ -20,7 +21,9 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const hasHydrated = useConnectionStore((s) => s.hasHydrated);
+  const hasConnectionHydrated = useConnectionStore((s) => s.hasHydrated);
+  const hasSensorMappingHydrated = useBedroomSensorStore((s) => s.hasHydrated);
+  const hasHydrated = hasConnectionHydrated && hasSensorMappingHydrated;
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
@@ -77,6 +80,22 @@ function RootLayoutNav() {
         <Stack.Screen
           name="ha-entities"
           options={{ title: copy.haEntities.screenTitle, headerShown: true }}
+        />
+        <Stack.Screen
+          name="bedroom-sensors"
+          options={{
+            title: copy.settings.bedroomSensors.screenTitle,
+            headerShown: true,
+            headerBackTitle: copy.settings.screenTitle,
+          }}
+        />
+        <Stack.Screen
+          name="sensor-picker"
+          options={{
+            title: copy.sensorPicker.screenTitle,
+            headerShown: true,
+            headerBackTitle: copy.settings.bedroomSensors.screenTitle,
+          }}
         />
       </Stack>
     </ThemeProvider>

@@ -65,14 +65,31 @@ export async function callHaService(
   service: string,
   data?: Record<string, unknown>,
 ): Promise<void> {
-  const res = await fetch(`${baseUrl}/api/services/${domain}/${service}`, {
-    method: 'POST',
-    headers: authHeaders(token),
-    body: JSON.stringify(data ?? {}),
-  });
-  if (!res.ok) {
-    throw new Error(`HA service failed: ${res.status}`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(`${baseUrl}/api/services/${domain}/${service}`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify(data ?? {}),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      throw new Error(`HA service failed: ${res.status}`);
+    }
+  } finally {
+    clearTimeout(timer);
   }
+}
+
+/** Вызов script.* через стандартный script.turn_on */
+export async function runHaScript(
+  baseUrl: string,
+  token: string,
+  scriptEntityId: string,
+): Promise<void> {
+  await callHaService(baseUrl, token, 'script', 'turn_on', { entity_id: scriptEntityId });
 }
 
 export async function toggleLight(

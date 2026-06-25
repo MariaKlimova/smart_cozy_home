@@ -167,8 +167,12 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     const mapping = config.rooms.find((r) => r.id === roomId);
     if (!mapping) return;
 
-    await toggleLight(baseUrl, profile.accessToken, mapping.light, !room.lightOn);
-    await get().refresh();
+    try {
+      await toggleLight(baseUrl, profile.accessToken, mapping.light, !room.lightOn);
+      await get().refresh();
+    } catch {
+      // Свет или entity из конфига могут отсутствовать в HA — не роняем UI
+    }
   },
 
   acceptGentleNotification: async (notificationId) => {
@@ -178,9 +182,13 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     const rule = loadRitualsConfig().gentle_notifications.find((n) => n.id === notificationId);
     if (!rule) return;
 
-    await toggleLight(baseUrl, profile.accessToken, rule.light_entity, true);
-    await get().refresh();
-    get().dismissGentleNotification(notificationId);
+    try {
+      await toggleLight(baseUrl, profile.accessToken, rule.light_entity, true);
+      await get().refresh();
+      get().dismissGentleNotification(notificationId);
+    } catch {
+      // entity недоступен — оставляем карточку, без uncaught rejection
+    }
   },
 
   dismissGentleNotification: (notificationId) => {

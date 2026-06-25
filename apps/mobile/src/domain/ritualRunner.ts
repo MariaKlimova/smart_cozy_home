@@ -1,5 +1,5 @@
 import { loadRitualsConfig } from '@/config/ritualsConfig';
-import { callHaService } from '@/ha/haClient';
+import { runHaScript } from '@/ha/haClient';
 import type { IRitual } from '@/domain/types';
 
 export function listRituals(): IRitual[] {
@@ -17,14 +17,5 @@ export async function runRitual(ritualId: string, baseUrl: string, token: string
   if (!mapping) {
     throw new Error(`Unknown ritual: ${ritualId}`);
   }
-  const [domain, service] = parseScriptEntity(mapping.script);
-  await callHaService(baseUrl, token, domain, service);
-}
-
-function parseScriptEntity(scriptEntity: string): [string, string] {
-  const parts = scriptEntity.split('.');
-  if (parts.length !== 2) {
-    throw new Error(`Invalid script entity: ${scriptEntity}`);
-  }
-  return [parts[0], parts[1]];
+  await runHaScript(baseUrl, token, mapping.script);
 }
