@@ -44,6 +44,32 @@ describe('mapBedroomDevices', () => {
     }
   });
 
+  it('maps climate temperature below slider min without clamping', () => {
+    const states = [haState('climate.bedroom', 'heat', { current_temperature: 14 })];
+    const devices = mapBedroomDevices(states);
+    const climate = devices.find((d) => d.id === 'climate');
+
+    assert.ok(climate);
+    if (climate.value && 'current' in climate.value) {
+      assert.equal(climate.value.current, 14);
+    } else {
+      assert.fail('expected climate slider value');
+    }
+  });
+
+  it('maps climate temperature above slider max without clamping', () => {
+    const states = [haState('climate.bedroom', 'heat', { current_temperature: 30 })];
+    const devices = mapBedroomDevices(states);
+    const climate = devices.find((d) => d.id === 'climate');
+
+    assert.ok(climate);
+    if (climate.value && 'current' in climate.value) {
+      assert.equal(climate.value.current, 30);
+    } else {
+      assert.fail('expected climate slider value');
+    }
+  });
+
   it('maps cover position to closest segment', () => {
     const states = [haState('cover.bedroom_curtains', 'open', { current_position: 48 })];
     const devices = mapBedroomDevices(states);

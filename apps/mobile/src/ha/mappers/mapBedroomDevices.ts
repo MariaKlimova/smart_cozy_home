@@ -30,17 +30,14 @@ function mapLightBrightness(state: IHaEntityState, bounds: { min: number; max: n
   return bounds.max;
 }
 
-function mapClimateTemperature(
-  state: IHaEntityState,
-  bounds: { min: number; max: number },
-): number | undefined {
+function mapClimateTemperature(state: IHaEntityState): number | undefined {
   const current = state.attributes?.current_temperature;
   if (typeof current === 'number') {
-    return Math.min(bounds.max, Math.max(bounds.min, current));
+    return current;
   }
   const parsed = Number.parseFloat(state.state);
   if (!Number.isNaN(parsed)) {
-    return Math.min(bounds.max, Math.max(bounds.min, parsed));
+    return parsed;
   }
   return undefined;
 }
@@ -96,7 +93,7 @@ function mapSliderValue(
   }
 
   if (mapping.id === 'climate') {
-    const current = mapClimateTemperature(state, mapping.slider);
+    const current = mapClimateTemperature(state);
     if (current === undefined) return undefined;
     const unit = state.attributes?.unit_of_measurement;
     return {
