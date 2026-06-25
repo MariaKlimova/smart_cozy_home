@@ -1,34 +1,35 @@
+import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
-import { computeHomeState } from '@/domain/stateEngine';
 import { HomeRitualsSection } from '@/features/home/ui/HomeRitualsSection';
-import { HomeStateCard } from '@/features/home/ui/HomeStateCard';
 import { GentleNotificationCard } from '@/features/notifications/ui/GentleNotificationCard';
+import {
+  formatBedroomMetrics,
+  getBedroomStateTone,
+  interpretBedroomState,
+} from '@/features/now/lib/interpretState';
+import { useBedroom } from '@/features/now/lib/useBedroom';
+import { BedroomStateCard } from '@/features/now/ui/BedroomStateCard';
 import { useGentleNotifications } from '@/hooks/useGentleNotifications';
 import { useRitualRunner } from '@/hooks/useRitualRunner';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
+import { CalmButton } from '@/ui/CalmButton';
 import { ScreenLayout } from '@/ui/ScreenLayout';
 import { typography } from '@/theme/tokens';
 
-const DEMO_HOME = computeHomeState({
-  hour: 20,
-  presence: [{ id: 'maria', label: 'Мария', isHome: true }],
-  temperature: '22°',
-  lightsOnCount: 1,
-  lightsTotal: 2,
-  securityStatus: 'ok',
-});
-
-export default function HomeScreen() {
+export default function NowScreen() {
   const c = useThemeColors();
   const isConnected = useConnectionStore((s) => s.isConnected);
   const { runningId, runRitualById } = useRitualRunner();
+  const { readings, isLoading: isBedroomLoading } = useBedroom();
+  const hasSensorHydrated = useBedroomSensorStore((s) => s.hasHydrated);
+  const isSensorsConfigured = useBedroomSensorStore((s) => s.isConfigured());
 
-  const homeState = useHomeStore((s) => s.homeState);
   const rituals = useHomeStore((s) => s.rituals);
   const isRefreshing = useHomeStore((s) => s.isRefreshing);
   const refresh = useHomeStore((s) => s.refresh);
@@ -38,11 +39,16 @@ export default function HomeScreen() {
     if (isConnected) void refresh();
   }, [isConnected, refresh]);
 
-  const displayState = homeState ?? DEMO_HOME;
+  const resolvedReadings = readings ?? {};
+  const phrase = interpretBedroomState(resolvedReadings);
+  const metrics = formatBedroomMetrics(resolvedReadings);
+  const tone = getBedroomStateTone(resolvedReadings);
+  const showBedroomSkeleton = isConnected && isBedroomLoading;
+  const showSetupCta = isConnected && hasSensorHydrated && !isSensorsConfigured;
 
   return (
     <ScreenLayout
-      title={copy.home.screenTitle}
+      title={copy.now.screenTitle}
       onRefresh={isConnected ? refresh : undefined}
       isRefreshing={isRefreshing}
     >
@@ -50,7 +56,25 @@ export default function HomeScreen() {
         <Text style={[typography.caption, { color: c.warning }]}>{copy.connection.offline}</Text>
       )}
 
-      <HomeStateCard homeState={displayState} />
+      <BedroomStateCard
+        phrase={phrase}
+        metrics={metrics}
+        tone={tone}
+        isLoading={showBedroomSkeleton}
+      />
+
+      {showSetupCta ? (
+        <View>
+          <Text style={[typography.body, { color: c.textMuted, marginBottom: 12 }]}>
+            {copy.now.setupSensorsHint}
+          </Text>
+          <CalmButton
+            label={copy.now.setupSensorsButton}
+            variant="secondary"
+            onPress={() => router.push('/bedroom-sensors')}
+          />
+        </View>
+      ) : null}
 
       {visibleNotifications.map((n) => (
         <GentleNotificationCard

@@ -21,6 +21,14 @@ home_state:
   security:
     entity: alarm_control_panel.home
 
+bedroom_sensors:
+  co2:
+    entity: sensor.bedroom_co2
+  temperature:
+    entity: sensor.bedroom_temperature
+  humidity:
+    entity: sensor.bedroom_humidity
+
 rooms:
   - id: living_room
     label: Гостиная

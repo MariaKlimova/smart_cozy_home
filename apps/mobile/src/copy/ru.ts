@@ -1,4 +1,24 @@
 export const copy = {
+  now: {
+    screenTitle: 'Сейчас',
+    setupSensorsHint: 'Подключи датчики спальни — тогда увидишь температуру, влажность и CO₂.',
+    setupSensorsButton: 'Настроить датчики',
+    phrases: {
+      stuffyVentilate: 'Душно — стоит проветрить',
+      slightlyStuffy: 'Немного душновато',
+      warmForSleep: 'Жарковато для сна',
+      coolBedroom: 'Прохладно в спальне',
+      dryHumidifier: 'Суховато — увлажнитель поможет',
+      comfortable: 'В спальне комфортно',
+      noData: 'Данных пока нет',
+    },
+    metricsUnavailable: '—',
+    metrics: {
+      temperature: 'Температура',
+      humidity: 'Влажность',
+      co2: 'CO₂',
+    },
+  },
   home: {
     screenTitle: 'Дом',
     defaultTitle: 'Дом в порядке',
@@ -38,7 +58,28 @@ export const copy = {
     syncRefresh: 'Обновить данные',
     syncRefreshing: 'Загружаем…',
     haDevicesList: 'Список устройств',
+    bedroomSensorsButton: 'Датчики спальни',
     reconnect: 'Изменить подключение к дому',
+    bedroomSensors: {
+      screenTitle: 'Датчики спальни',
+      hint: 'Выбери устройства из Home Assistant. В приложении — только температура, влажность и CO₂.',
+      notSelected: 'Не выбрано',
+      notUsed: 'Не используется',
+      change: 'Изменить',
+      clear: 'Не использовать',
+      unavailable: 'Сейчас недоступен',
+    },
+  },
+  sensorPicker: {
+    screenTitle: 'Выбор датчика',
+    searchPlaceholder: 'Поиск по названию…',
+    loading: 'Загрузка…',
+    emptySearch: 'Ничего не найдено',
+    emptyList: 'Нет датчиков',
+    shownCount: 'Показано: {shown}',
+    recommended: 'Подходят',
+    other: 'Остальные',
+    nonNumericHint: 'Похоже, это не датчик с цифрами',
   },
   onboarding: {
     title: 'Подключи дом',

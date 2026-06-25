@@ -18,6 +18,8 @@ export function useRitualRunner() {
       try {
         await runRitual(ritualId, baseUrl, profile.accessToken);
         await refresh();
+      } catch {
+        // script может отсутствовать в HA
       } finally {
         setRunningId(undefined);
       }

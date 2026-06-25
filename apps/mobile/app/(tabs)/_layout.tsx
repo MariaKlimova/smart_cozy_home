@@ -24,7 +24,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: copy.home.screenTitle,
+          title: copy.now.screenTitle,
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
         }}
       />
