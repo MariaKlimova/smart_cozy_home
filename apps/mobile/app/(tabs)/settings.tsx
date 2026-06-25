@@ -36,12 +36,6 @@ export default function SettingsScreen() {
         onRefresh={() => void refresh()}
       />
       <CalmButton
-        label={copy.settings.bedroomSensorsButton}
-        variant="primary"
-        onPress={() => router.push('/bedroom-sensors')}
-        disabled={!isConnected}
-      />
-      <CalmButton
         label={copy.settings.haDevicesList}
         variant="secondary"
         onPress={() => router.push('/ha-entities')}

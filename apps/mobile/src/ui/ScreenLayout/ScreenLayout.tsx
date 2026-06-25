@@ -18,12 +18,13 @@ import { styles } from './ScreenLayout.styles';
 
 export const ScreenLayout = forwardRef<ScrollViewType, IScreenLayoutWithRefreshProps>(
   function ScreenLayout(
-    { title, children, onRefresh, isRefreshing, keyboardAware = false },
+    { title, variant = 'tab', children, onRefresh, isRefreshing, keyboardAware = false },
     forwardedRef,
   ) {
     const c = useThemeColors();
     const insets = useSafeAreaInsets();
     const innerRef = useRef<ScrollViewType>(null);
+    const isStack = variant === 'stack';
 
     const scrollRef = (node: ScrollViewType | null) => {
       innerRef.current = node;
@@ -40,7 +41,10 @@ export const ScreenLayout = forwardRef<ScrollViewType, IScreenLayoutWithRefreshP
 
     return (
       <KeyboardAvoidingView
-        style={[styles.root, { backgroundColor: c.background, paddingTop: insets.top }]}
+        style={[
+          styles.root,
+          { backgroundColor: c.background, paddingTop: isStack ? 0 : insets.top },
+        ]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         enabled={keyboardAware}
         keyboardVerticalOffset={insets.top}
@@ -64,7 +68,9 @@ export const ScreenLayout = forwardRef<ScrollViewType, IScreenLayoutWithRefreshP
             ) : undefined
           }
         >
-          <Text style={[typography.title, styles.title, { color: c.text }]}>{title}</Text>
+          {title && !isStack ? (
+            <Text style={[typography.title, styles.title, { color: c.text }]}>{title}</Text>
+          ) : null}
           {children}
         </ScrollView>
       </KeyboardAvoidingView>

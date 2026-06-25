@@ -1,21 +1,10 @@
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { useEffect } from 'react';
 
-import { copy } from '@/copy/ru';
-import { BedroomSensorsScreen } from '@/features/settings/ui/BedroomSensorsScreen';
-import { useEntitiesStore } from '@/store/entitiesStore';
-
-export default function BedroomSensorsRoute() {
-  const load = useEntitiesStore((s) => s.load);
-
+export default function BedroomSensorsRedirectRoute() {
   useEffect(() => {
-    void load();
-  }, [load]);
+    router.replace({ pathname: '/bedroom', params: { tab: 'sensors' } });
+  }, []);
 
-  return (
-    <>
-      <Stack.Screen options={{ title: copy.settings.bedroomSensors.screenTitle }} />
-      <BedroomSensorsScreen />
-    </>
-  );
+  return <Stack.Screen options={{ headerShown: false }} />;
 }

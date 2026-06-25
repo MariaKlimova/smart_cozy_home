@@ -1,4 +1,6 @@
-import { loadHomeConfig } from '@/config/homeConfig';
+import { isBedroomClimateSliderId } from '@/config/bedroomClimateDevices';
+import type { IBedroomDeviceUserConfig } from '@/config/bedroomDeviceSlotMapping.typings';
+import { resolveBedroomDevices } from '@/config/resolveBedroomDevices';
 import type { IBedroomDeviceMapping } from '@/config/homeConfig.typings';
 import type {
   IBedroomDeviceSegmentOption,
@@ -31,6 +33,10 @@ function mapLightBrightness(state: IHaEntityState, bounds: { min: number; max: n
 }
 
 function mapClimateTemperature(state: IHaEntityState): number | undefined {
+  const setpoint = state.attributes?.temperature;
+  if (typeof setpoint === 'number') {
+    return setpoint;
+  }
   const current = state.attributes?.current_temperature;
   if (typeof current === 'number') {
     return current;
@@ -92,7 +98,7 @@ function mapSliderValue(
     };
   }
 
-  if (mapping.id === 'climate') {
+  if (isBedroomClimateSliderId(mapping.id)) {
     const current = mapClimateTemperature(state);
     if (current === undefined) return undefined;
     const unit = state.attributes?.unit_of_measurement;
@@ -182,14 +188,19 @@ function mapSingleDevice(
 }
 
 /** Собирает domain-состояния устройств спальни из стейтов HA */
-export function mapBedroomDevices(states: IHaEntityState[]): IBedroomDeviceState[] {
-  const config = loadHomeConfig();
+export function mapBedroomDevices(
+  states: IHaEntityState[],
+  config: IBedroomDeviceUserConfig | null = null,
+): IBedroomDeviceState[] {
+  const devices = resolveBedroomDevices(config);
   const map = stateMap(states);
-  return config.bedroom_devices.devices.map((device) => mapSingleDevice(device, map));
+  return devices.map((device) => mapSingleDevice(device, map));
 }
 
 /** entity_id устройств спальни для запроса в HA */
-export function collectBedroomDeviceEntityIds(): string[] {
-  const devices = loadHomeConfig().bedroom_devices.devices;
+export function collectBedroomDeviceEntityIds(
+  config: IBedroomDeviceUserConfig | null = null,
+): string[] {
+  const devices = resolveBedroomDevices(config);
   return devices.map((d) => d.entity);
 }

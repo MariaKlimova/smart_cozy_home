@@ -3,8 +3,10 @@ import type { StyleProp, ViewStyle } from 'react-native';
 export interface ICalmSliderProps {
   /** Текущее значение */
   value: number;
-  /** Обработчик изменения */
+  /** Обработчик изменения во время перетаскивания */
   onValueChange: (value: number) => void;
+  /** Обработчик при отпускании ползунка */
+  onSlidingComplete?: (value: number) => void;
   /** Минимум */
   minimumValue?: number;
   /** Максимум */

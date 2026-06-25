@@ -1,4 +1,5 @@
 import { loadHomeConfig } from '@/config/homeConfig';
+import { VISIBLE_ROOM_IDS } from '@/config/visibleRooms';
 import type { IHaEntityState } from '@/ha/types';
 import type {
   IGentleNotification,
@@ -28,17 +29,21 @@ export function mapPresence(states: IHaEntityState[]): IPresenceMember[] {
 export function mapRooms(states: IHaEntityState[]): IRoom[] {
   const config = loadHomeConfig();
   const map = stateMap(states);
-  return config.rooms.map((room) => {
-    const light = map.get(room.light);
-    const climate = room.climate ? map.get(room.climate) : undefined;
-    const temp = climate?.attributes?.current_temperature;
-    return {
-      id: room.id,
-      label: room.label,
-      lightOn: light?.state === 'on',
-      temperature: typeof temp === 'number' ? `${temp}°` : undefined,
-    };
-  });
+  const visibleIds = new Set<string>(VISIBLE_ROOM_IDS);
+
+  return config.rooms
+    .filter((room) => visibleIds.has(room.id))
+    .map((room) => {
+      const light = map.get(room.light);
+      const climate = room.climate ? map.get(room.climate) : undefined;
+      const temp = climate?.attributes?.current_temperature;
+      return {
+        id: room.id,
+        label: room.label,
+        lightOn: light?.state === 'on',
+        temperature: typeof temp === 'number' ? `${temp}°` : undefined,
+      };
+    });
 }
 
 export function mapTemperature(states: IHaEntityState[]): string | undefined {

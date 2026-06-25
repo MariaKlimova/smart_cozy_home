@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/ha/mappers/mapBedroomDevices.test.ts"
+    "test": "node --import tsx --test src/ha/mappers/mapBedroomDevices.test.ts src/domain/bedroomDeviceControl.test.ts src/features/settings/lib/devicePickerFilters.test.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

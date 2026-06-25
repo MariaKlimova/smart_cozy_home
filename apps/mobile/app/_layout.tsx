@@ -10,6 +10,7 @@ import { copy } from '@/copy/ru';
 import { AppProviders } from '@/providers/AppProviders';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
+import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useConnectionStore } from '@/store/connectionStore';
 
 export { ErrorBoundary } from 'expo-router';
@@ -23,7 +24,8 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const hasConnectionHydrated = useConnectionStore((s) => s.hasHydrated);
   const hasSensorMappingHydrated = useBedroomSensorStore((s) => s.hasHydrated);
-  const hasHydrated = hasConnectionHydrated && hasSensorMappingHydrated;
+  const hasDeviceMappingHydrated = useBedroomDeviceStore((s) => s.hasHydrated);
+  const hasHydrated = hasConnectionHydrated && hasSensorMappingHydrated && hasDeviceMappingHydrated;
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
@@ -84,9 +86,7 @@ function RootLayoutNav() {
         <Stack.Screen
           name="bedroom-sensors"
           options={{
-            title: copy.settings.bedroomSensors.screenTitle,
-            headerShown: true,
-            headerBackTitle: copy.settings.screenTitle,
+            headerShown: false,
           }}
         />
         <Stack.Screen
@@ -94,7 +94,31 @@ function RootLayoutNav() {
           options={{
             title: copy.sensorPicker.screenTitle,
             headerShown: true,
-            headerBackTitle: copy.settings.bedroomSensors.screenTitle,
+            headerBackTitle: copy.bedroom.screenTitle,
+          }}
+        />
+        <Stack.Screen
+          name="bedroom-devices"
+          options={{
+            title: copy.settings.bedroomDevices.screenTitle,
+            headerShown: true,
+            headerBackTitle: copy.bedroom.screenTitle,
+          }}
+        />
+        <Stack.Screen
+          name="device-picker"
+          options={{
+            title: copy.devicePicker.screenTitle,
+            headerShown: true,
+            headerBackTitle: copy.bedroom.screenTitle,
+          }}
+        />
+        <Stack.Screen
+          name="bedroom"
+          options={{
+            title: copy.bedroom.screenTitle,
+            headerShown: true,
+            headerBackTitle: copy.rooms.sectionTitle,
           }}
         />
       </Stack>

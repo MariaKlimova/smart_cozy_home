@@ -40,10 +40,26 @@ bedroom_devices:
         min: 0
         max: 100
         step: 1
-    - id: climate
-      label: Температура
+    - id: air_conditioner
+      label: Кондиционер
       control: slider
-      entity: climate.bedroom
+      entity: climate.bedroom_ac
+      slider:
+        min: 16
+        max: 30
+        step: 0.5
+    - id: ventilation
+      label: Приточка
+      control: slider
+      entity: climate.bedroom_ventilation
+      slider:
+        min: 16
+        max: 28
+        step: 0.5
+    - id: radiator
+      label: Радиатор
+      control: slider
+      entity: climate.bedroom_radiator
       slider:
         min: 16
         max: 28
