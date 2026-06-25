@@ -82,6 +82,12 @@ export const copy = {
     shownCount: 'Показано: {shown}',
     recommended: 'Подходят',
     other: 'Остальные',
+    statePreview: {
+      on: 'Вкл',
+      off: 'Выкл',
+      open: 'Открыто',
+      closed: 'Закрыто',
+    },
   },
   bedroom: {
     screenTitle: 'Спальня',

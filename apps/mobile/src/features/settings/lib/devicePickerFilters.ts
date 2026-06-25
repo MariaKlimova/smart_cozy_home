@@ -1,5 +1,6 @@
 import type { TBedroomDeviceSlot } from '@/config/bedroomDeviceSlotMapping.typings';
 import { isBedroomClimateSliderSlot } from '@/config/bedroomClimateDevices';
+import { copy } from '@/copy/ru';
 import type { IHaEntityListItem } from '@/ha/entityList';
 
 type TPickerTier = 'recommended' | 'other' | 'skip';
@@ -140,11 +141,15 @@ export function filterDevicesForSlot(
 }
 
 export function formatDevicePreviewValue(state: string): string {
-  if (state === 'unavailable' || state === 'unknown') return '—';
-  if (state === 'on') return 'Вкл';
-  if (state === 'off') return 'Выкл';
-  if (state === 'open') return 'Открыто';
-  if (state === 'closed') return 'Закрыто';
+  const preview = copy.devicePicker.statePreview;
+
+  if (state === 'unavailable' || state === 'unknown') {
+    return copy.now.metricsUnavailable;
+  }
+  if (state === 'on') return preview.on;
+  if (state === 'off') return preview.off;
+  if (state === 'open') return preview.open;
+  if (state === 'closed') return preview.closed;
   const num = Number.parseFloat(state);
   if (!Number.isNaN(num)) return state;
   return state;

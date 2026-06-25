@@ -12,6 +12,11 @@ import { useConnectionStore } from '@/store/connectionStore';
 
 const BEDROOM_DEVICES_STALE_MS = 30_000;
 
+export interface IUseBedroomControlsOptions {
+  /** Опрашивать HA; false — только кэш (например, неактивная вкладка) */
+  enabled?: boolean;
+}
+
 export interface IUseBedroomControlsResult {
   /** Состояния устройств спальни */
   devices: IBedroomDeviceState[] | undefined;
@@ -34,7 +39,10 @@ export interface IUseBedroomControlsResult {
 }
 
 /** Загрузка и управление устройствами спальни через HA */
-export function useBedroomControls(): IUseBedroomControlsResult {
+export function useBedroomControls(
+  options?: IUseBedroomControlsOptions,
+): IUseBedroomControlsResult {
+  const pollingEnabled = options?.enabled ?? true;
   const queryClient = useQueryClient();
   const isConnected = useConnectionStore((s) => s.isConnected);
   const baseUrl = useConnectionStore((s) => s.baseUrl);
@@ -49,9 +57,11 @@ export function useBedroomControls(): IUseBedroomControlsResult {
 
   const query = useQuery({
     queryKey: ['bedroom-devices', baseUrl, mappingKey],
-    enabled: Boolean(isConnected && baseUrl && token && entityIds.length > 0),
+    enabled: Boolean(
+      pollingEnabled && isConnected && baseUrl && token && entityIds.length > 0,
+    ),
     staleTime: BEDROOM_DEVICES_STALE_MS,
-    refetchInterval: BEDROOM_DEVICES_STALE_MS,
+    refetchInterval: pollingEnabled ? BEDROOM_DEVICES_STALE_MS : false,
     queryFn: async () => {
       const states = await fetchEntityStates(baseUrl!, token!, entityIds);
       return mapBedroomDevices(states, config);

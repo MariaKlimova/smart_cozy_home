@@ -10,6 +10,11 @@ import { mapBedroomReadings } from './mapBedroomReadings';
 
 const BEDROOM_STALE_MS = 30_000;
 
+export interface IUseBedroomOptions {
+  /** Опрашивать HA; false — только кэш (например, неактивная вкладка) */
+  enabled?: boolean;
+}
+
 export interface IUseBedroomResult {
   /** Показания датчиков */
   readings: IBedroomReadings | undefined;
@@ -22,7 +27,8 @@ export interface IUseBedroomResult {
 }
 
 /** Загружает стейты датчиков спальни из HA (обновление каждые 30 с) */
-export function useBedroom(): IUseBedroomResult {
+export function useBedroom(options?: IUseBedroomOptions): IUseBedroomResult {
+  const pollingEnabled = options?.enabled ?? true;
   const isConnected = useConnectionStore((s) => s.isConnected);
   const baseUrl = useConnectionStore((s) => s.baseUrl);
   const token = useConnectionStore((s) => s.profile?.accessToken);
@@ -36,9 +42,11 @@ export function useBedroom(): IUseBedroomResult {
 
   const query = useQuery({
     queryKey: ['bedroom-sensors', baseUrl, mappingKey, entityIds],
-    enabled: Boolean(isConnected && baseUrl && token && entityIds.length > 0),
+    enabled: Boolean(
+      pollingEnabled && isConnected && baseUrl && token && entityIds.length > 0,
+    ),
     staleTime: BEDROOM_STALE_MS,
-    refetchInterval: BEDROOM_STALE_MS,
+    refetchInterval: pollingEnabled ? BEDROOM_STALE_MS : false,
     queryFn: async () => {
       const states = await fetchEntityStates(baseUrl!, token!, entityIds);
       return mapBedroomReadings(states, sensors);

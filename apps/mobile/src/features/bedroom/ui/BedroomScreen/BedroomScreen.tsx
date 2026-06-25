@@ -76,6 +76,9 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
     [],
   );
 
+  const devicesTabActive = activeTab === 'devices';
+  const sensorsTabActive = activeTab === 'sensors';
+
   const {
     devices,
     isLoading: isDevicesLoading,
@@ -86,14 +89,14 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
     setToggle,
     setSegment,
     refresh: refreshDevices,
-  } = useBedroomControls();
+  } = useBedroomControls({ enabled: devicesTabActive });
 
   const {
     readings,
     isLoading: isSensorsLoading,
     isError: isSensorsError,
     isRefreshing: isSensorsRefreshing,
-  } = useBedroom();
+  } = useBedroom({ enabled: sensorsTabActive });
 
   const isRefreshing =
     activeTab === 'devices' ? isDevicesRefreshing : isSensorsRefreshing;
