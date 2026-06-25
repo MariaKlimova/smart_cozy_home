@@ -1,5 +1,6 @@
 import type { IBedroomSensorMapping } from '@/config/bedroomSensorMapping.typings';
-import { RITUALS_CONFIG, type IBedroomSensorsMapping } from '@/config/ritualsConfig';
+import { HOME_CONFIG } from '@/config/homeConfig';
+import type { IBedroomSensorsMapping } from '@/config/homeConfig.typings';
 
 function resolveSlot(
   override: string | null | undefined,
@@ -11,11 +12,11 @@ function resolveSlot(
   return null;
 }
 
-/** Дефолты из ritualsConfig + пользовательские overrides */
+/** Дефолты из homeConfig + пользовательские overrides */
 export function resolveBedroomSensors(
   overrides: IBedroomSensorMapping | null,
 ): IBedroomSensorsMapping {
-  const defaults = RITUALS_CONFIG.bedroom_sensors;
+  const defaults = HOME_CONFIG.bedroom_sensors;
 
   return {
     temperature: {

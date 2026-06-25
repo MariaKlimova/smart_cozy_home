@@ -9,6 +9,8 @@
 | **Presence** | person entity | Кто дома |
 | **TimelineEvent** | logbook entry | Событие на человеческом языке |
 | **GentleNotification** | alert, notification | Мягкое предложение, не тревога |
+| **BedroomDevice** | light.bedroom | Управляемое устройство спальни с типом контрола |
+| **BedroomDeviceState** | entity state | Текущее значение устройства + label для UI |
 
 ## Life states
 
@@ -18,4 +20,4 @@
 
 ## Mapping layer
 
-Все `entity_id` живут только в `config/rituals.default.yaml` и `src/ha/`. UI и features работают только с domain-типами.
+Все `entity_id` живут только в `config/home.default.yaml`, `homeConfig.typings.ts`, `homeConfig.ts` и `src/ha/`. UI и features работают только с domain-типами.

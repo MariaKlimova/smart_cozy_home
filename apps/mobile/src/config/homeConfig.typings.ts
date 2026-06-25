@@ -1,8 +1,3 @@
-/**
- * Typed mapping (зеркало config/rituals.default.yaml).
- * При изменении YAML обновите и этот файл.
- */
-
 /** Маппинг ритуала на script HA */
 export interface IRitualMapping {
   /** Подпись в UI */
@@ -93,12 +88,59 @@ export interface IGentleNotificationMapping {
   message: string;
 }
 
-/** Конфигурация ритуалов и маппинга HA → domain */
-export interface IRitualsConfig {
+/** Тип контрола устройства в UI */
+export type TDeviceControlKind = 'slider' | 'toggle' | 'segmented';
+
+/** Границы slider-контрола */
+export interface IDeviceSliderBounds {
+  /** Минимум */
+  min: number;
+  /** Максимум */
+  max: number;
+  /** Шаг */
+  step: number;
+}
+
+/** Опция segmented-контрола */
+export interface IDeviceSegmentOption {
+  /** id опции, например open */
+  id: string;
+  /** Подпись, например «Открыты» */
+  label: string;
+  /** Значение для HA (position 0/50/100) */
+  value: number;
+}
+
+/** Маппинг одного устройства спальни */
+export interface IBedroomDeviceMapping {
+  /** Domain id: light, climate, curtains… */
+  id: string;
+  /** Название для UI */
+  label: string;
+  /** Тип контрола */
+  control: TDeviceControlKind;
+  /** entity_id в HA */
+  entity: string;
+  /** Для slider */
+  slider?: IDeviceSliderBounds;
+  /** Для segmented */
+  segments?: IDeviceSegmentOption[];
+}
+
+/** Секция управляемых устройств спальни */
+export interface IBedroomDevicesMapping {
+  /** Устройства в порядке отображения */
+  devices: IBedroomDeviceMapping[];
+}
+
+/** Конфигурация дома: маппинг HA → domain */
+export interface IHomeConfig {
   /** Ритуалы по id */
   rituals: Record<string, IRitualMapping>;
   /** Датчики спальни */
   bedroom_sensors: IBedroomSensorsMapping;
+  /** Управляемые устройства спальни */
+  bedroom_devices: IBedroomDevicesMapping;
   /** Сущности для карточки состояния дома */
   home_state: IHomeStateMapping;
   /** Комнаты */
@@ -109,61 +151,4 @@ export interface IRitualsConfig {
   timeline: ITimelineMapping;
   /** Мягкие уведомления */
   gentle_notifications: IGentleNotificationMapping[];
-}
-
-export const RITUALS_CONFIG: IRitualsConfig = {
-  rituals: {
-    evening: { label: 'Вечер', script: 'script.ritual_evening', icon: 'moon-o' },
-    sleep: { label: 'Сон', script: 'script.ritual_sleep', icon: 'bed' },
-    focus: { label: 'Фокус', script: 'script.ritual_focus', icon: 'laptop' },
-    cozy: { label: 'Уют', script: 'script.ritual_cozy', icon: 'coffee' },
-    away: { label: 'Уехали', script: 'script.ritual_away', icon: 'sign-out' },
-  },
-  bedroom_sensors: {
-    co2: { entity: 'sensor.bedroom_co2' },
-    temperature: { entity: 'sensor.bedroom_temperature' },
-    humidity: { entity: 'sensor.bedroom_humidity' },
-  },
-  home_state: {
-    temperature: { entity: 'sensor.living_room_temperature' },
-    light_summary: { entities: ['light.living_room', 'light.bedroom'] },
-    security: { entity: 'alarm_control_panel.home' },
-  },
-  rooms: [
-    {
-      id: 'living_room',
-      label: 'Гостиная',
-      area_id: 'living_room',
-      light: 'light.living_room',
-      climate: 'climate.living_room',
-    },
-    {
-      id: 'bedroom',
-      label: 'Спальня',
-      area_id: 'bedroom',
-      light: 'light.bedroom',
-    },
-  ],
-  presence: {
-    persons: [
-      { entity: 'person.maria', label: 'Мария' },
-      { entity: 'person.partner', label: 'Партнёр' },
-    ],
-  },
-  timeline: {
-    entity_watch: ['person.maria', 'input_select.home_mode'],
-  },
-  gentle_notifications: [
-    {
-      id: 'bedroom_dark',
-      room_id: 'bedroom',
-      light_entity: 'light.bedroom',
-      occupancy_entity: 'binary_sensor.bedroom_occupancy',
-      message: 'Похоже, в спальне темно — включить свет?',
-    },
-  ],
-};
-
-export function loadRitualsConfig(): IRitualsConfig {
-  return RITUALS_CONFIG;
 }

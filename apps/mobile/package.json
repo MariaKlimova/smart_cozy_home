@@ -8,7 +8,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test src/ha/mappers/mapBedroomDevices.test.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -43,6 +44,7 @@
     "eslint": "^9.39.0",
     "eslint-config-expo": "~10.0.0",
     "react-test-renderer": "19.1.0",
+    "tsx": "^4.20.3",
     "typescript": "~5.9.2"
   },
   "private": true
