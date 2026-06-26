@@ -40,6 +40,7 @@ function formatSliderValue(value: IBedroomSliderValue): string {
 export function BedroomDeviceControlsCard({
   device,
   isPending,
+  showConfigure = true,
   onSliderComplete,
   onToggle,
   onSegmentSelect,
@@ -75,15 +76,17 @@ export function BedroomDeviceControlsCard({
     <CalmCard padding="md" style={styles.card}>
       <View style={styles.header}>
         <Text style={[typography.subtitle, styles.title, { color: c.text }]}>{device.label}</Text>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`${device.label}. ${copy.bedroom.configureDeviceA11y}`}
-          onPress={onConfigure}
-          style={styles.configureButton}
-          hitSlop={8}
-        >
-          <FontAwesome name="cog" size={18} color={c.textMuted} />
-        </Pressable>
+        {showConfigure && onConfigure ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${device.label}. ${copy.bedroom.configureDeviceA11y}`}
+            onPress={onConfigure}
+            style={styles.configureButton}
+            hitSlop={8}
+          >
+            <FontAwesome name="cog" size={18} color={c.textMuted} />
+          </Pressable>
+        ) : null}
       </View>
 
       <View style={styles.controlSection}>

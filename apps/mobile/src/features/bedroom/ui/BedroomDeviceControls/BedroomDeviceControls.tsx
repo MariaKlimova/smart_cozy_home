@@ -8,6 +8,7 @@ import { styles } from './BedroomDeviceControls.styles';
 export function BedroomDeviceControls({
   devices,
   pendingDeviceId,
+  showConfigure = true,
   onSliderComplete,
   onToggle,
   onSegmentSelect,
@@ -20,10 +21,13 @@ export function BedroomDeviceControls({
           key={device.id}
           device={device}
           isPending={pendingDeviceId === device.id}
+          showConfigure={showConfigure}
           onSliderComplete={(value) => onSliderComplete(device.id, value)}
           onToggle={(isOn) => onToggle(device.id, isOn)}
           onSegmentSelect={(optionId) => onSegmentSelect(device.id, optionId)}
-          onConfigure={() => onConfigureDevice(device.id)}
+          onConfigure={
+            onConfigureDevice ? () => onConfigureDevice(device.id) : undefined
+          }
         />
       ))}
     </View>

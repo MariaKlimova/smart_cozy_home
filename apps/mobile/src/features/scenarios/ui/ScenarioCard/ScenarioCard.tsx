@@ -32,6 +32,8 @@ export function ScenarioCard({
   onPress,
   onSettingsPress,
   isAnyRunning,
+  fullWidth = false,
+  showSchedule = true,
 }: IScenarioCardProps) {
   const c = useThemeColors();
   const scheduleNow = useScheduleClockTick();
@@ -47,7 +49,9 @@ export function ScenarioCard({
   const isActive = cardState === 'active';
   const isPrepared = cardState === 'prepared';
   const isDisabled = isAnyRunning && !isRunning;
-  const subtitle = formatScenarioCardSubtitle(scenario, cardState, scheduleNow);
+  const subtitle = formatScenarioCardSubtitle(scenario, cardState, scheduleNow, {
+    showSchedule,
+  });
 
   useEffect(() => {
     if (isRunning) {
@@ -88,6 +92,7 @@ export function ScenarioCard({
     <Animated.View
       style={[
         styles.card,
+        fullWidth ? styles.cardFullWidth : null,
         cardAnimatedStyle,
         { backgroundColor, borderColor, borderWidth: isActive || isPrepared ? 2 : 1 },
       ]}
@@ -118,7 +123,9 @@ export function ScenarioCard({
           <FontAwesome name={scenario.icon as 'moon-o'} size={24} color={iconColor} />
         )}
         <Text style={[typography.subtitle, styles.label, { color: c.text }]}>{scenario.label}</Text>
-        <Text style={[styles.subtitle, { color: subtitleColor }]}>{subtitle}</Text>
+        {subtitle ? (
+          <Text style={[styles.subtitle, { color: subtitleColor }]}>{subtitle}</Text>
+        ) : null}
       </Pressable>
     </Animated.View>
   );

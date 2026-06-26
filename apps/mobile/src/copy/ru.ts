@@ -19,6 +19,11 @@ export const copy = {
       co2: 'CO₂',
     },
   },
+  quickActions: {
+    manualControl: 'Ручное управление',
+    manualControlRoom: 'Спальня',
+    manualControlFailed: 'Не получилось изменить',
+  },
   home: {
     screenTitle: 'Дом',
     defaultTitle: 'Дом в порядке',
@@ -32,7 +37,6 @@ export const copy = {
   },
   scenarios: {
     sectionTitle: 'Сценарии',
-    manualOnly: 'Только вручную',
     scheduleToday: 'Сегодня в {time}',
     scheduleTomorrow: 'Завтра в {time}',
     runFailed: 'Не получилось запустить сценарий',

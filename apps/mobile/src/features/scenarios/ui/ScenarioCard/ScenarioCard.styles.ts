@@ -20,6 +20,9 @@ export const styles = StyleSheet.create({
     gap: spacing.xs,
     position: 'relative',
   },
+  cardFullWidth: {
+    width: '100%',
+  },
   settingsButton: {
     position: 'absolute',
     top: 0,
