@@ -138,6 +138,8 @@ export function collectWatchedEntityIds(): string[] {
     ids.add(n.light_entity);
     ids.add(n.occupancy_entity);
   }
+  ids.add(config.scenarios_ha.home_mode.entity);
+  ids.add(config.scenarios_ha.prepared.entity);
   return [...ids];
 }
 

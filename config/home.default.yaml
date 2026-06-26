@@ -2,15 +2,46 @@
 # Редактируйте под свою установку HA
 # TODO(SH-21): sync-скрипт home.default.yaml → apps/mobile/src/config/homeConfig.ts
 
-rituals:
+# Сценарии — см. apps/mobile/src/features/scenarios/config/scenarios.ts (source of truth для UI)
+scenarios:
   evening:
     label: Вечер
     script: script.ritual_evening
     icon: moon-o
+    has_schedule: true
+    default_schedule_time: "22:30"
   sleep:
     label: Сон
     script: script.ritual_sleep
     icon: bed
+    has_schedule: true
+    default_schedule_time: "23:00"
+  morning:
+    label: Утро
+    script: script.ritual_morning
+    icon: sun-o
+    has_schedule: true
+    default_schedule_time: "07:00"
+  away:
+    label: Уехали
+    script: script.ritual_away
+    icon: sign-out
+    has_schedule: false
+  coming_home:
+    label: Еду домой
+    script: script.ritual_coming_home
+    icon: home
+    has_schedule: false
+  cozy:
+    label: Уют
+    script: script.ritual_cozy
+    icon: coffee
+    has_schedule: false
+  focus:
+    label: Фокус
+    script: script.ritual_focus
+    icon: laptop
+    has_schedule: false
 
 home_state:
   temperature:
@@ -123,3 +154,11 @@ gentle_notifications:
     light_entity: light.bedroom
     occupancy_entity: binary_sensor.bedroom_occupancy
     message: Похоже, в спальне темно — включить свет?
+
+# Сущности для active/prepared в приложении
+scenarios_ha:
+  home_mode:
+    entity: input_select.home_mode
+  prepared:
+    entity: input_boolean.home_ready_for_arrival
+  exit_home_mode_option: none

@@ -30,9 +30,18 @@ export const copy = {
     checking: 'Связываемся с домом…',
     needUrl: 'Укажи хотя бы локальный или удалённый URL Home Assistant.',
   },
-  rituals: {
-    sectionTitle: 'Ритуалы',
+  scenarios: {
+    sectionTitle: 'Сценарии',
+    manualOnly: 'Только вручную',
+    scheduleToday: 'Сегодня в {time}',
+    scheduleTomorrow: 'Завтра в {time}',
+    runFailed: 'Не получилось запустить сценарий',
     running: 'Запускаем…',
+    preparing: 'Готовим дом…',
+    activeNow: 'Сейчас активен',
+    prepared: 'Дом готов к тебе',
+    settingsA11y: 'Настроить сценарий',
+    settingsPlaceholder: 'Настройки появятся в следующем обновлении',
   },
   notifications: {
     dismissLater: 'Не сейчас',

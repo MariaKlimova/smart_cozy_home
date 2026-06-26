@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
-import { HomeRitualsSection } from '@/features/home/ui/HomeRitualsSection';
+import { HomeScenariosSection } from '@/features/home/ui/HomeScenariosSection';
 import { GentleNotificationCard } from '@/features/notifications/ui/GentleNotificationCard';
 import {
   formatBedroomMetrics,
@@ -12,8 +12,8 @@ import {
 } from '@/features/now/lib/interpretState';
 import { useBedroom } from '@/features/now/lib/useBedroom';
 import { BedroomStateCard } from '@/features/now/ui/BedroomStateCard';
+import { useRunScenario } from '@/features/scenarios/lib/useRunScenario';
 import { useGentleNotifications } from '@/hooks/useGentleNotifications';
-import { useRitualRunner } from '@/hooks/useRitualRunner';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useConnectionStore } from '@/store/connectionStore';
@@ -25,12 +25,12 @@ import { typography } from '@/theme/tokens';
 export default function NowScreen() {
   const c = useThemeColors();
   const isConnected = useConnectionStore((s) => s.isConnected);
-  const { runningId, runRitualById } = useRitualRunner();
+  const { runStateById, activeScenarioId, preparedScenarioId, runScenarioById } = useRunScenario();
   const { readings, isLoading: isBedroomLoading } = useBedroom();
   const hasSensorHydrated = useBedroomSensorStore((s) => s.hasHydrated);
   const isSensorsConfigured = useBedroomSensorStore((s) => s.isConfigured());
 
-  const rituals = useHomeStore((s) => s.rituals);
+  const scenarios = useHomeStore((s) => s.scenarios);
   const isRefreshing = useHomeStore((s) => s.isRefreshing);
   const refresh = useHomeStore((s) => s.refresh);
   const { visibleNotifications, handleAccept, handleDismiss } = useGentleNotifications();
@@ -45,6 +45,10 @@ export default function NowScreen() {
   const tone = getBedroomStateTone(resolvedReadings);
   const showBedroomSkeleton = isConnected && isBedroomLoading;
   const showSetupCta = isConnected && hasSensorHydrated && !isSensorsConfigured;
+
+  const handleSettingsPress = (scenarioId: string) => {
+    router.push({ pathname: '/scenario-settings', params: { id: scenarioId } });
+  };
 
   return (
     <ScreenLayout
@@ -85,7 +89,14 @@ export default function NowScreen() {
         />
       ))}
 
-      <HomeRitualsSection rituals={rituals} runningId={runningId} onRitualPress={runRitualById} />
+      <HomeScenariosSection
+        scenarios={scenarios}
+        runStateById={runStateById}
+        activeScenarioId={activeScenarioId}
+        preparedScenarioId={preparedScenarioId}
+        onScenarioPress={runScenarioById}
+        onSettingsPress={handleSettingsPress}
+      />
     </ScreenLayout>
   );
 }

@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 
 import { computeHomeState } from '@/domain/stateEngine';
-import { listRituals } from '@/domain/ritualRunner';
+import { listScenarios } from '@/domain/scenarioRunner';
 import { createEmptySyncDebug, type IHomeSyncDebug } from '@/domain/syncDebug';
 import type {
   IGentleNotification,
   IHomeState,
   IPresenceMember,
-  IRitual,
+  IScenario,
   IRoom,
   ITimelineEvent,
 } from '@/domain/types';
@@ -22,14 +22,25 @@ import {
   mapTemperature,
   mapTimelineFromLogbook,
 } from '@/ha/mappers/domainMapper';
+import { mapScenarioHaState } from '@/features/scenarios/lib/mapScenarioHaState';
 import { loadHomeConfig } from '@/config/homeConfig';
 import { useConnectionStore } from '@/store/connectionStore';
+
+/** Опции синхронизации homeStore */
+export interface IHomeRefreshOptions {
+  /** Не показывать индикатор pull-to-refresh */
+  silent?: boolean;
+}
 
 interface IHomeStore {
   /** Сводное состояние дома из StateEngine; null до первого успешного sync */
   homeState: IHomeState | null;
-  /** Список ритуалов из domain/config (без привязки к HA в UI) */
-  rituals: IRitual[];
+  /** Список сценариев из domain/config (без привязки к HA в UI) */
+  scenarios: IScenario[];
+  /** Активный режим из input_select.home_mode */
+  activeScenarioId: string | null;
+  /** Подготовленный сценарий (еду домой) */
+  preparedScenarioId: string | null;
   /** Комнаты с освещением, замапленные из entity states */
   rooms: IRoom[];
   /** Кто дома / вне дома по person-сущностям */
@@ -45,7 +56,12 @@ interface IHomeStore {
   /** Диагностика последней синхронизации для экрана настроек */
   syncDebug: IHomeSyncDebug;
   /** Загрузить состояния сущностей и пересобрать доменные срезы; false при ошибке или offline */
-  refresh: () => Promise<boolean>;
+  refresh: (options?: IHomeRefreshOptions) => Promise<boolean>;
+  /** Оптимистично задать active/prepared до sync с HA */
+  setScenarioActivation: (
+    activeScenarioId: string | null,
+    preparedScenarioId: string | null,
+  ) => void;
   /** Переключить свет в комнате по domain room id */
   toggleRoomLight: (roomId: string) => Promise<void>;
   /** Принять мягкое уведомление (включить свет по правилу из config) */
@@ -63,7 +79,9 @@ function buildStatePreview(
 
 export const useHomeStore = create<IHomeStore>((set, get) => ({
   homeState: null,
-  rituals: listRituals(),
+  scenarios: listScenarios(),
+  activeScenarioId: null,
+  preparedScenarioId: null,
   rooms: [],
   presence: [],
   timeline: [],
@@ -72,7 +90,11 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
   isRefreshing: false,
   syncDebug: createEmptySyncDebug(),
 
-  refresh: async () => {
+  setScenarioActivation: (activeScenarioId, preparedScenarioId) => {
+    set({ activeScenarioId, preparedScenarioId });
+  },
+
+  refresh: async (options) => {
     const { baseUrl, profile, isConnected } = useConnectionStore.getState();
     if (!isConnected || !baseUrl || !profile) {
       set({
@@ -84,7 +106,10 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
       return false;
     }
 
-    set({ isRefreshing: true });
+    const showSpinner = !options?.silent;
+    if (showSpinner) {
+      set({ isRefreshing: true });
+    }
 
     try {
       const entityIds = collectWatchedEntityIds();
@@ -97,11 +122,13 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
       const temperature = mapTemperature(states);
       const lights = mapLightsSummary(states);
       const securityStatus = mapSecurityStatus(states);
+      const { activeScenarioId, preparedScenarioId } = mapScenarioHaState(states, presence);
       const hour = new Date().getHours();
 
       const homeState = computeHomeState({
         hour,
         presence,
+        activeScenarioId: activeScenarioId ?? undefined,
         temperature,
         lightsOnCount: lights.on,
         lightsTotal: lights.total,
@@ -134,13 +161,15 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
 
       set({
         homeState,
+        activeScenarioId,
+        preparedScenarioId,
         rooms,
         presence,
         timeline,
         gentleNotifications,
         dismissedGentleNotificationIds,
         syncDebug,
-        isRefreshing: false,
+        ...(showSpinner ? { isRefreshing: false } : {}),
       });
       return true;
     } catch (err) {
@@ -150,7 +179,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
           ...get().syncDebug,
           lastError: message,
         },
-        isRefreshing: false,
+        ...(showSpinner ? { isRefreshing: false } : {}),
       });
       return false;
     }

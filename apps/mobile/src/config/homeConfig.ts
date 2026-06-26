@@ -13,16 +13,10 @@ export type {
   IBedroomDevicesMapping,
   IBedroomSensorsMapping,
   IHomeConfig,
+  IScenariosHaMapping,
 } from './homeConfig.typings';
 
 export const HOME_CONFIG: IHomeConfig = {
-  rituals: {
-    evening: { label: 'Вечер', script: 'script.ritual_evening', icon: 'moon-o' },
-    sleep: { label: 'Сон', script: 'script.ritual_sleep', icon: 'bed' },
-    focus: { label: 'Фокус', script: 'script.ritual_focus', icon: 'laptop' },
-    cozy: { label: 'Уют', script: 'script.ritual_cozy', icon: 'coffee' },
-    away: { label: 'Уехали', script: 'script.ritual_away', icon: 'sign-out' },
-  },
   bedroom_sensors: {
     co2: { entity: 'sensor.bedroom_co2' },
     temperature: { entity: 'sensor.bedroom_temperature' },
@@ -125,6 +119,11 @@ export const HOME_CONFIG: IHomeConfig = {
       message: 'Похоже, в спальне темно — включить свет?',
     },
   ],
+  scenarios_ha: {
+    home_mode: { entity: 'input_select.home_mode' },
+    prepared: { entity: 'input_boolean.home_ready_for_arrival' },
+    exit_home_mode_option: 'none',
+  },
 };
 
 export function loadHomeConfig(): IHomeConfig {
