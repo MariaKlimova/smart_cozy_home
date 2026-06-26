@@ -4,9 +4,11 @@ import { spacing } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   root: {
-    gap: spacing.md,
+    flex: 1,
   },
-  title: {
-    marginBottom: spacing.md,
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
   },
 });

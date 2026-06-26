@@ -92,6 +92,19 @@ export async function runHaScript(
   await callHaService(baseUrl, token, 'script', 'turn_on', { entity_id: scriptEntityId });
 }
 
+/** Установить option у input_select */
+export async function setInputSelectOption(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  option: string,
+): Promise<void> {
+  await callHaService(baseUrl, token, 'input_select', 'select_option', {
+    entity_id: entityId,
+    option,
+  });
+}
+
 export async function toggleLight(
   baseUrl: string,
   token: string,

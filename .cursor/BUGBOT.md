@@ -17,7 +17,7 @@
 1. `app/` — маршруты Expo Router, композиция экранов
 2. `src/features/*/ui/` — БЭМ-блоки фич (только domain-типы в пропсах)
 3. `src/ui/` — переиспользуемые БЭМ-блоки
-4. `src/domain/` — HomeState, Ritual, StateEngine (**без React**)
+4. `src/domain/` — HomeState, Scenario, StateEngine (**без React**)
 5. `src/ha/` — ConnectionManager, клиент, mappers
 
 If any changed file under `apps/mobile/app/`, `apps/mobile/src/features/**/ui/`, or `apps/mobile/src/ui/`:
@@ -136,7 +136,7 @@ If secrets or tokens appear in logs, comments, or user-visible strings:
 
 When reviewing `apps/mobile/src/domain/**`:
 
-- StateEngine, rituals, life states — чистая логика без side effects UI.
+- StateEngine, scenarios, life states — чистая логика без side effects UI.
 - Не протаскивать `entity_id` в domain-типы, если есть domain-абстракция.
 
 ---

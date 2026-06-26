@@ -2,6 +2,9 @@
  * Typed mapping (зеркало config/home.default.yaml).
  * При изменении YAML обновите и этот файл.
  *
+ * HA-контракт сценариев: docs/scenarios-ha-contract.md
+ * Инсталляционный пакет: SH-24 (packages/ha-installer/)
+ *
  * TODO(SH-21): скрипт sync home.default.yaml → HOME_CONFIG (check + write), YAML — source of truth.
  * https://klimovamaria5227.atlassian.net/browse/SH-21
  */
@@ -13,16 +16,10 @@ export type {
   IBedroomDevicesMapping,
   IBedroomSensorsMapping,
   IHomeConfig,
+  IScenariosHaMapping,
 } from './homeConfig.typings';
 
 export const HOME_CONFIG: IHomeConfig = {
-  rituals: {
-    evening: { label: 'Вечер', script: 'script.ritual_evening', icon: 'moon-o' },
-    sleep: { label: 'Сон', script: 'script.ritual_sleep', icon: 'bed' },
-    focus: { label: 'Фокус', script: 'script.ritual_focus', icon: 'laptop' },
-    cozy: { label: 'Уют', script: 'script.ritual_cozy', icon: 'coffee' },
-    away: { label: 'Уехали', script: 'script.ritual_away', icon: 'sign-out' },
-  },
   bedroom_sensors: {
     co2: { entity: 'sensor.bedroom_co2' },
     temperature: { entity: 'sensor.bedroom_temperature' },
@@ -125,6 +122,11 @@ export const HOME_CONFIG: IHomeConfig = {
       message: 'Похоже, в спальне темно — включить свет?',
     },
   ],
+  scenarios_ha: {
+    home_mode: { entity: 'input_select.home_mode' },
+    prepared: { entity: 'input_boolean.home_ready_for_arrival' },
+    exit_home_mode_option: 'none',
+  },
 };
 
 export function loadHomeConfig(): IHomeConfig {

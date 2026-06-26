@@ -1,30 +1,63 @@
 # Настройка Home Assistant
 
-## Скрипты / сцены ритуалов
+## Быстрый путь (рекомендуется)
 
-Создайте в HA scripts или scenes с id, совпадающими с mapping:
+Установите инсталляционный пакет из задачи **SH-24** (`packages/ha-installer/`). Он создаёт helpers, scripts и automations с entity_id, которые ожидает приложение.
 
-| Ритуал в приложении | Рекомендуемый script_id |
-|---------------------|-------------------------|
-| Вечер | `ritual_evening` |
-| Сон | `ritual_sleep` |
-| Фокус | `ritual_focus` |
-| Уют | `ritual_cozy` |
-| Уехали | `ritual_away` |
+Полный контракт entity_id: [scenarios-ha-contract.md](./scenarios-ha-contract.md).
 
-## Helpers (опционально)
+После установки пакета:
 
-- `input_select.home_mode` — синхронизация активного ритуала с HA.
+1. Переименуйте / привяжите устройства под стандартные id (см. `DEVICES.md` в пакете).
+2. Настройте **Person** entities для presence.
+3. В приложении: onboarding → URL + токен.
+4. Проверьте сценарии вручную и расписание через экран настроек (SH-15).
 
-## Комнаты
+## Роль приложения
+
+| Действие | Как |
+|----------|-----|
+| Запуск сценария | `script.turn_on` (`script.evening`, …) |
+| Active / prepared | Чтение `input_select.home_mode`, `input_boolean.home_ready_for_arrival` |
+| Параметры (яркость, температура, …) | Запись в `input_number.*` / `input_boolean.*` |
+| Расписание | Запись в `input_boolean.*_schedule_enabled`, `input_datetime.*_schedule_time` |
+
+Scripts и automations в HA **не редактируются** из приложения.
+
+## Ручная настройка (без пакета SH-24)
+
+Если пакет ещё не установлен, минимум для работы карточек active/prepared:
+
+### Helpers
+
+```yaml
+input_select:
+  home_mode:
+    name: Режим дома
+    options:
+      - none
+      - evening
+      - sleep
+      - morning
+      - away
+      - cozy
+      - focus
+
+input_boolean:
+  home_ready_for_arrival:
+    name: Дом готов к приезду
+```
+
+### Scripts
+
+Создайте scripts с id из [контракта](./scenarios-ha-contract.md). Каждый script режима должен выставить `input_select.home_mode`; `script.coming_home` — включить `home_ready_for_arrival`.
+
+> **Примечание:** в коде приложения до SH-24 могут быть старые id `script.ritual_*`. Целевые имена — `script.evening` и т.д.
+
+## Комнаты и mapping
 
 - Назначьте устройствам **Areas** в HA.
-- Обновите `config/home.default.yaml` → секция `rooms`.
-
-## Presence
-
-- Настройте **Person** entities.
-- Укажите их в `config/home.default.yaml` → `presence.persons`.
+- Обновите `config/home.default.yaml` → секции `rooms`, `bedroom_devices`, `presence`.
 
 ## Токен доступа
 

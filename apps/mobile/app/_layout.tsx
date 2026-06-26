@@ -114,6 +114,12 @@ function RootLayoutNav() {
           }}
         />
         <Stack.Screen
+          name="scenario-settings"
+          options={{
+            headerShown: true,
+          }}
+        />
+        <Stack.Screen
           name="bedroom"
           options={{
             title: copy.bedroom.screenTitle,

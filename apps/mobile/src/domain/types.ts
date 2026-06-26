@@ -29,15 +29,22 @@ export interface IHomeState {
   metrics: IHomeMetric[];
 }
 
-/** Ритуал (сценарий жизни) */
-export interface IRitual {
-  /** id ритуала, например evening */
+/** Сценарий жизни дома */
+export interface IScenario {
+  /** id сценария, например evening */
   id: string;
   /** Название для UI */
   label: string;
   /** Имя иконки FontAwesome */
   icon: string;
+  /** Есть ли автоматическое расписание */
+  hasSchedule: boolean;
+  /** Подпись под названием: «Сегодня в 22:30» или «Только вручную» */
+  scheduleSubtitle: string;
 }
+
+/** @deprecated Используй IScenario */
+export type IRitual = IScenario;
 
 /** Комната */
 export interface IRoom {

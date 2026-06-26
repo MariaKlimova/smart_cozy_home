@@ -6,7 +6,9 @@ export interface IStateEngineInput {
   hour: number;
   /** Кто дома */
   presence: IPresenceMember[];
-  /** id активного ритуала или undefined */
+  /** id активного сценария-режима или undefined */
+  activeScenarioId?: string;
+  /** @deprecated Используй activeScenarioId */
   activeRitualId?: string;
   /** Температура для метрики */
   temperature?: string;
@@ -20,8 +22,12 @@ export interface IStateEngineInput {
 
 function resolveLifeState(input: IStateEngineInput): LifeState {
   const anyoneHome = input.presence.some((p) => p.isHome);
-  if (!anyoneHome) return 'away';
-  if (input.activeRitualId === 'sleep') return 'sleep';
+  const activeId = input.activeScenarioId ?? input.activeRitualId;
+  if (!anyoneHome || activeId === 'away') return 'away';
+  if (activeId === 'sleep') return 'sleep';
+  if (activeId === 'evening') return 'evening';
+  if (activeId === 'morning') return 'morning';
+  if (activeId === 'focus') return 'work';
   if (input.hour >= 6 && input.hour < 11) return 'morning';
   if (input.hour >= 18 && input.hour < 23) return 'evening';
   if (input.hour >= 11 && input.hour < 18) return 'work';

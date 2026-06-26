@@ -1,13 +1,3 @@
-/** Маппинг ритуала на script HA */
-export interface IRitualMapping {
-  /** Подпись в UI */
-  label: string;
-  /** entity_id script в HA */
-  script: string;
-  /** Имя иконки FontAwesome */
-  icon: string;
-}
-
 /** Маппинг комнаты на entities HA */
 export interface IRoomMapping {
   /** id комнаты в domain */
@@ -74,6 +64,16 @@ export interface ITimelineMapping {
   entity_watch: string[];
 }
 
+/** HA-сущности для состояния сценариев */
+export interface IScenariosHaMapping {
+  /** input_select.home_mode — активный режим */
+  home_mode: IHaEntityRef;
+  /** input_boolean — дом подготовлен к приезду */
+  prepared: IHaEntityRef;
+  /** option в home_mode при выходе из режима */
+  exit_home_mode_option: string;
+}
+
 /** Мягкое уведомление в конфиге */
 export interface IGentleNotificationMapping {
   /** id уведомления */
@@ -135,8 +135,6 @@ export interface IBedroomDevicesMapping {
 
 /** Конфигурация дома: маппинг HA → domain */
 export interface IHomeConfig {
-  /** Ритуалы по id */
-  rituals: Record<string, IRitualMapping>;
   /** Датчики спальни */
   bedroom_sensors: IBedroomSensorsMapping;
   /** Управляемые устройства спальни */
@@ -151,4 +149,6 @@ export interface IHomeConfig {
   timeline: ITimelineMapping;
   /** Мягкие уведомления */
   gentle_notifications: IGentleNotificationMapping[];
+  /** Сущности HA для активного сценария */
+  scenarios_ha: IScenariosHaMapping;
 }

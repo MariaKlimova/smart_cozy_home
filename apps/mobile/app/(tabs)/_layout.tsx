@@ -29,10 +29,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="rituals"
+        name="scenarios"
         options={{
-          title: copy.rituals.sectionTitle,
-          tabBarIcon: ({ color }) => <TabBarIcon name="moon-o" color={color} />,
+          title: copy.scenarios.sectionTitle,
+          tabBarIcon: ({ color }) => <TabBarIcon name="play-circle" color={color} />,
         }}
       />
       <Tabs.Screen
