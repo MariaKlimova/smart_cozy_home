@@ -38,6 +38,7 @@ export function useRunScenario(): IUseRunScenarioResult {
   const [runStateById, setRunStateById] = useState<Record<string, TScenarioRunState>>({});
   const [lastError, setLastError] = useState<string | null>(null);
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const runningIdsRef = useRef<Set<string>>(new Set());
 
   const setScenarioState = useCallback((scenarioId: string, state: TScenarioRunState) => {
     setRunStateById((prev) => ({ ...prev, [scenarioId]: state }));
@@ -69,9 +70,10 @@ export function useRunScenario(): IUseRunScenarioResult {
         return;
       }
 
-      if (runStateById[scenarioId] === 'running') {
+      if (runningIdsRef.current.has(scenarioId)) {
         return;
       }
+      runningIdsRef.current.add(scenarioId);
 
       const definition = getScenarioDefinition(scenarioId);
       const isActiveMode =
@@ -87,6 +89,7 @@ export function useRunScenario(): IUseRunScenarioResult {
         } catch {
           showError();
         } finally {
+          runningIdsRef.current.delete(scenarioId);
           setScenarioState(scenarioId, 'idle');
         }
         return;
@@ -108,6 +111,7 @@ export function useRunScenario(): IUseRunScenarioResult {
       } catch {
         showError();
       } finally {
+        runningIdsRef.current.delete(scenarioId);
         setScenarioState(scenarioId, 'idle');
       }
     },
@@ -115,7 +119,6 @@ export function useRunScenario(): IUseRunScenarioResult {
       isConnected,
       baseUrl,
       profile,
-      runStateById,
       activeScenarioId,
       preparedScenarioId,
       setScenarioState,

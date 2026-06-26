@@ -12,6 +12,7 @@ import Animated, {
 import { copy } from '@/copy/ru';
 import { formatScenarioCardSubtitle } from '@/features/scenarios/lib/formatScenarioCardSubtitle';
 import { getScenarioCardState } from '@/features/scenarios/lib/getScenarioCardState';
+import { useScheduleClockTick } from '@/features/scenarios/lib/useScheduleClockTick';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { typography } from '@/theme/tokens';
 
@@ -33,6 +34,7 @@ export function ScenarioCard({
   isAnyRunning,
 }: IScenarioCardProps) {
   const c = useThemeColors();
+  const scheduleNow = useScheduleClockTick();
   const scale = useSharedValue(1);
 
   const cardState = getScenarioCardState(
@@ -45,7 +47,7 @@ export function ScenarioCard({
   const isActive = cardState === 'active';
   const isPrepared = cardState === 'prepared';
   const isDisabled = isAnyRunning && !isRunning;
-  const subtitle = formatScenarioCardSubtitle(scenario, cardState);
+  const subtitle = formatScenarioCardSubtitle(scenario, cardState, scheduleNow);
 
   useEffect(() => {
     if (isRunning) {

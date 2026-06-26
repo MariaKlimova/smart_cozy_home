@@ -19,13 +19,21 @@ import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
 import { CalmButton } from '@/ui/CalmButton';
+import { CalmToast } from '@/ui/CalmToast';
 import { ScreenLayout } from '@/ui/ScreenLayout';
 import { typography } from '@/theme/tokens';
 
 export default function NowScreen() {
   const c = useThemeColors();
   const isConnected = useConnectionStore((s) => s.isConnected);
-  const { runStateById, activeScenarioId, preparedScenarioId, runScenarioById } = useRunScenario();
+  const {
+    runStateById,
+    activeScenarioId,
+    preparedScenarioId,
+    lastError,
+    runScenarioById,
+    clearError,
+  } = useRunScenario();
   const { readings, isLoading: isBedroomLoading } = useBedroom();
   const hasSensorHydrated = useBedroomSensorStore((s) => s.hasHydrated);
   const isSensorsConfigured = useBedroomSensorStore((s) => s.isConfigured());
@@ -51,6 +59,7 @@ export default function NowScreen() {
   };
 
   return (
+    <View style={{ flex: 1 }}>
     <ScreenLayout
       title={copy.now.screenTitle}
       onRefresh={isConnected ? refresh : undefined}
@@ -98,5 +107,12 @@ export default function NowScreen() {
         onSettingsPress={handleSettingsPress}
       />
     </ScreenLayout>
+
+    <CalmToast
+      visible={!!lastError}
+      message={lastError ?? ''}
+      onDismiss={clearError}
+    />
+    </View>
   );
 }

@@ -1,8 +1,7 @@
 import { loadHomeConfig } from '@/config/homeConfig';
+import { resolveModeScenarioIdFromHomeMode } from '@/domain/scenarioRunner';
 import type { IPresenceMember } from '@/domain/types';
 import type { IHaEntityState } from '@/ha/types';
-
-import { getScenarioByHomeModeOption } from '../config/scenarios';
 
 /** Состояние сценариев из HA */
 export interface IScenarioHaState {
@@ -29,10 +28,7 @@ export function mapScenarioHaState(
   let activeScenarioId: string | null = null;
   const homeModeState = map.get(config.scenarios_ha.home_mode.entity);
   if (homeModeState && !INACTIVE_HOME_MODE_STATES.has(homeModeState.state)) {
-    const definition = getScenarioByHomeModeOption(homeModeState.state);
-    if (definition?.kind === 'mode') {
-      activeScenarioId = definition.id;
-    }
+    activeScenarioId = resolveModeScenarioIdFromHomeMode(homeModeState.state);
   }
 
   let preparedScenarioId: string | null = null;

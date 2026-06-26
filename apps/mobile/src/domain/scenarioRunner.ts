@@ -2,19 +2,29 @@ import { loadHomeConfig } from '@/config/homeConfig';
 import {
   SCENARIO_DEFINITIONS,
   getScenarioDefinition,
+  getScenarioByHomeModeOption,
 } from '@/features/scenarios/config/scenarios';
 import { formatScenarioSchedule } from '@/features/scenarios/lib/formatScenarioSchedule';
 import { runHaScript, setInputSelectOption } from '@/ha/haClient';
 import type { IScenario } from '@/domain/types';
 
+/** id режима по option input_select.home_mode */
+export function resolveModeScenarioIdFromHomeMode(option: string): string | null {
+  const definition = getScenarioByHomeModeOption(option);
+  if (definition?.kind === 'mode') {
+    return definition.id;
+  }
+  return null;
+}
+
 /** Список сценариев для UI */
-export function listScenarios(): IScenario[] {
+export function listScenarios(now: Date = new Date()): IScenario[] {
   return SCENARIO_DEFINITIONS.map((definition) => ({
     id: definition.id,
     label: definition.label,
     icon: definition.icon,
     hasSchedule: definition.hasSchedule,
-    scheduleSubtitle: formatScenarioSchedule(definition),
+    scheduleSubtitle: formatScenarioSchedule(definition, now),
   }));
 }
 

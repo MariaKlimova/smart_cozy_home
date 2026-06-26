@@ -22,7 +22,7 @@ import {
   mapTemperature,
   mapTimelineFromLogbook,
 } from '@/ha/mappers/domainMapper';
-import { mapScenarioHaState } from '@/features/scenarios/lib/mapScenarioHaState';
+import { mapScenarioHaState } from '@/ha/mappers/mapScenarioHaState';
 import { loadHomeConfig } from '@/config/homeConfig';
 import { useConnectionStore } from '@/store/connectionStore';
 
@@ -161,6 +161,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
 
       set({
         homeState,
+        scenarios: listScenarios(),
         activeScenarioId,
         preparedScenarioId,
         rooms,
