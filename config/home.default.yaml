@@ -2,7 +2,10 @@
 # Редактируйте под свою установку HA
 # TODO(SH-21): sync-скрипт home.default.yaml → apps/mobile/src/config/homeConfig.ts
 
-# Сценарии — см. apps/mobile/src/features/scenarios/config/scenarios.ts (source of truth для UI)
+# Сценарии — см. apps/mobile/src/features/scenarios/config/scenarios.ts (UI)
+# HA-контракт entity_id: docs/scenarios-ha-contract.md
+# Инсталляционный пакет: SH-24 (packages/ha-installer/)
+# TODO(SH-24): script.ritual_* → script.evening и т.д.
 scenarios:
   evening:
     label: Вечер

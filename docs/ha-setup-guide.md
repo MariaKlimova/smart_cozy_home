@@ -1,32 +1,34 @@
 # Настройка Home Assistant
 
-## Скрипты сценариев
+## Быстрый путь (рекомендуется)
 
-Создайте в HA scripts с id, совпадающими с mapping:
+Установите инсталляционный пакет из задачи **SH-24** (`packages/ha-installer/`). Он создаёт helpers, scripts и automations с entity_id, которые ожидает приложение.
 
-| Сценарий в приложении | script_id | home_mode option |
-|-----------------------|-----------|------------------|
-| Вечер | `ritual_evening` | `evening` |
-| Сон | `ritual_sleep` | `sleep` |
-| Утро | `ritual_morning` | `morning` |
-| Уехали | `ritual_away` | `away` |
-| Еду домой | `ritual_coming_home` | — |
-| Уют | `ritual_cozy` | `cozy` |
-| Фокус | `ritual_focus` | `focus` |
+Полный контракт entity_id: [scenarios-ha-contract.md](./scenarios-ha-contract.md).
 
-### Режимы (mode)
+После установки пакета:
 
-Скрипт режима должен выставить `input_select.home_mode` в соответствующий option (например `evening`). Приложение показывает карточку как **активную** до выхода.
+1. Переименуйте / привяжите устройства под стандартные id (см. `DEVICES.md` в пакете).
+2. Настройте **Person** entities для presence.
+3. В приложении: onboarding → URL + токен.
+4. Проверьте сценарии вручную и расписание через экран настроек (SH-15).
 
-Повторный тап по активной карточке выставляет `home_mode` в `none` (см. `scenarios_ha.exit_home_mode_option` в `config/home.default.yaml`).
+## Роль приложения
 
-### Подготовка (Еду домой)
+| Действие | Как |
+|----------|-----|
+| Запуск сценария | `script.turn_on` (`script.evening`, …) |
+| Active / prepared | Чтение `input_select.home_mode`, `input_boolean.home_ready_for_arrival` |
+| Параметры (яркость, температура, …) | Запись в `input_number.*` / `input_boolean.*` |
+| Расписание | Запись в `input_boolean.*_schedule_enabled`, `input_datetime.*_schedule_time` |
 
-Скрипт `ritual_coming_home` должен включить helper `input_boolean.home_ready_for_arrival`. Карточка переходит в состояние **«Дом готов к тебе»**. Повторный тап перезапускает подготовку.
+Scripts и automations в HA **не редактируются** из приложения.
 
-Prepared снимается, когда кто-то приходит домой (person → home), включается другой режим или boolean выключается в HA.
+## Ручная настройка (без пакета SH-24)
 
-## Helpers
+Если пакет ещё не установлен, минимум для работы карточек active/prepared:
+
+### Helpers
 
 ```yaml
 input_select:
@@ -46,17 +48,16 @@ input_boolean:
     name: Дом готов к приезду
 ```
 
-Обновите entity id в `config/home.default.yaml` → `scenarios_ha`, если имена отличаются.
+### Scripts
 
-## Комнаты
+Создайте scripts с id из [контракта](./scenarios-ha-contract.md). Каждый script режима должен выставить `input_select.home_mode`; `script.coming_home` — включить `home_ready_for_arrival`.
+
+> **Примечание:** в коде приложения до SH-24 могут быть старые id `script.ritual_*`. Целевые имена — `script.evening` и т.д.
+
+## Комнаты и mapping
 
 - Назначьте устройствам **Areas** в HA.
-- Обновите `config/home.default.yaml` → секция `rooms`.
-
-## Presence
-
-- Настройте **Person** entities.
-- Укажите их в `config/home.default.yaml` → `presence.persons`.
+- Обновите `config/home.default.yaml` → секции `rooms`, `bedroom_devices`, `presence`.
 
 ## Токен доступа
 

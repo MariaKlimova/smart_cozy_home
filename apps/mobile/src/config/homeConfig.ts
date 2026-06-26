@@ -2,6 +2,9 @@
  * Typed mapping (зеркало config/home.default.yaml).
  * При изменении YAML обновите и этот файл.
  *
+ * HA-контракт сценариев: docs/scenarios-ha-contract.md
+ * Инсталляционный пакет: SH-24 (packages/ha-installer/)
+ *
  * TODO(SH-21): скрипт sync home.default.yaml → HOME_CONFIG (check + write), YAML — source of truth.
  * https://klimovamaria5227.atlassian.net/browse/SH-21
  */
