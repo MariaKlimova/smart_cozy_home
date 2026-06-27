@@ -1,0 +1,47 @@
+- id: evening_schedule
+  alias: Расписание — Вечер
+  description: Запускает сценарий «Вечер» по расписанию если включено в приложении
+  trigger:
+    - platform: time
+      at: input_datetime.evening_schedule_time
+  condition:
+    - condition: state
+      entity_id: input_boolean.evening_schedule_enabled
+      state: "on"
+  action:
+    - service: script.turn_on
+      target:
+        entity_id: script.evening
+  mode: single
+
+- id: sleep_schedule
+  alias: Расписание — Сон
+  description: Запускает сценарий «Сон» по расписанию если включено в приложении
+  trigger:
+    - platform: time
+      at: input_datetime.sleep_schedule_time
+  condition:
+    - condition: state
+      entity_id: input_boolean.sleep_schedule_enabled
+      state: "on"
+  action:
+    - service: script.turn_on
+      target:
+        entity_id: script.sleep
+  mode: single
+
+- id: morning_schedule
+  alias: Расписание — Утро
+  description: Запускает сценарий «Утро» по расписанию если включено в приложении
+  trigger:
+    - platform: time
+      at: input_datetime.morning_schedule_time
+  condition:
+    - condition: state
+      entity_id: input_boolean.morning_schedule_enabled
+      state: "on"
+  action:
+    - service: script.turn_on
+      target:
+        entity_id: script.morning
+  mode: single

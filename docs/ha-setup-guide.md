@@ -9,9 +9,8 @@
 После установки пакета:
 
 1. Переименуйте / привяжите устройства под стандартные id (см. `DEVICES.md` в пакете).
-2. Настройте **Person** entities для presence.
-3. В приложении: onboarding → URL + токен.
-4. Проверьте сценарии вручную и расписание через экран настроек (SH-15).
+2. В приложении: onboarding → URL + токен.
+3. Проверьте сценарии вручную и расписание через экран настроек (SH-15).
 
 ## Роль приложения
 
@@ -50,14 +49,12 @@ input_boolean:
 
 ### Scripts
 
-Создайте scripts с id из [контракта](./scenarios-ha-contract.md). Каждый script режима должен выставить `input_select.home_mode`; `script.coming_home` — включить `home_ready_for_arrival`.
-
-> **Примечание:** в коде приложения до SH-24 могут быть старые id `script.ritual_*`. Целевые имена — `script.evening` и т.д.
+Создайте scripts с id из [контракта](./scenarios-ha-contract.md). Каждый script режима должен выставить `input_select.home_mode`; `script.coming_home` — включить `home_ready_for_arrival` и сбросить `home_mode` в `none`.
 
 ## Комнаты и mapping
 
 - Назначьте устройствам **Areas** в HA.
-- Обновите `config/home.default.yaml` → секции `rooms`, `bedroom_devices`, `presence`.
+- Обновите `config/home.default.yaml` → секции `rooms`, `bedroom_devices`.
 
 ## Токен доступа
 

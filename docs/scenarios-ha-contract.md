@@ -11,19 +11,19 @@
 
 Приложение **не пишет YAML** в HA. URL + long-lived token достаточно для чтения states и вызова services.
 
-## Именование scripts (миграция)
+## Scripts
 
-| Сейчас в коде (до SH-24) | Целевое в пакете SH-24 |
-|--------------------------|-------------------------|
-| `script.ritual_evening` | `script.evening` |
-| `script.ritual_sleep` | `script.sleep` |
-| `script.ritual_morning` | `script.morning` |
-| `script.ritual_away` | `script.away` |
-| `script.ritual_coming_home` | `script.coming_home` |
-| `script.ritual_cozy` | `script.cozy` |
-| `script.ritual_focus` | `script.focus` |
+| id | entity_id |
+|----|-----------|
+| evening | `script.evening` |
+| sleep | `script.sleep` |
+| morning | `script.morning` |
+| away | `script.away` |
+| coming_home | `script.coming_home` |
+| cozy | `script.cozy` |
+| focus | `script.focus` |
 
-При реализации SH-24 синхронизировать: `scenarios.ts`, `config/home.default.yaml`, `homeConfig.ts` (или SH-21).
+Конфиг приложения: `apps/mobile/src/features/scenarios/config/scenarios.ts`, `config/home.default.yaml`.
 
 ## Системные helpers (состояние карточек)
 
@@ -35,7 +35,7 @@
 Поведение scripts:
 
 - Режимы (`evening` … `focus`, кроме `coming_home`) после выполнения выставляют `home_mode` в свой option.
-- `script.coming_home` включает `home_ready_for_arrival`.
+- `script.coming_home` включает `home_ready_for_arrival` и выставляет `home_mode = none`.
 - Повторный тап по active-режиму в приложении → `home_mode = none`.
 
 ## Расписание (Вечер, Сон, Утро)
@@ -76,8 +76,6 @@ Scripts читают эти значения в runtime, не hardcode.
 **Спальня:** `light.bedroom`, `cover.bedroom_curtains`, `cover.bedroom_window`, `climate.bedroom_ac`, `climate.bedroom_ventilation`, `climate.bedroom_radiator`, `humidifier.bedroom`, `sensor.bedroom_co2`, `sensor.bedroom_temperature`, `sensor.bedroom_humidity`
 
 **Дом:** `light.living_room`, `climate.living_room`, `sensor.living_room_temperature`, `alarm_control_panel.home`
-
-**Presence:** `person.maria`, `person.partner` (пример; настраивается в `home.default.yaml`)
 
 ## Связанные задачи
 
