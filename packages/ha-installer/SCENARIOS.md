@@ -135,7 +135,8 @@
 3. Закрывает окно (`cover.close_cover` на `cover.bedroom_window`)
 4. Снижает температуру до `input_number.away_temperature` (`climate.set_temperature`)
 5. Выключает увлажнитель (`humidifier.turn_off`)
-6. Записывает `input_select.home_mode = away`
+6. Сбрасывает `input_boolean.home_ready_for_arrival = false`
+7. Записывает `input_select.home_mode = away`
 
 **Helpers — параметры:**
 
@@ -217,6 +218,8 @@
 |---|---|---|
 | `input_select.home_mode` | select | none, evening, sleep, morning, away, cozy, focus / дефолт: none |
 | `input_boolean.home_ready_for_arrival` | boolean | false |
+
+`home_ready_for_arrival` включает `script.coming_home`, сбрасывает `script.away`. Пока дом в режиме отъезда, карточка «Еду домой» не показывает prepared.
 
 ---
 

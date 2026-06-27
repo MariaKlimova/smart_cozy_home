@@ -36,6 +36,7 @@
 
 - Режимы (`evening` … `focus`, кроме `coming_home`) после выполнения выставляют `home_mode` в свой option.
 - `script.coming_home` включает `home_ready_for_arrival` и выставляет `home_mode = none`.
+- `script.away` сбрасывает `home_ready_for_arrival` — подготовка к приезду актуальна только пока дом не в режиме отъезда.
 - Повторный тап по active-режиму в приложении → `home_mode = none`.
 
 ## Расписание (Вечер, Сон, Утро)

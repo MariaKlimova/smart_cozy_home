@@ -170,6 +170,11 @@ script:
         target:
           entity_id: humidifier.bedroom
 
+      - alias: Сбрасываем подготовку к прибытию
+        service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.home_ready_for_arrival
+
       - alias: Фиксируем режим
         service: input_select.select_option
         target:
