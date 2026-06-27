@@ -39,9 +39,9 @@ export function useQuickActions(): IUseQuickActionsResult {
     runStateById,
     activeScenarioId,
     preparedScenarioId,
-    lastError: ritualError,
+    lastError: scenarioError,
     runScenarioById,
-    clearError: clearRitualError,
+    clearError: clearScenarioError,
   } = useRunScenario();
   const [isManualControlOpen, setIsManualControlOpen] = useState(false);
   const [manualControlError, setManualControlError] = useState<string | null>(null);
@@ -62,11 +62,12 @@ export function useQuickActions(): IUseQuickActionsResult {
   }, []);
 
   const clearError = useCallback(() => {
-    clearRitualError();
+    clearScenarioError();
     clearManualControlError();
-  }, [clearRitualError, clearManualControlError]);
+  }, [clearScenarioError, clearManualControlError]);
 
   const showManualControlError = useCallback(() => {
+    clearScenarioError();
     setManualControlError(copy.quickActions.manualControlFailed);
     if (errorTimerRef.current) {
       clearTimeout(errorTimerRef.current);
@@ -75,7 +76,7 @@ export function useQuickActions(): IUseQuickActionsResult {
       setManualControlError(null);
       errorTimerRef.current = null;
     }, QUICK_ACTION_ERROR_TOAST_MS);
-  }, []);
+  }, [clearScenarioError]);
 
   const openManualControl = useCallback(() => {
     setIsManualControlOpen(true);
@@ -93,7 +94,7 @@ export function useQuickActions(): IUseQuickActionsResult {
     };
   }, []);
 
-  const lastError = ritualError ?? manualControlError;
+  const lastError = manualControlError ?? scenarioError;
 
   return {
     contextualScenarioId,

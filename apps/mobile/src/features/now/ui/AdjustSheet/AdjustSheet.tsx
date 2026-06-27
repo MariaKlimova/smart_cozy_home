@@ -63,6 +63,39 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
     [setSegment, onManualControlError],
   );
 
+  let panelContent = null;
+
+  if (!isConnected) {
+    panelContent = (
+      <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
+    );
+  } else if (!hasActiveDevices) {
+    panelContent = (
+      <Text style={[typography.body, { color: c.textMuted }]}>
+        {copy.bedroom.emptyDevicesHint}
+      </Text>
+    );
+  } else if (isLoading && !devices) {
+    panelContent = (
+      <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.checking}</Text>
+    );
+  } else if (isError && !devices) {
+    panelContent = (
+      <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
+    );
+  } else if (devices) {
+    panelContent = (
+      <BedroomDeviceControls
+        devices={devices}
+        pendingDeviceId={pendingDeviceId}
+        showConfigure={false}
+        onSliderComplete={handleSliderComplete}
+        onToggle={(deviceId, isOn) => void handleToggle(deviceId, isOn)}
+        onSegmentSelect={(deviceId, optionId) => void handleSegmentSelect(deviceId, optionId)}
+      />
+    );
+  }
+
   return (
     <CalmSheet
       visible={visible}
@@ -71,34 +104,7 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
       onClose={onClose}
     >
       <View style={styles.panel} testID={ADJUST_SHEET}>
-        {!isConnected ? (
-          <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
-        ) : null}
-
-        {isConnected && isLoading ? (
-          <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.checking}</Text>
-        ) : null}
-
-        {isConnected && isError && hasActiveDevices ? (
-          <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
-        ) : null}
-
-        {isConnected && !hasActiveDevices ? (
-          <Text style={[typography.body, { color: c.textMuted }]}>
-            {copy.bedroom.emptyDevicesHint}
-          </Text>
-        ) : null}
-
-        {isConnected && hasActiveDevices && devices ? (
-          <BedroomDeviceControls
-            devices={devices}
-            pendingDeviceId={pendingDeviceId}
-            showConfigure={false}
-            onSliderComplete={handleSliderComplete}
-            onToggle={(deviceId, isOn) => void handleToggle(deviceId, isOn)}
-            onSegmentSelect={(deviceId, optionId) => void handleSegmentSelect(deviceId, optionId)}
-          />
-        ) : null}
+        {panelContent}
       </View>
     </CalmSheet>
   );
