@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { copy } from '@/copy/ru';
 import { useRunScenario } from '@/features/scenarios/lib/useRunScenario';
 import type { TScenarioRunState } from '@/features/scenarios/lib/useRunScenario';
+import { useScheduleClockTick } from '@/features/scenarios/lib/useScheduleClockTick';
 
 import { getContextualScenarioId } from './getContextualScenarioId';
 import { QUICK_ACTION_ERROR_TOAST_MS } from './useQuickActions.const';
@@ -46,7 +47,11 @@ export function useQuickActions(): IUseQuickActionsResult {
   const [manualControlError, setManualControlError] = useState<string | null>(null);
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const contextualScenarioId = useMemo(() => getContextualScenarioId(), []);
+  const scheduleNow = useScheduleClockTick();
+  const contextualScenarioId = useMemo(
+    () => getContextualScenarioId(scheduleNow),
+    [scheduleNow],
+  );
 
   const clearManualControlError = useCallback(() => {
     if (errorTimerRef.current) {

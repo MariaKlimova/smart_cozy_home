@@ -30,10 +30,10 @@ export interface IUseBedroomControlsResult {
   pendingDeviceId: string | undefined;
   /** Установить значение slider; false — команда не применилась */
   setSlider: (deviceId: string, value: number) => Promise<boolean>;
-  /** Переключить toggle */
-  setToggle: (deviceId: string, isOn: boolean) => Promise<void>;
-  /** Выбрать сегмент */
-  setSegment: (deviceId: string, optionId: string) => Promise<void>;
+  /** Переключить toggle; false — команда не применилась */
+  setToggle: (deviceId: string, isOn: boolean) => Promise<boolean>;
+  /** Выбрать сегмент; false — команда не применилась */
+  setSegment: (deviceId: string, optionId: string) => Promise<boolean>;
   /** Обновить состояния */
   refresh: () => Promise<void>;
 }
@@ -97,14 +97,14 @@ export function useBedroomControls(
 
   const setToggle = useCallback(
     async (deviceId: string, isOn: boolean) => {
-      await runAction(deviceId, { kind: 'toggle', isOn });
+      return runAction(deviceId, { kind: 'toggle', isOn });
     },
     [runAction],
   );
 
   const setSegment = useCallback(
     async (deviceId: string, optionId: string) => {
-      await runAction(deviceId, { kind: 'segment', optionId });
+      return runAction(deviceId, { kind: 'segment', optionId });
     },
     [runAction],
   );

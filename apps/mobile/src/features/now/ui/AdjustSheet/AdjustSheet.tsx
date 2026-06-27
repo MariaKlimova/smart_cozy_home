@@ -45,16 +45,22 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
 
   const handleToggle = useCallback(
     async (deviceId: string, isOn: boolean) => {
-      await setToggle(deviceId, isOn);
+      const applied = await setToggle(deviceId, isOn);
+      if (!applied) {
+        onManualControlError();
+      }
     },
-    [setToggle],
+    [setToggle, onManualControlError],
   );
 
   const handleSegmentSelect = useCallback(
     async (deviceId: string, optionId: string) => {
-      await setSegment(deviceId, optionId);
+      const applied = await setSegment(deviceId, optionId);
+      if (!applied) {
+        onManualControlError();
+      }
     },
-    [setSegment],
+    [setSegment, onManualControlError],
   );
 
   return (
