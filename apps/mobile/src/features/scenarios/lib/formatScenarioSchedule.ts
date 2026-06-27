@@ -20,7 +20,7 @@ export function formatScenarioSchedule(
   now: Date = new Date(),
 ): string {
   if (!definition.hasSchedule) {
-    return copy.scenarios.manualOnly;
+    return '';
   }
 
   const scheduleTime = definition.defaultScheduleTime ?? '22:00';

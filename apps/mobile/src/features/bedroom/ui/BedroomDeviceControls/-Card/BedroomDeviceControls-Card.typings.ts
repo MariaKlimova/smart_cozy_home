@@ -5,6 +5,8 @@ export interface IBedroomDeviceControlsCardProps {
   device: IBedroomDeviceState;
   /** Команда в процессе */
   isPending: boolean;
+  /** Показывать кнопку настройки привязки */
+  showConfigure?: boolean;
   /** Slider отпущен; false — откатить локальное значение */
   onSliderComplete: (value: number) => Promise<boolean>;
   /** Toggle переключён */
@@ -12,5 +14,5 @@ export interface IBedroomDeviceControlsCardProps {
   /** Сегмент выбран */
   onSegmentSelect: (optionId: string) => void;
   /** Открыть выбор устройства в HA */
-  onConfigure: () => void;
+  onConfigure?: () => void;
 }

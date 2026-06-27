@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
-import { HomeScenariosSection } from '@/features/home/ui/HomeScenariosSection';
 import { GentleNotificationCard } from '@/features/notifications/ui/GentleNotificationCard';
 import {
   formatBedroomMetrics,
@@ -11,8 +10,10 @@ import {
   interpretBedroomState,
 } from '@/features/now/lib/interpretState';
 import { useBedroom } from '@/features/now/lib/useBedroom';
+import { useQuickActions } from '@/features/now/lib/useQuickActions';
+import { AdjustSheet } from '@/features/now/ui/AdjustSheet';
 import { BedroomStateCard } from '@/features/now/ui/BedroomStateCard';
-import { useRunScenario } from '@/features/scenarios/lib/useRunScenario';
+import { QuickActions } from '@/features/now/ui/QuickActions';
 import { useGentleNotifications } from '@/hooks/useGentleNotifications';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
@@ -27,13 +28,18 @@ export default function NowScreen() {
   const c = useThemeColors();
   const isConnected = useConnectionStore((s) => s.isConnected);
   const {
+    contextualScenarioId,
+    isManualControlOpen,
+    closeManualControl,
+    openManualControl,
+    lastError,
+    clearError,
+    showManualControlError,
     runStateById,
     activeScenarioId,
     preparedScenarioId,
-    lastError,
     runScenarioById,
-    clearError,
-  } = useRunScenario();
+  } = useQuickActions();
   const { readings, isLoading: isBedroomLoading } = useBedroom();
   const hasSensorHydrated = useBedroomSensorStore((s) => s.hasHydrated);
   const isSensorsConfigured = useBedroomSensorStore((s) => s.isConfigured());
@@ -76,6 +82,19 @@ export default function NowScreen() {
         isLoading={showBedroomSkeleton}
       />
 
+      {isConnected ? (
+        <QuickActions
+          scenarios={scenarios}
+          contextualScenarioId={contextualScenarioId}
+          runStateById={runStateById}
+          activeScenarioId={activeScenarioId}
+          preparedScenarioId={preparedScenarioId}
+          onScenarioPress={runScenarioById}
+          onSettingsPress={handleSettingsPress}
+          onManualControlPress={openManualControl}
+        />
+      ) : null}
+
       {showSetupCta ? (
         <View>
           <Text style={[typography.body, { color: c.textMuted, marginBottom: 12 }]}>
@@ -97,16 +116,13 @@ export default function NowScreen() {
           onDismiss={handleDismiss}
         />
       ))}
-
-      <HomeScenariosSection
-        scenarios={scenarios}
-        runStateById={runStateById}
-        activeScenarioId={activeScenarioId}
-        preparedScenarioId={preparedScenarioId}
-        onScenarioPress={runScenarioById}
-        onSettingsPress={handleSettingsPress}
-      />
     </ScreenLayout>
+
+    <AdjustSheet
+      visible={isManualControlOpen}
+      onClose={closeManualControl}
+      onManualControlError={showManualControlError}
+    />
 
     <CalmToast
       visible={!!lastError}

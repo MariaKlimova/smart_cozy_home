@@ -5,11 +5,17 @@ import { getScenarioDefinition } from '../config/scenarios';
 import type { TScenarioCardState } from './getScenarioCardState';
 import { formatScenarioSchedule } from './formatScenarioSchedule';
 
+interface IFormatScenarioCardSubtitleOptions {
+  /** Показывать расписание в idle-состоянии */
+  showSchedule?: boolean;
+}
+
 /** Подпись под названием сценария с учётом active/prepared */
 export function formatScenarioCardSubtitle(
   scenario: IScenario,
   cardState: TScenarioCardState,
   now: Date = new Date(),
+  options?: IFormatScenarioCardSubtitleOptions,
 ): string {
   if (cardState === 'running') {
     if (scenario.id === 'coming_home') {
@@ -22,6 +28,9 @@ export function formatScenarioCardSubtitle(
   }
   if (cardState === 'prepared') {
     return copy.scenarios.prepared;
+  }
+  if (options?.showSchedule === false) {
+    return '';
   }
   const definition = getScenarioDefinition(scenario.id);
   if (definition) {

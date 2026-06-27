@@ -17,4 +17,8 @@ export interface IScenarioCardProps {
   onSettingsPress: (scenarioId: string) => void;
   /** Блокировать запуск другой карточки */
   isAnyRunning: boolean;
+  /** На всю ширину (контекстный сценарий на «Сейчас») */
+  fullWidth?: boolean;
+  /** Показывать расписание в idle-состоянии */
+  showSchedule?: boolean;
 }
