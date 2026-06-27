@@ -1,0 +1,200 @@
+input_select:
+  home_mode:
+    name: Режим дома
+    options:
+      - none
+      - evening
+      - sleep
+      - morning
+      - away
+      - cozy
+      - focus
+    initial: none
+    icon: mdi:home
+
+input_boolean:
+  home_ready_for_arrival:
+    name: Дом готов к прибытию
+    initial: false
+    icon: mdi:home-import-outline
+
+  # Расписание
+  evening_schedule_enabled:
+    name: Расписание вечера включено
+    initial: false
+    icon: mdi:clock-outline
+
+  sleep_schedule_enabled:
+    name: Расписание сна включено
+    initial: false
+    icon: mdi:clock-outline
+
+  morning_schedule_enabled:
+    name: Расписание утра включено
+    initial: false
+    icon: mdi:clock-outline
+
+  # Параметры сценариев
+  evening_curtains:
+    name: Закрывать шторы вечером
+    initial: true
+    icon: mdi:curtains
+
+  evening_humidifier:
+    name: Включать увлажнитель вечером
+    initial: true
+    icon: mdi:air-humidifier
+
+  sleep_window:
+    name: Открывать окно во время сна
+    initial: false
+    icon: mdi:window-open
+
+  away_curtains:
+    name: Закрывать шторы при отъезде
+    initial: true
+    icon: mdi:curtains
+
+input_datetime:
+  evening_schedule_time:
+    name: Время вечернего ритуала
+    has_date: false
+    has_time: true
+    initial: "22:30:00"
+
+  sleep_schedule_time:
+    name: Время сна
+    has_date: false
+    has_time: true
+    initial: "23:00:00"
+
+  morning_schedule_time:
+    name: Время подъёма
+    has_date: false
+    has_time: true
+    initial: "07:00:00"
+
+input_number:
+  # Вечер
+  evening_brightness:
+    name: Яркость вечером (%)
+    initial: 15
+    min: 1
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:brightness-4
+
+  evening_temperature:
+    name: Температура вечером (°C)
+    initial: 18
+    min: 16
+    max: 24
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer
+
+  # Сон
+  sleep_temperature:
+    name: Ночная температура (°C)
+    initial: 17
+    min: 15
+    max: 22
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-minus
+
+  # Утро
+  morning_brightness:
+    name: Дневная яркость (%)
+    initial: 80
+    min: 10
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:brightness-7
+
+  morning_warmup_minutes:
+    name: Время плавного пробуждения (мин)
+    initial: 20
+    min: 5
+    max: 60
+    step: 5
+    unit_of_measurement: "мин"
+    icon: mdi:timer-outline
+
+  # Уехали
+  away_temperature:
+    name: Температура при отъезде (°C)
+    initial: 16
+    min: 12
+    max: 20
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-low
+
+  # Еду домой
+  coming_home_minutes:
+    name: За сколько минут нажать (мин)
+    initial: 20
+    min: 5
+    max: 60
+    step: 5
+    unit_of_measurement: "мин"
+    icon: mdi:car-clock
+
+  coming_home_temperature:
+    name: Температура встречи (°C)
+    initial: 21
+    min: 18
+    max: 25
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-plus
+
+  coming_home_brightness:
+    name: Яркость встречи (%)
+    initial: 60
+    min: 10
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:brightness-5
+
+  # Уют
+  cozy_brightness:
+    name: Яркость уюта (%)
+    initial: 40
+    min: 5
+    max: 80
+    step: 5
+    unit_of_measurement: "%"
+    icon: mdi:candle
+
+  cozy_temperature:
+    name: Температура уюта (°C)
+    initial: 21
+    min: 18
+    max: 24
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer
+
+  # Фокус
+  focus_brightness:
+    name: Яркость фокуса (%)
+    initial: 90
+    min: 50
+    max: 100
+    step: 5
+    unit_of_measurement: "%"
+    icon: mdi:brightness-7
+
+  focus_temperature:
+    name: Рабочая температура (°C)
+    initial: 19
+    min: 17
+    max: 22
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer

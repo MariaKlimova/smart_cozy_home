@@ -1,0 +1,308 @@
+script:
+  evening:
+    alias: Вечер
+    description: Подготовка ко сну — плавно гасит свет, закрывает шторы, снижает температуру
+    icon: mdi:weather-night
+    sequence:
+      - alias: Плавно гасим свет
+        service: light.turn_on
+        target:
+          entity_id: light.bedroom
+        data_template:
+          brightness_pct: "{{ states('input_number.evening_brightness') | int }}"
+          transition: 300  # 5 минут
+          color_temp: 500  # максимально тёплый
+
+      - alias: Закрываем шторы если нужно
+        if:
+          - condition: state
+            entity_id: input_boolean.evening_curtains
+            state: "on"
+        then:
+          - service: cover.close_cover
+            target:
+              entity_id: cover.bedroom_curtains
+
+      - alias: Устанавливаем температуру
+        service: climate.set_temperature
+        target:
+          entity_id:
+            - climate.bedroom_ac
+            - climate.bedroom_radiator
+            - climate.bedroom_ventilation
+        data_template:
+          temperature: "{{ states('input_number.evening_temperature') | float }}"
+
+      - alias: Включаем увлажнитель если нужно
+        if:
+          - condition: state
+            entity_id: input_boolean.evening_humidifier
+            state: "on"
+        then:
+          - service: humidifier.turn_on
+            target:
+              entity_id: humidifier.bedroom
+
+      - alias: Фиксируем режим
+        service: input_select.select_option
+        target:
+          entity_id: input_select.home_mode
+        data:
+          option: evening
+
+  sleep:
+    alias: Сон
+    description: Финальное выключение — гасит свет, опционально открывает окно
+    icon: mdi:bed
+    sequence:
+      - alias: Выключаем свет
+        service: light.turn_off
+        target:
+          entity_id: light.bedroom
+
+      - alias: Открываем окно если нужно
+        if:
+          - condition: state
+            entity_id: input_boolean.sleep_window
+            state: "on"
+        then:
+          - service: cover.open_cover
+            target:
+              entity_id: cover.bedroom_window
+
+      - alias: Устанавливаем ночную температуру
+        service: climate.set_temperature
+        target:
+          entity_id:
+            - climate.bedroom_ac
+            - climate.bedroom_radiator
+            - climate.bedroom_ventilation
+        data_template:
+          temperature: "{{ states('input_number.sleep_temperature') | float }}"
+
+      - alias: Фиксируем режим
+        service: input_select.select_option
+        target:
+          entity_id: input_select.home_mode
+        data:
+          option: sleep
+
+  morning:
+    alias: Утро
+    description: Мягкое пробуждение — плавно поднимает яркость и открывает шторы
+    icon: mdi:weather-sunny
+    sequence:
+      - alias: Закрываем окно
+        service: cover.close_cover
+        target:
+          entity_id: cover.bedroom_window
+
+      - alias: Плавно поднимаем свет
+        service: light.turn_on
+        target:
+          entity_id: light.bedroom
+        data_template:
+          brightness_pct: "{{ states('input_number.morning_brightness') | int }}"
+          transition: "{{ (states('input_number.morning_warmup_minutes') | float * 60) | int }}"
+          color_temp: 300  # нейтральный дневной
+
+      - alias: Открываем шторы
+        service: cover.open_cover
+        target:
+          entity_id: cover.bedroom_curtains
+
+      - alias: Устанавливаем дневную температуру
+        service: climate.set_temperature
+        target:
+          entity_id:
+            - climate.bedroom_ac
+            - climate.bedroom_radiator
+            - climate.bedroom_ventilation
+        data:
+          temperature: 21
+
+      - alias: Фиксируем режим
+        service: input_select.select_option
+        target:
+          entity_id: input_select.home_mode
+        data:
+          option: morning
+
+  away:
+    alias: Уехали
+    description: Переводит дом в режим ожидания — выключает всё и снижает температуру
+    icon: mdi:door-closed
+    sequence:
+      - alias: Выключаем свет
+        service: light.turn_off
+        target:
+          entity_id:
+            - light.bedroom
+            - light.living_room
+
+      - alias: Закрываем шторы если нужно
+        if:
+          - condition: state
+            entity_id: input_boolean.away_curtains
+            state: "on"
+        then:
+          - service: cover.close_cover
+            target:
+              entity_id: cover.bedroom_curtains
+
+      - alias: Закрываем окно
+        service: cover.close_cover
+        target:
+          entity_id: cover.bedroom_window
+
+      - alias: Снижаем температуру
+        service: climate.set_temperature
+        target:
+          entity_id:
+            - climate.bedroom_ac
+            - climate.bedroom_radiator
+            - climate.bedroom_ventilation
+        data_template:
+          temperature: "{{ states('input_number.away_temperature') | float }}"
+
+      - alias: Выключаем увлажнитель
+        service: humidifier.turn_off
+        target:
+          entity_id: humidifier.bedroom
+
+      - alias: Сбрасываем подготовку к прибытию
+        service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.home_ready_for_arrival
+
+      - alias: Фиксируем режим
+        service: input_select.select_option
+        target:
+          entity_id: input_select.home_mode
+        data:
+          option: away
+
+  coming_home:
+    alias: Еду домой
+    description: Готовит дом к прибытию — прогревает и включает свет
+    icon: mdi:car
+    sequence:
+      - alias: Включаем увлажнитель
+        service: humidifier.turn_on
+        target:
+          entity_id: humidifier.bedroom
+
+      - alias: Прогреваем до нужной температуры
+        service: climate.set_temperature
+        target:
+          entity_id:
+            - climate.bedroom_ac
+            - climate.bedroom_radiator
+            - climate.bedroom_ventilation
+        data_template:
+          temperature: "{{ states('input_number.coming_home_temperature') | float }}"
+
+      - alias: Включаем тёплый встречный свет
+        service: light.turn_on
+        target:
+          entity_id: light.bedroom
+        data_template:
+          brightness_pct: "{{ states('input_number.coming_home_brightness') | int }}"
+          color_temp: 400  # тёплый
+
+      - alias: Открываем шторы если день
+        if:
+          - condition: state
+            entity_id: sun.sun
+            state: above_horizon
+        then:
+          - service: cover.open_cover
+            target:
+              entity_id: cover.bedroom_curtains
+
+      - alias: Фиксируем готовность
+        service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.home_ready_for_arrival
+
+      - alias: Сбрасываем режим дома
+        service: input_select.select_option
+        target:
+          entity_id: input_select.home_mode
+        data:
+          option: none
+
+  cozy:
+    alias: Уют
+    description: Расслабленный вечер — тёплый мягкий свет, комфортная температура
+    icon: mdi:sofa
+    sequence:
+      - alias: Включаем тёплый мягкий свет
+        service: light.turn_on
+        target:
+          entity_id: light.bedroom
+        data_template:
+          brightness_pct: "{{ states('input_number.cozy_brightness') | int }}"
+          color_temp: 500  # максимально тёплый
+
+      - alias: Закрываем шторы
+        service: cover.close_cover
+        target:
+          entity_id: cover.bedroom_curtains
+
+      - alias: Устанавливаем температуру уюта
+        service: climate.set_temperature
+        target:
+          entity_id:
+            - climate.bedroom_ac
+            - climate.bedroom_radiator
+            - climate.bedroom_ventilation
+        data_template:
+          temperature: "{{ states('input_number.cozy_temperature') | float }}"
+
+      - alias: Включаем увлажнитель
+        service: humidifier.turn_on
+        target:
+          entity_id: humidifier.bedroom
+
+      - alias: Фиксируем режим
+        service: input_select.select_option
+        target:
+          entity_id: input_select.home_mode
+        data:
+          option: cozy
+
+  focus:
+    alias: Фокус
+    description: Режим работы — яркий холодный свет, бодрящая температура
+    icon: mdi:laptop
+    sequence:
+      - alias: Включаем яркий холодный свет
+        service: light.turn_on
+        target:
+          entity_id: light.bedroom
+        data_template:
+          brightness_pct: "{{ states('input_number.focus_brightness') | int }}"
+          color_temp: 153  # максимально холодный
+
+      - alias: Открываем шторы — естественный свет
+        service: cover.open_cover
+        target:
+          entity_id: cover.bedroom_curtains
+
+      - alias: Устанавливаем рабочую температуру
+        service: climate.set_temperature
+        target:
+          entity_id:
+            - climate.bedroom_ac
+            - climate.bedroom_radiator
+            - climate.bedroom_ventilation
+        data_template:
+          temperature: "{{ states('input_number.focus_temperature') | float }}"
+
+      - alias: Фиксируем режим
+        service: input_select.select_option
+        target:
+          entity_id: input_select.home_mode
+        data:
+          option: focus
