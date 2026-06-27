@@ -130,7 +130,7 @@
 **Что делает:** переводит дом в режим ожидания при отъезде. Только ручной запуск.
 
 **Действия по порядку:**
-1. Выключает весь свет (`light.turn_off`)
+1. Выключает весь свет (`light.turn_off` на `light.bedroom`, `light.living_room`)
 2. Закрывает шторы если `input_boolean.away_curtains = true` (`cover.close_cover`)
 3. Закрывает окно (`cover.close_cover` на `cover.bedroom_window`)
 4. Снижает температуру до `input_number.away_temperature` (`climate.set_temperature`)
