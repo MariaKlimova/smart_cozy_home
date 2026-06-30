@@ -9,14 +9,13 @@ import { styles } from './BedroomStateCard-Metrics.styles';
 
 function MetricValue({ metric }: { metric: IBedroomStateCardMetricsProps['metrics'][number] }) {
   const c = useThemeColors();
-  const isCo2 = metric.id === 'co2';
   const hasNumber = metric.value !== copy.now.metricsUnavailable;
 
   if (!hasNumber) {
     return <Text style={[styles.value, { color: c.textMuted }]}>{metric.value}</Text>;
   }
 
-  if (isCo2) {
+  if (metric.showPpmUnit) {
     return (
       <View style={styles.valueRow}>
         <Text style={[styles.value, { color: c.text }]}>{metric.value}</Text>
@@ -28,23 +27,33 @@ function MetricValue({ metric }: { metric: IBedroomStateCardMetricsProps['metric
   return <Text style={[styles.value, { color: c.text }]}>{metric.value}</Text>;
 }
 
-export function BedroomStateCardMetrics({ metrics }: IBedroomStateCardMetricsProps) {
+export function BedroomStateCardMetrics({
+  sectionTitle,
+  metrics,
+}: IBedroomStateCardMetricsProps) {
   const c = useThemeColors();
 
   return (
-    <View style={styles.row}>
-      {metrics.map((metric) => (
-        <View
-          key={metric.id}
-          style={[styles.chip, { backgroundColor: c.background, borderColor: c.border }]}
-        >
-          <Text style={styles.icon}>{metric.icon}</Text>
-          <MetricValue metric={metric} />
-          <Text style={[typography.caption, styles.label, { color: c.textMuted }]}>
-            {metric.label}
-          </Text>
-        </View>
-      ))}
+    <View style={styles.section}>
+      {sectionTitle ? (
+        <Text style={[typography.caption, styles.sectionTitle, { color: c.textMuted }]}>
+          {sectionTitle}
+        </Text>
+      ) : null}
+      <View style={styles.row}>
+        {metrics.map((metric) => (
+          <View
+            key={metric.id}
+            style={[styles.chip, { backgroundColor: c.background, borderColor: c.border }]}
+          >
+            <Text style={styles.icon}>{metric.icon}</Text>
+            <MetricValue metric={metric} />
+            <Text style={[typography.caption, styles.label, { color: c.textMuted }]}>
+              {metric.label}
+            </Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }

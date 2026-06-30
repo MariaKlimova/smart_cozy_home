@@ -18,6 +18,12 @@ export const copy = {
       humidity: 'Влажность',
       co2: 'CO₂',
     },
+    outdoorSectionTitle: 'Снаружи',
+    outdoorMetrics: {
+      temperature: 'Температура',
+      sunset: 'Закат',
+      sunrise: 'Восход',
+    },
   },
   quickActions: {
     manualControl: 'Ручное управление',

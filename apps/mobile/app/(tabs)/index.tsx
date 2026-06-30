@@ -6,6 +6,7 @@ import { copy } from '@/copy/ru';
 import { GentleNotificationCard } from '@/features/notifications/ui/GentleNotificationCard';
 import {
   formatBedroomMetrics,
+  formatOutdoorMetrics,
   getBedroomStateTone,
   interpretBedroomState,
 } from '@/features/now/lib/interpretState';
@@ -16,6 +17,7 @@ import { BedroomStateCard } from '@/features/now/ui/BedroomStateCard';
 import { QuickActions } from '@/features/now/ui/QuickActions';
 import { useGentleNotifications } from '@/hooks/useGentleNotifications';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { canUseHaBackend } from '@/ha/haClient';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
@@ -27,6 +29,9 @@ import { typography } from '@/theme/tokens';
 export default function NowScreen() {
   const c = useThemeColors();
   const isConnected = useConnectionStore((s) => s.isConnected);
+  const baseUrl = useConnectionStore((s) => s.baseUrl);
+  const token = useConnectionStore((s) => s.profile?.accessToken);
+  const haReady = canUseHaBackend(isConnected, baseUrl, token);
   const {
     contextualScenarioId,
     isManualControlOpen,
@@ -50,15 +55,16 @@ export default function NowScreen() {
   const { visibleNotifications, handleAccept, handleDismiss } = useGentleNotifications();
 
   useEffect(() => {
-    if (isConnected) void refresh();
-  }, [isConnected, refresh]);
+    if (haReady) void refresh();
+  }, [haReady, refresh]);
 
   const resolvedReadings = readings ?? {};
   const phrase = interpretBedroomState(resolvedReadings);
-  const metrics = formatBedroomMetrics(resolvedReadings);
+  const bedroomMetrics = formatBedroomMetrics(resolvedReadings);
+  const outdoorMetrics = formatOutdoorMetrics(resolvedReadings);
   const tone = getBedroomStateTone(resolvedReadings);
-  const showBedroomSkeleton = isConnected && isBedroomLoading;
-  const showSetupCta = isConnected && hasSensorHydrated && !isSensorsConfigured;
+  const showBedroomSkeleton = haReady && isBedroomLoading;
+  const showSetupCta = haReady && hasSensorHydrated && !isSensorsConfigured;
 
   const handleSettingsPress = (scenarioId: string) => {
     router.push({ pathname: '/scenario-settings', params: { id: scenarioId } });
@@ -68,21 +74,22 @@ export default function NowScreen() {
     <View style={{ flex: 1 }}>
     <ScreenLayout
       title={copy.now.screenTitle}
-      onRefresh={isConnected ? refresh : undefined}
+      onRefresh={haReady ? refresh : undefined}
       isRefreshing={isRefreshing}
     >
-      {!isConnected && (
+      {!haReady && (
         <Text style={[typography.caption, { color: c.warning }]}>{copy.connection.offline}</Text>
       )}
 
       <BedroomStateCard
         phrase={phrase}
-        metrics={metrics}
+        bedroomMetrics={bedroomMetrics}
+        outdoorMetrics={outdoorMetrics}
         tone={tone}
         isLoading={showBedroomSkeleton}
       />
 
-      {isConnected ? (
+      {haReady ? (
         <QuickActions
           scenarios={scenarios}
           contextualScenarioId={contextualScenarioId}

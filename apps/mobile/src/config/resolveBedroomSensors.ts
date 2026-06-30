@@ -1,6 +1,8 @@
 import type { IBedroomSensorMapping } from '@/config/bedroomSensorMapping.typings';
 import { HOME_CONFIG } from '@/config/homeConfig';
 import type { IBedroomSensorsMapping } from '@/config/homeConfig.typings';
+import { MOCK_BEDROOM_SENSOR_MAPPING } from '@/config/scenarioMocks';
+import { USE_HA_MOCKS } from '@/ha/haClient';
 
 function resolveSlot(
   override: string | null | undefined,
@@ -17,16 +19,17 @@ export function resolveBedroomSensors(
   overrides: IBedroomSensorMapping | null,
 ): IBedroomSensorsMapping {
   const defaults = HOME_CONFIG.bedroom_sensors;
+  const effectiveOverrides = USE_HA_MOCKS ? MOCK_BEDROOM_SENSOR_MAPPING : overrides;
 
   return {
     temperature: {
-      entity: resolveSlot(overrides?.temperature, defaults.temperature.entity) ?? '',
+      entity: resolveSlot(effectiveOverrides?.temperature, defaults.temperature.entity) ?? '',
     },
     humidity: {
-      entity: resolveSlot(overrides?.humidity, defaults.humidity.entity) ?? '',
+      entity: resolveSlot(effectiveOverrides?.humidity, defaults.humidity.entity) ?? '',
     },
     co2: {
-      entity: resolveSlot(overrides?.co2, defaults.co2.entity) ?? '',
+      entity: resolveSlot(effectiveOverrides?.co2, defaults.co2.entity) ?? '',
     },
   };
 }

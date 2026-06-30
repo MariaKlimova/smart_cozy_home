@@ -46,3 +46,88 @@ automation:
         target:
           entity_id: script.morning
     mode: single
+
+  - id: sleep_air_quality
+    alias: Сон — качество воздуха
+    description: >-
+      Цикл проветривания и поддержания CO₂ в режиме сна.
+      Пороги sync with apps/mobile/src/domain/sleepAirQuality.const.ts (900 / 750)
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bedroom_co2
+        above: 900
+      - platform: numeric_state
+        entity_id: sensor.bedroom_co2
+        below: 750
+      - platform: state
+        entity_id: input_select.home_mode
+        to: sleep
+    condition:
+      - condition: state
+        entity_id: input_select.home_mode
+        state: sleep
+      - condition: state
+        entity_id: input_boolean.sleep_window
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.bedroom_occupancy
+        state: "on"
+    action:
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.bedroom_co2
+                above: 899
+            sequence:
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.bedroom_window
+              - service: humidifier.turn_off
+                target:
+                  entity_id: humidifier.bedroom
+              - service: climate.turn_off
+                target:
+                  entity_id: climate.bedroom_ac
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.bedroom_co2
+                below: 751
+            sequence:
+              - service: cover.close_cover
+                target:
+                  entity_id: cover.bedroom_window
+              - service: humidifier.turn_on
+                target:
+                  entity_id: humidifier.bedroom
+              - service: climate.set_temperature
+                target:
+                  entity_id:
+                    - climate.bedroom_ac
+                    - climate.bedroom_radiator
+                    - climate.bedroom_ventilation
+                data_template:
+                  temperature: "{{ states('input_number.sleep_temperature') | float }}"
+        default: []
+
+  - id: ac_off_when_window_open
+    alias: AC выключить при открытом окне
+    description: Кондиционер не работает с открытым окном
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: cover.bedroom_window
+        to: open
+      - platform: numeric_state
+        entity_id: cover.bedroom_window
+        attribute: current_position
+        above: 0
+    condition:
+      - condition: template
+        value_template: >-
+          {{ state_attr('cover.bedroom_window', 'current_position') | int(0) > 0
+          or is_state('cover.bedroom_window', 'open') }}
+    action:
+      - service: climate.turn_off
+        target:
+          entity_id: climate.bedroom_ac

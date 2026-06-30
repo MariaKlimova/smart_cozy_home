@@ -6,6 +6,7 @@ import { copy } from '@/copy/ru';
 import { useBedroomControls } from '@/features/bedroom/lib/useBedroomControls';
 import { BedroomDeviceControls } from '@/features/bedroom/ui/BedroomDeviceControls';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { canUseHaBackend } from '@/ha/haClient';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useConnectionStore } from '@/store/connectionStore';
 import { CalmSheet } from '@/ui/CalmSheet';
@@ -18,6 +19,9 @@ import { styles } from './AdjustSheet.styles';
 export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustSheetProps) {
   const c = useThemeColors();
   const isConnected = useConnectionStore((s) => s.isConnected);
+  const baseUrl = useConnectionStore((s) => s.baseUrl);
+  const token = useConnectionStore((s) => s.profile?.accessToken);
+  const haReady = canUseHaBackend(isConnected, baseUrl, token);
   const deviceConfig = useBedroomDeviceStore((s) => s.config);
   const hasActiveDevices =
     getActiveBedroomDeviceEntityIds(resolveBedroomDevices(deviceConfig)).length > 0;
@@ -65,7 +69,7 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
 
   let panelContent = null;
 
-  if (!isConnected) {
+  if (!haReady) {
     panelContent = (
       <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
     );

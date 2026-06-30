@@ -1,5 +1,6 @@
 import { Text, View, useWindowDimensions } from 'react-native';
 
+import { copy } from '@/copy/ru';
 import { BedroomStateCardMetrics } from './-Metrics';
 import { BedroomStateCardSkeleton } from './-Skeleton';
 import { toneAccentColor, toneSurfaceColor, toneWatermark } from './bedroomStateTone';
@@ -9,7 +10,13 @@ import { typography } from '@/theme/tokens';
 import type { IBedroomStateCardProps } from './BedroomStateCard.typings';
 import { cardMinHeight, styles } from './BedroomStateCard.styles';
 
-export function BedroomStateCard({ phrase, metrics, tone, isLoading }: IBedroomStateCardProps) {
+export function BedroomStateCard({
+  phrase,
+  bedroomMetrics,
+  outdoorMetrics,
+  tone,
+  isLoading,
+}: IBedroomStateCardProps) {
   const c = useThemeColors();
   const { height } = useWindowDimensions();
   const minHeight = cardMinHeight(height);
@@ -33,7 +40,11 @@ export function BedroomStateCard({ phrase, metrics, tone, isLoading }: IBedroomS
                 {watermark}
               </Text>
             </View>
-            <BedroomStateCardMetrics metrics={metrics} />
+            <BedroomStateCardMetrics metrics={bedroomMetrics} />
+            <BedroomStateCardMetrics
+              sectionTitle={copy.now.outdoorSectionTitle}
+              metrics={outdoorMetrics}
+            />
           </>
         )}
       </View>

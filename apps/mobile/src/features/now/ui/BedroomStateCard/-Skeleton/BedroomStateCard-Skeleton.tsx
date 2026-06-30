@@ -15,6 +15,11 @@ export function BedroomStateCardSkeleton() {
         <View style={[styles.metricChip, { backgroundColor: c.border }]} />
         <View style={[styles.metricChip, { backgroundColor: c.border }]} />
       </View>
+      <View style={[styles.sectionTitleBar, { backgroundColor: c.border }]} />
+      <View style={styles.metricsRow}>
+        <View style={[styles.metricChip, { backgroundColor: c.border }]} />
+        <View style={[styles.metricChip, { backgroundColor: c.border }]} />
+      </View>
     </View>
   );
 }

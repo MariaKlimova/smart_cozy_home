@@ -54,6 +54,21 @@
 
 Automation `automation.{id}_schedule`: trigger по `input_datetime`, condition на `input_boolean`, action → `script.{id}`.
 
+## Automations runtime (Сон)
+
+Помимо расписания, пакет создаёт automations для цикла качества воздуха в режиме сна:
+
+| Entity | Назначение |
+|--------|------------|
+| `automation.sleep_air_quality` | CO₂ hysteresis 900/750 ppm: окно ↔ увлажнитель, AC off при проветривании |
+| `automation.ac_off_when_window_open` | `climate.bedroom_ac` off при открытом окне |
+
+Условия `sleep_air_quality`: `home_mode = sleep`, `sleep_window = on`, `binary_sensor.bedroom_occupancy = on`.
+
+Пороги CO₂ sync with `apps/mobile/src/domain/sleepAirQuality.const.ts` (900 / 750).
+
+`script.sleep` — только начальное состояние; loop выполняет automation.
+
 ## Параметры сценариев (input_number / input_boolean)
 
 Источник правды для значений — HA. Приложение читает state и пишет через `input_number.set_value`, `input_boolean.turn_on/off`.
@@ -74,9 +89,31 @@ Scripts читают эти значения в runtime, не hardcode.
 
 Файл `DEVICES.md` в пакете — **не создаёт** устройства в HA. Инсталлятор переименовывает / маппит реальные entities под ожидаемые id (см. `homeConfig.ts`):
 
-**Спальня:** `light.bedroom`, `cover.bedroom_curtains`, `cover.bedroom_window`, `climate.bedroom_ac`, `climate.bedroom_ventilation`, `climate.bedroom_radiator`, `humidifier.bedroom`, `sensor.bedroom_co2`, `sensor.bedroom_temperature`, `sensor.bedroom_humidity`
+**Спальня:** `light.bedroom`, `cover.bedroom_curtains`, `cover.bedroom_window`, `climate.bedroom_ac`, `climate.bedroom_ventilation`, `climate.bedroom_radiator`, `humidifier.bedroom`, `sensor.bedroom_co2`, `sensor.bedroom_temperature`, `sensor.bedroom_humidity`, `binary_sensor.bedroom_occupancy`
 
-**Дом:** `light.living_room`, `climate.living_room`, `sensor.living_room_temperature`, `alarm_control_panel.home`
+**Дом:** `light.living_room`, `climate.living_room`, `sensor.living_room_temperature`, `sensor.outdoor_temperature` (template из `weather.home`), `sun.sun`, `alarm_control_panel.home`
+
+## Внешние условия (таб «Сейчас»)
+
+Блок «Снаружи» на экране «Сейчас» читает два entity (контракт: `HA_ENTITIES.devices.outdoorTemperature`, `HA_ENTITIES.system.sun` в `scenarioHaMapping.ts`).
+
+| Entity | Что читает приложение | UI |
+|--------|------------------------|-----|
+| `sensor.outdoor_temperature` | `state` — температура, °C | Чип «Температура» |
+| `sun.sun` | `attributes.next_rising`, `attributes.next_setting` (ISO datetime) | Время + подпись «Закат» / «Восход» |
+
+**`sun.sun`** — встроенная entity Home Assistant (маппинг не нужен). Атрибуты `next_rising` / `next_setting` всегда указывают на **следующие** восход и закат.
+
+Логика UI (не зависит от `state` entity):
+
+1. Из обоих атрибутов берутся только моменты **в будущем** относительно текущего времени устройства.
+2. Выбирается ближайший: если это `next_setting` → время + подпись «Закат», если `next_rising` → «Восход».
+
+Реализация: `apps/mobile/src/features/now/lib/parseSunEvent.ts`.
+
+**`sensor.outdoor_temperature`** создаётся пакетом (`templates.yaml`, атрибут `temperature` из `weather.home`).
+
+В scripts пакета `sun.sun` используется отдельно: `state = above_horizon` в `script.coming_home` (шторы днём).
 
 ## Связанные задачи
 

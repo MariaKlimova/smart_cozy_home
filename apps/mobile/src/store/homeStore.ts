@@ -11,7 +11,7 @@ import type {
   IRoom,
   ITimelineEvent,
 } from '@/domain/types';
-import { fetchEntityStates, fetchLogbook, toggleLight } from '@/ha/haClient';
+import { fetchEntityStates, fetchLogbook, toggleLight, canUseHaBackend } from '@/ha/haClient';
 import {
   collectWatchedEntityIds,
   mapGentleNotifications,
@@ -96,7 +96,8 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
 
   refresh: async (options) => {
     const { baseUrl, profile, isConnected } = useConnectionStore.getState();
-    if (!isConnected || !baseUrl || !profile) {
+    const token = profile?.accessToken;
+    if (!canUseHaBackend(isConnected, baseUrl, token)) {
       set({
         syncDebug: {
           ...get().syncDebug,
@@ -106,6 +107,9 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
       return false;
     }
 
+    const haBaseUrl = baseUrl ?? 'mock://ha';
+    const haToken = token ?? 'mock-token';
+
     const showSpinner = !options?.silent;
     if (showSpinner) {
       set({ isRefreshing: true });
@@ -113,7 +117,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
 
     try {
       const entityIds = collectWatchedEntityIds();
-      const states = await fetchEntityStates(baseUrl, profile.accessToken, entityIds);
+      const states = await fetchEntityStates(haBaseUrl, haToken, entityIds);
       const receivedIds = new Set(states.map((s) => s.entityId));
       const missingEntityIds = entityIds.filter((id) => !receivedIds.has(id));
 
@@ -137,8 +141,8 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
 
       const config = loadHomeConfig();
       const logbook = await fetchLogbook(
-        baseUrl,
-        profile.accessToken,
+        haBaseUrl,
+        haToken,
         config.timeline.entity_watch,
       );
       const timeline = mapTimelineFromLogbook(logbook);
@@ -188,7 +192,11 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
 
   toggleRoomLight: async (roomId) => {
     const { baseUrl, profile, isConnected } = useConnectionStore.getState();
-    if (!isConnected || !baseUrl || !profile) return;
+    const token = profile?.accessToken;
+    if (!canUseHaBackend(isConnected, baseUrl, token)) return;
+
+    const haBaseUrl = baseUrl ?? 'mock://ha';
+    const haToken = token ?? 'mock-token';
 
     const room = get().rooms.find((r) => r.id === roomId);
     if (!room) return;
@@ -198,7 +206,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     if (!mapping) return;
 
     try {
-      await toggleLight(baseUrl, profile.accessToken, mapping.light, !room.lightOn);
+      await toggleLight(haBaseUrl, haToken, mapping.light, !room.lightOn);
       await get().refresh();
     } catch {
       // Свет или entity из конфига могут отсутствовать в HA — не роняем UI
@@ -207,13 +215,17 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
 
   acceptGentleNotification: async (notificationId) => {
     const { baseUrl, profile, isConnected } = useConnectionStore.getState();
-    if (!isConnected || !baseUrl || !profile) return;
+    const token = profile?.accessToken;
+    if (!canUseHaBackend(isConnected, baseUrl, token)) return;
+
+    const haBaseUrl = baseUrl ?? 'mock://ha';
+    const haToken = token ?? 'mock-token';
 
     const rule = loadHomeConfig().gentle_notifications.find((n) => n.id === notificationId);
     if (!rule) return;
 
     try {
-      await toggleLight(baseUrl, profile.accessToken, rule.light_entity, true);
+      await toggleLight(haBaseUrl, haToken, rule.light_entity, true);
       await get().refresh();
       get().dismissGentleNotification(notificationId);
     } catch {

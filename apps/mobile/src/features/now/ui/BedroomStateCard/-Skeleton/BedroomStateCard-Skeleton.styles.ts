@@ -11,6 +11,12 @@ export const styles = StyleSheet.create({
     height: 32,
     width: '78%',
   },
+  sectionTitleBar: {
+    borderRadius: 6,
+    height: 14,
+    width: '32%',
+    marginTop: spacing.xs,
+  },
   metricsRow: {
     flexDirection: 'row',
     gap: spacing.sm,

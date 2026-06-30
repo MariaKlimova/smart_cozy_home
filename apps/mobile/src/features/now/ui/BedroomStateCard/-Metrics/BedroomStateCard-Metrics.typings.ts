@@ -1,7 +1,9 @@
-import type { IBedroomMetricView } from '@/features/now/lib/interpretState';
+import type { IMetricChipView } from '@/features/now/lib/interpretState';
 
 /** Пропсы ряда метрик */
 export interface IBedroomStateCardMetricsProps {
-  /** Три метрики: температура, влажность, воздух */
-  metrics: IBedroomMetricView[];
+  /** Заголовок блока (опционально) */
+  sectionTitle?: string;
+  /** Метрики для чипов в ряд */
+  metrics: IMetricChipView[];
 }

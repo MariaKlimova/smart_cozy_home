@@ -12,6 +12,7 @@ import { BedroomDeviceControls } from '@/features/bedroom/ui/BedroomDeviceContro
 import { BedroomSensorControls } from '@/features/bedroom/ui/BedroomSensorControls';
 import { useBedroom } from '@/features/now/lib/useBedroom';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { canUseHaBackend } from '@/ha/haClient';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useConnectionStore } from '@/store/connectionStore';
@@ -52,6 +53,9 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
   const c = useThemeColors();
   const queryClient = useQueryClient();
   const isConnected = useConnectionStore((s) => s.isConnected);
+  const baseUrl = useConnectionStore((s) => s.baseUrl);
+  const token = useConnectionStore((s) => s.profile?.accessToken);
+  const haReady = canUseHaBackend(isConnected, baseUrl, token);
   const deviceConfig = useBedroomDeviceStore((s) => s.config);
   const sensorOverrides = useBedroomSensorStore((s) => s.overrides);
   const hasActiveDevices =
@@ -112,7 +116,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
   return (
     <ScreenLayout
       variant="stack"
-      onRefresh={isConnected ? handleRefresh : undefined}
+      onRefresh={haReady ? handleRefresh : undefined}
       isRefreshing={isRefreshing}
     >
       <CalmSegmented
@@ -126,11 +130,11 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
         }}
       />
 
-      {!isConnected ? (
+      {!haReady ? (
         <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
       ) : null}
 
-      {isConnected && activeTab === 'devices' ? (
+      {haReady && activeTab === 'devices' ? (
         <View style={styles.panel}>
           <CalmButton
             label={copy.bedroom.setupDevicesButton}
@@ -164,7 +168,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
         </View>
       ) : null}
 
-      {isConnected && activeTab === 'sensors' ? (
+      {haReady && activeTab === 'sensors' ? (
         <View style={styles.panel}>
           {isSensorsLoading ? (
             <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.checking}</Text>

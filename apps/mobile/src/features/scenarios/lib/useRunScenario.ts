@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { copy } from '@/copy/ru';
 import { exitActiveScenario, runScenario } from '@/domain/scenarioRunner';
 import { getScenarioDefinition } from '@/features/scenarios/config/scenarios';
+import { canUseHaBackend } from '@/ha/haClient';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
 
@@ -31,6 +32,9 @@ export function useRunScenario(): IUseRunScenarioResult {
   const baseUrl = useConnectionStore((s) => s.baseUrl);
   const profile = useConnectionStore((s) => s.profile);
   const isConnected = useConnectionStore((s) => s.isConnected);
+  const haReady = canUseHaBackend(isConnected, baseUrl, profile?.accessToken);
+  const haBaseUrl = baseUrl ?? 'mock://ha';
+  const haToken = profile?.accessToken ?? 'mock-token';
   const refresh = useHomeStore((s) => s.refresh);
   const activeScenarioId = useHomeStore((s) => s.activeScenarioId);
   const preparedScenarioId = useHomeStore((s) => s.preparedScenarioId);
@@ -65,7 +69,7 @@ export function useRunScenario(): IUseRunScenarioResult {
 
   const runScenarioById = useCallback(
     async (scenarioId: string) => {
-      if (!isConnected || !baseUrl || !profile) {
+      if (!haReady) {
         showError();
         return;
       }
@@ -83,7 +87,7 @@ export function useRunScenario(): IUseRunScenarioResult {
         setScenarioState(scenarioId, 'running');
         clearError();
         try {
-          await exitActiveScenario(baseUrl, profile.accessToken);
+          await exitActiveScenario(haBaseUrl, haToken);
           setScenarioActivation(null, preparedScenarioId);
           await refresh({ silent: true });
         } catch {
@@ -99,7 +103,7 @@ export function useRunScenario(): IUseRunScenarioResult {
       clearError();
 
       try {
-        await runScenario(scenarioId, baseUrl, profile.accessToken);
+        await runScenario(scenarioId, haBaseUrl, haToken);
 
         if (definition?.kind === 'prepared') {
           setScenarioActivation(null, scenarioId);
@@ -116,9 +120,9 @@ export function useRunScenario(): IUseRunScenarioResult {
       }
     },
     [
-      isConnected,
-      baseUrl,
-      profile,
+      haReady,
+      haBaseUrl,
+      haToken,
       activeScenarioId,
       preparedScenarioId,
       setScenarioState,

@@ -1,4 +1,8 @@
+import { HA_ENTITIES } from '@/config/scenarioHaMapping';
+
 import type { IScenarioDefinition } from './scenarios.typings';
+
+const { scripts } = HA_ENTITIES;
 
 /** Все сценарии дома в порядке отображения */
 export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
@@ -6,7 +10,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
     id: 'evening',
     label: 'Вечер',
     icon: 'moon-o',
-    script: 'script.evening',
+    script: scripts.evening,
     hasSchedule: true,
     defaultScheduleTime: '22:30',
     kind: 'mode',
@@ -16,7 +20,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
     id: 'sleep',
     label: 'Сон',
     icon: 'bed',
-    script: 'script.sleep',
+    script: scripts.sleep,
     hasSchedule: true,
     defaultScheduleTime: '23:00',
     kind: 'mode',
@@ -26,7 +30,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
     id: 'morning',
     label: 'Утро',
     icon: 'sun-o',
-    script: 'script.morning',
+    script: scripts.morning,
     hasSchedule: true,
     defaultScheduleTime: '07:00',
     kind: 'mode',
@@ -36,7 +40,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
     id: 'away',
     label: 'Уехали',
     icon: 'sign-out',
-    script: 'script.away',
+    script: scripts.away,
     hasSchedule: false,
     kind: 'mode',
     homeModeOption: 'away',
@@ -45,7 +49,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
     id: 'coming_home',
     label: 'Еду домой',
     icon: 'home',
-    script: 'script.coming_home',
+    script: scripts.comingHome,
     hasSchedule: false,
     kind: 'prepared',
     homeModeOption: 'coming_home',
@@ -54,7 +58,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
     id: 'cozy',
     label: 'Уют',
     icon: 'coffee',
-    script: 'script.cozy',
+    script: scripts.cozy,
     hasSchedule: false,
     kind: 'mode',
     homeModeOption: 'cozy',
@@ -63,7 +67,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
     id: 'focus',
     label: 'Фокус',
     icon: 'laptop',
-    script: 'script.focus',
+    script: scripts.focus,
     hasSchedule: false,
     kind: 'mode',
     homeModeOption: 'focus',
