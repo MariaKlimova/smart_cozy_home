@@ -23,7 +23,7 @@ const { devices, system, scenarioParams } = HA_ENTITIES;
 function enableSleepMaintainerContext(): void {
   updateMockEntityState(system.homeMode, 'sleep');
   updateMockEntityState(scenarioParams.sleep.window, 'on');
-  updateMockEntityState('binary_sensor.bedroom_occupancy', 'on');
+  updateMockEntityState(HA_ENTITIES.devices.occupancy, 'on');
 }
 
 describe('mockSleepMaintainer', () => {

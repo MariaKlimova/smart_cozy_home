@@ -1,10 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import { tickRoomPhysics } from '@/domain/mockRoomPhysics';
-
-const AC = HA_ENTITIES.devices.airConditioner;
 
 describe('tickRoomPhysics', () => {
   it('raises humidity when humidifier is on and window closed', () => {
@@ -13,11 +10,10 @@ describe('tickRoomPhysics', () => {
       windowPosition: 0,
       occupancyOn: true,
       ventilationActive: false,
-      climates: [{ entityId: AC, setpoint: 21, current: 20 }],
+      climates: [{ role: 'airConditioner', setpoint: 21, current: 20 }],
       humidityPct: 38,
       co2Ppm: 650,
       outdoorTemperatureC: 5,
-      airConditionerEntityId: AC,
     });
 
     assert.ok(result.humidityPct > 38);
@@ -29,11 +25,10 @@ describe('tickRoomPhysics', () => {
       windowPosition: 100,
       occupancyOn: false,
       ventilationActive: false,
-      climates: [{ entityId: AC, setpoint: 21, current: 20 }],
+      climates: [{ role: 'airConditioner', setpoint: 21, current: 20 }],
       humidityPct: 38,
       co2Ppm: 650,
       outdoorTemperatureC: 5,
-      airConditionerEntityId: AC,
     });
 
     assert.ok(result.humidityPct < 38);
@@ -46,11 +41,10 @@ describe('tickRoomPhysics', () => {
       windowPosition: 0,
       occupancyOn: false,
       ventilationActive: false,
-      climates: [{ entityId: AC, setpoint: 18, current: 20 }],
+      climates: [{ role: 'airConditioner', setpoint: 18, current: 20 }],
       humidityPct: 40,
       co2Ppm: 500,
       outdoorTemperatureC: 12,
-      airConditionerEntityId: AC,
     });
 
     assert.ok(result.co2Ppm > 500);
@@ -62,11 +56,10 @@ describe('tickRoomPhysics', () => {
       windowPosition: 0,
       occupancyOn: false,
       ventilationActive: false,
-      climates: [{ entityId: AC, setpoint: 18, current: 20 }],
+      climates: [{ role: 'airConditioner', setpoint: 18, current: 20 }],
       humidityPct: 40,
       co2Ppm: 500,
       outdoorTemperatureC: 12,
-      airConditionerEntityId: AC,
     });
 
     assert.ok(result.climates[0].current < 20);
@@ -79,11 +72,10 @@ describe('tickRoomPhysics', () => {
       windowPosition: 100,
       occupancyOn: false,
       ventilationActive: false,
-      climates: [{ entityId: AC, setpoint: 17, current: 20 }],
+      climates: [{ role: 'airConditioner', setpoint: 17, current: 20 }],
       humidityPct: 40,
       co2Ppm: 800,
       outdoorTemperatureC: 28,
-      airConditionerEntityId: AC,
     });
 
     assert.ok(result.climates[0].current > 20);

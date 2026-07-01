@@ -6,9 +6,8 @@ import { copy } from '@/copy/ru';
 import { useBedroomControls } from '@/features/bedroom/lib/useBedroomControls';
 import { BedroomDeviceControls } from '@/features/bedroom/ui/BedroomDeviceControls';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { canUseHaBackend } from '@/ha/haClient';
+import { useHaBackend } from '@/ha/useHaBackend';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
-import { useConnectionStore } from '@/store/connectionStore';
 import { CalmSheet } from '@/ui/CalmSheet';
 import { typography } from '@/theme/tokens';
 
@@ -18,10 +17,7 @@ import { styles } from './AdjustSheet.styles';
 
 export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustSheetProps) {
   const c = useThemeColors();
-  const isConnected = useConnectionStore((s) => s.isConnected);
-  const baseUrl = useConnectionStore((s) => s.baseUrl);
-  const token = useConnectionStore((s) => s.profile?.accessToken);
-  const haReady = canUseHaBackend(isConnected, baseUrl, token);
+  const { haReady } = useHaBackend();
   const deviceConfig = useBedroomDeviceStore((s) => s.config);
   const hasActiveDevices =
     getActiveBedroomDeviceEntityIds(resolveBedroomDevices(deviceConfig)).length > 0;

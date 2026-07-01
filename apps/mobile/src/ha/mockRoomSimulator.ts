@@ -4,6 +4,7 @@ import {
   tickRoomPhysics,
   type IClimatePhysicsSnapshot,
   type IRoomPhysicsInput,
+  type TClimatePhysicsRole,
 } from '@/domain/mockRoomPhysics';
 import {
   getMockEntitySnapshot,
@@ -12,6 +13,16 @@ import {
 import { tickSleepMaintainer } from '@/ha/mockSleepMaintainer';
 
 const { devices } = HA_ENTITIES;
+
+const CLIMATE_PHYSICS_ENTITIES: { role: TClimatePhysicsRole; entityId: string }[] = [
+  { role: 'airConditioner', entityId: devices.airConditioner },
+  { role: 'ventilation', entityId: devices.ventilation },
+  { role: 'radiator', entityId: devices.radiator },
+];
+
+const CLIMATE_ENTITY_BY_ROLE = new Map<TClimatePhysicsRole, string>(
+  CLIMATE_PHYSICS_ENTITIES.map((item) => [item.role, item.entityId]),
+);
 
 function parseNumericState(entityId: string, fallback: number): number {
   const snapshot = getMockEntitySnapshot(entityId);
@@ -31,7 +42,10 @@ function readCoverPosition(entityId: string): number {
   return 0;
 }
 
-function readClimateSnapshot(entityId: string): IClimatePhysicsSnapshot {
+function readClimateSnapshot(
+  role: TClimatePhysicsRole,
+  entityId: string,
+): IClimatePhysicsSnapshot {
   const snapshot = getMockEntitySnapshot(entityId);
   const setpoint =
     typeof snapshot?.attributes?.temperature === 'number'
@@ -41,7 +55,7 @@ function readClimateSnapshot(entityId: string): IClimatePhysicsSnapshot {
     typeof snapshot?.attributes?.current_temperature === 'number'
       ? snapshot.attributes.current_temperature
       : setpoint;
-  return { entityId, setpoint, current };
+  return { role, setpoint, current };
 }
 
 function buildRoomPhysicsInput(): IRoomPhysicsInput {
@@ -54,33 +68,33 @@ function buildRoomPhysicsInput(): IRoomPhysicsInput {
   return {
     humidifierOn: getMockEntitySnapshot(devices.humidifier)?.state === 'on',
     windowPosition: readCoverPosition(devices.window),
-    occupancyOn: getMockEntitySnapshot('binary_sensor.bedroom_occupancy')?.state === 'on',
+    occupancyOn: getMockEntitySnapshot(devices.occupancy)?.state === 'on',
     ventilationActive,
-    climates: [
-      readClimateSnapshot(devices.airConditioner),
-      readClimateSnapshot(devices.ventilation),
-      readClimateSnapshot(devices.radiator),
-    ],
+    climates: CLIMATE_PHYSICS_ENTITIES.map(({ role, entityId }) =>
+      readClimateSnapshot(role, entityId),
+    ),
     humidityPct: parseNumericState(devices.humidity, 40),
     co2Ppm: parseNumericState(devices.co2, 650),
     outdoorTemperatureC: parseNumericState(
       devices.outdoorTemperature,
       MOCK_OUTDOOR_TEMPERATURE_FALLBACK,
     ),
-    airConditionerEntityId: devices.airConditioner,
   };
 }
 
 function applyRoomPhysicsOutput(output: ReturnType<typeof tickRoomPhysics>): void {
   for (const climate of output.climates) {
-    const snapshot = getMockEntitySnapshot(climate.entityId);
+    const entityId = CLIMATE_ENTITY_BY_ROLE.get(climate.role);
+    if (!entityId) continue;
+
+    const snapshot = getMockEntitySnapshot(entityId);
     let state = snapshot?.state ?? 'heat';
 
-    if (output.airConditionerOff && climate.entityId === devices.airConditioner) {
+    if (output.airConditionerOff && climate.role === 'airConditioner') {
       state = 'off';
     }
 
-    updateMockEntityState(climate.entityId, state, {
+    updateMockEntityState(entityId, state, {
       ...(snapshot?.attributes ?? {}),
       temperature: climate.setpoint,
       current_temperature: climate.current,

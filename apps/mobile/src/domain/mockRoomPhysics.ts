@@ -15,10 +15,13 @@ import {
   MOCK_WINDOW_TEMP_DRIFT,
 } from '@/domain/mockRoomPhysics.const';
 
-/** Снимок climate entity для физики */
+/** Роль climate-устройства в физике комнаты */
+export type TClimatePhysicsRole = 'airConditioner' | 'ventilation' | 'radiator';
+
+/** Снимок climate для одного шага физики */
 export interface IClimatePhysicsSnapshot {
-  /** entity_id */
-  entityId: string;
+  /** Роль устройства в комнате */
+  role: TClimatePhysicsRole;
   /** Уставка, °C */
   setpoint: number;
   /** Текущая температура, °C */
@@ -43,8 +46,6 @@ export interface IRoomPhysicsInput {
   co2Ppm: number;
   /** Уличная температура, °C */
   outdoorTemperatureC: number;
-  /** entity_id кондиционера — отключается при открытом окне */
-  airConditionerEntityId: string;
 }
 
 /** Результат одного tick симуляции */
@@ -57,7 +58,7 @@ export interface IRoomPhysicsOutput {
   temperatureC: number;
   /** CO₂, ppm */
   co2Ppm: number;
-  /** entity_id кондиционера — нужно выставить state off при открытом окне */
+  /** Кондиционер нужно выключить (окно открыто) */
   airConditionerOff: boolean;
 }
 

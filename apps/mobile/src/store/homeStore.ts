@@ -11,7 +11,8 @@ import type {
   IRoom,
   ITimelineEvent,
 } from '@/domain/types';
-import { fetchEntityStates, fetchLogbook, toggleLight, canUseHaBackend } from '@/ha/haClient';
+import { fetchEntityStates, fetchLogbook, toggleLight } from '@/ha/haClient';
+import { resolveHaBackend } from '@/ha/haBackend';
 import {
   collectWatchedEntityIds,
   mapGentleNotifications,
@@ -97,7 +98,12 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
   refresh: async (options) => {
     const { baseUrl, profile, isConnected } = useConnectionStore.getState();
     const token = profile?.accessToken;
-    if (!canUseHaBackend(isConnected, baseUrl, token)) {
+    const { haReady, baseUrl: haBaseUrl, token: haToken } = resolveHaBackend(
+      isConnected,
+      baseUrl,
+      token,
+    );
+    if (!haReady) {
       set({
         syncDebug: {
           ...get().syncDebug,
@@ -106,9 +112,6 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
       });
       return false;
     }
-
-    const haBaseUrl = baseUrl ?? 'mock://ha';
-    const haToken = token ?? 'mock-token';
 
     const showSpinner = !options?.silent;
     if (showSpinner) {
@@ -193,10 +196,12 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
   toggleRoomLight: async (roomId) => {
     const { baseUrl, profile, isConnected } = useConnectionStore.getState();
     const token = profile?.accessToken;
-    if (!canUseHaBackend(isConnected, baseUrl, token)) return;
-
-    const haBaseUrl = baseUrl ?? 'mock://ha';
-    const haToken = token ?? 'mock-token';
+    const { haReady, baseUrl: haBaseUrl, token: haToken } = resolveHaBackend(
+      isConnected,
+      baseUrl,
+      token,
+    );
+    if (!haReady) return;
 
     const room = get().rooms.find((r) => r.id === roomId);
     if (!room) return;
@@ -216,10 +221,12 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
   acceptGentleNotification: async (notificationId) => {
     const { baseUrl, profile, isConnected } = useConnectionStore.getState();
     const token = profile?.accessToken;
-    if (!canUseHaBackend(isConnected, baseUrl, token)) return;
-
-    const haBaseUrl = baseUrl ?? 'mock://ha';
-    const haToken = token ?? 'mock-token';
+    const { haReady, baseUrl: haBaseUrl, token: haToken } = resolveHaBackend(
+      isConnected,
+      baseUrl,
+      token,
+    );
+    if (!haReady) return;
 
     const rule = loadHomeConfig().gentle_notifications.find((n) => n.id === notificationId);
     if (!rule) return;

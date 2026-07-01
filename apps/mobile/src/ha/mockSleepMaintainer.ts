@@ -37,7 +37,7 @@ function parseCo2Ppm(): number {
 function isSleepMaintainerEligible(): boolean {
   const homeMode = getMockEntitySnapshot(system.homeMode)?.state;
   const sleepWindow = readMockBooleanParam(scenarioParams.sleep.window, false);
-  const occupancy = getMockEntitySnapshot('binary_sensor.bedroom_occupancy')?.state === 'on';
+  const occupancy = getMockEntitySnapshot(devices.occupancy)?.state === 'on';
   return homeMode === 'sleep' && sleepWindow && occupancy;
 }
 

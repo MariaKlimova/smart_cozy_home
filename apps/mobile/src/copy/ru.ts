@@ -17,6 +17,7 @@ export const copy = {
       temperature: 'Температура',
       humidity: 'Влажность',
       co2: 'CO₂',
+      ppmUnit: 'ppm',
     },
     outdoorSectionTitle: 'Снаружи',
     outdoorMetrics: {

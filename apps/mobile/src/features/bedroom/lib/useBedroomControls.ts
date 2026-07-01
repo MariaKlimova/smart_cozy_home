@@ -5,7 +5,8 @@ import { bedroomDeviceMappingQueryKey, getActiveBedroomDeviceEntityIds, resolveB
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
 import type { IBedroomDeviceState } from '@/domain/bedroomDevice.typings';
 import { setBedroomDevice } from '@/domain/bedroomDeviceControl';
-import { canUseHaBackend, fetchEntityStates } from '@/ha/haClient';
+import { fetchEntityStates } from '@/ha/haClient';
+import { useHaBackend } from '@/ha/useHaBackend';
 import { mapBedroomDevices } from '@/ha/mappers/domainMapper';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useConnectionStore } from '@/store/connectionStore';
@@ -44,12 +45,8 @@ export function useBedroomControls(
 ): IUseBedroomControlsResult {
   const pollingEnabled = options?.enabled ?? true;
   const queryClient = useQueryClient();
-  const isConnected = useConnectionStore((s) => s.isConnected);
   const baseUrl = useConnectionStore((s) => s.baseUrl);
-  const token = useConnectionStore((s) => s.profile?.accessToken);
-  const haReady = canUseHaBackend(isConnected, baseUrl, token);
-  const haBaseUrl = baseUrl ?? 'mock://ha';
-  const haToken = token ?? 'mock-token';
+  const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const config = useBedroomDeviceStore((s) => s.config);
   const entityIds = useMemo(
     () => getActiveBedroomDeviceEntityIds(resolveBedroomDevices(config)),

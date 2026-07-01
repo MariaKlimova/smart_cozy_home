@@ -3,8 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { copy } from '@/copy/ru';
 import { exitActiveScenario, runScenario } from '@/domain/scenarioRunner';
 import { getScenarioDefinition } from '@/features/scenarios/config/scenarios';
-import { canUseHaBackend } from '@/ha/haClient';
-import { useConnectionStore } from '@/store/connectionStore';
+import { useHaBackend } from '@/ha/useHaBackend';
 import { useHomeStore } from '@/store/homeStore';
 
 import { SCENARIO_ERROR_TOAST_MS } from './useRunScenario.const';
@@ -29,12 +28,7 @@ interface IUseRunScenarioResult {
 
 /** Запуск сценария через HA с индикацией состояния карточки */
 export function useRunScenario(): IUseRunScenarioResult {
-  const baseUrl = useConnectionStore((s) => s.baseUrl);
-  const profile = useConnectionStore((s) => s.profile);
-  const isConnected = useConnectionStore((s) => s.isConnected);
-  const haReady = canUseHaBackend(isConnected, baseUrl, profile?.accessToken);
-  const haBaseUrl = baseUrl ?? 'mock://ha';
-  const haToken = profile?.accessToken ?? 'mock-token';
+  const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const refresh = useHomeStore((s) => s.refresh);
   const activeScenarioId = useHomeStore((s) => s.activeScenarioId);
   const preparedScenarioId = useHomeStore((s) => s.preparedScenarioId);

@@ -19,7 +19,7 @@ function MetricValue({ metric }: { metric: IBedroomStateCardMetricsProps['metric
     return (
       <View style={styles.valueRow}>
         <Text style={[styles.value, { color: c.text }]}>{metric.value}</Text>
-        <Text style={[styles.unit, { color: c.textMuted }]}>ppm</Text>
+        <Text style={[styles.unit, { color: c.textMuted }]}>{copy.now.metrics.ppmUnit}</Text>
       </View>
     );
   }

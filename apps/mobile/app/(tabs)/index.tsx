@@ -17,9 +17,8 @@ import { BedroomStateCard } from '@/features/now/ui/BedroomStateCard';
 import { QuickActions } from '@/features/now/ui/QuickActions';
 import { useGentleNotifications } from '@/hooks/useGentleNotifications';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { canUseHaBackend } from '@/ha/haClient';
+import { useHaBackend } from '@/ha/useHaBackend';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
-import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
 import { CalmButton } from '@/ui/CalmButton';
 import { CalmToast } from '@/ui/CalmToast';
@@ -28,10 +27,7 @@ import { typography } from '@/theme/tokens';
 
 export default function NowScreen() {
   const c = useThemeColors();
-  const isConnected = useConnectionStore((s) => s.isConnected);
-  const baseUrl = useConnectionStore((s) => s.baseUrl);
-  const token = useConnectionStore((s) => s.profile?.accessToken);
-  const haReady = canUseHaBackend(isConnected, baseUrl, token);
+  const { haReady } = useHaBackend();
   const {
     contextualScenarioId,
     isManualControlOpen,

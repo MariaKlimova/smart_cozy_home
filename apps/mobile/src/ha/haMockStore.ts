@@ -1,4 +1,6 @@
+import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import { SCENARIO_MOCKS, type IMockEntitySnapshot } from '@/config/scenarioMocks';
+import { buildMockSunSnapshot } from '@/ha/mockSunEntity';
 import type { IHaEntityState } from '@/ha/types';
 
 type TMockEntry = IMockEntitySnapshot;
@@ -19,6 +21,10 @@ function buildInitialStore(): Map<string, TMockEntry> {
     store.set(entityId, cloneEntry(snapshot));
   }
   for (const [entityId, snapshot] of Object.entries(SCENARIO_MOCKS.home)) {
+    if (entityId === HA_ENTITIES.system.sun) {
+      store.set(entityId, cloneEntry(buildMockSunSnapshot()));
+      continue;
+    }
     store.set(entityId, cloneEntry(snapshot));
   }
   return store;

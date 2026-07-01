@@ -12,10 +12,9 @@ import { BedroomDeviceControls } from '@/features/bedroom/ui/BedroomDeviceContro
 import { BedroomSensorControls } from '@/features/bedroom/ui/BedroomSensorControls';
 import { useBedroom } from '@/features/now/lib/useBedroom';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { canUseHaBackend } from '@/ha/haClient';
+import { useHaBackend } from '@/ha/useHaBackend';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
-import { useConnectionStore } from '@/store/connectionStore';
 import { CalmButton } from '@/ui/CalmButton';
 import { CalmSegmented } from '@/ui/CalmSegmented';
 import { ScreenLayout } from '@/ui/ScreenLayout';
@@ -52,10 +51,7 @@ function isBedroomSensorSlot(value: string): value is TBedroomSensorSlot {
 export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
   const c = useThemeColors();
   const queryClient = useQueryClient();
-  const isConnected = useConnectionStore((s) => s.isConnected);
-  const baseUrl = useConnectionStore((s) => s.baseUrl);
-  const token = useConnectionStore((s) => s.profile?.accessToken);
-  const haReady = canUseHaBackend(isConnected, baseUrl, token);
+  const { haReady } = useHaBackend();
   const deviceConfig = useBedroomDeviceStore((s) => s.config);
   const sensorOverrides = useBedroomSensorStore((s) => s.overrides);
   const hasActiveDevices =

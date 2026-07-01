@@ -68,7 +68,7 @@ function runEveningScript(): void {
 function runSleepScript(): void {
   const params = scenarioParams.sleep;
   setMockLightBrightnessPercent(devices.light, 0);
-  updateMockEntityState('binary_sensor.bedroom_occupancy', 'on');
+  updateMockEntityState(devices.occupancy, 'on');
 
   const sleepTemp = readMockNumberParam(params.temperature, 17);
   setMockClimateTemperature(CLIMATE_ENTITIES, sleepTemp);

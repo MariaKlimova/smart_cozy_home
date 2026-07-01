@@ -27,6 +27,8 @@ export interface IHaBedroomDeviceEntities {
   humidity: string;
   /** Температура на улице (template из weather.home) */
   outdoorTemperature: string;
+  /** Датчик присутствия в спальне */
+  occupancy: string;
 }
 
 /** Системные helpers HA */
@@ -175,6 +177,7 @@ export const HA_ENTITIES: IHaEntities = {
     temperature: 'sensor.bedroom_temperature',
     humidity: 'sensor.bedroom_humidity',
     outdoorTemperature: 'sensor.outdoor_temperature',
+    occupancy: 'binary_sensor.bedroom_occupancy',
   },
 
   system: {

@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { bedroomSensorMappingQueryKey } from '@/config/resolveBedroomSensors';
 import { HA_ENTITIES } from '@/config/scenarioHaMapping';
-import { canUseHaBackend, fetchEntityStates } from '@/ha/haClient';
+import { fetchEntityStates } from '@/ha/haClient';
+import { useHaBackend } from '@/ha/useHaBackend';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useConnectionStore } from '@/store/connectionStore';
 
@@ -30,16 +31,11 @@ export interface IUseBedroomResult {
 /** Загружает стейты датчиков спальни из HA (обновление каждые 30 с) */
 export function useBedroom(options?: IUseBedroomOptions): IUseBedroomResult {
   const pollingEnabled = options?.enabled ?? true;
-  const isConnected = useConnectionStore((s) => s.isConnected);
   const baseUrl = useConnectionStore((s) => s.baseUrl);
-  const token = useConnectionStore((s) => s.profile?.accessToken);
+  const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const overrides = useBedroomSensorStore((s) => s.overrides);
   const getResolvedMapping = useBedroomSensorStore((s) => s.getResolvedMapping);
   const getActiveEntityIds = useBedroomSensorStore((s) => s.getActiveEntityIds);
-
-  const haReady = canUseHaBackend(isConnected, baseUrl, token);
-  const haBaseUrl = baseUrl ?? 'mock://ha';
-  const haToken = token ?? 'mock-token';
 
   const sensors = getResolvedMapping();
   const entityIds = getActiveEntityIds();

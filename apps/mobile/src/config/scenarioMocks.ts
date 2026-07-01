@@ -131,14 +131,10 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
       attributes: { temperature: 22, current_temperature: 21.5, unit_of_measurement: '°C' },
     },
     'alarm_control_panel.home': { state: 'disarmed' },
-    'binary_sensor.bedroom_occupancy': { state: 'off' },
+    [HA_ENTITIES.devices.occupancy]: { state: 'off' },
     [HA_ENTITIES.system.sun]: {
       state: 'above_horizon',
-      attributes: {
-        next_rising: '2026-07-01T05:18:00+03:00',
-        next_setting: '2026-06-30T21:32:00+03:00',
-        friendly_name: 'Солнце',
-      },
+      attributes: { friendly_name: 'Солнце' },
     },
   },
 };
