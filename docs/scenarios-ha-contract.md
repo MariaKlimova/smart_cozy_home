@@ -39,20 +39,30 @@
 - `script.away` сбрасывает `home_ready_for_arrival` — подготовка к приезду актуальна только пока дом не в режиме отъезда.
 - Повторный тап по active-режиму в приложении → `home_mode = none`.
 
-## Расписание (Вечер, Сон, Утро)
+## Расписание (все сценарии)
 
-Приложение **не редактирует** automation напрямую. Automation читает helpers:
+Приложение **не редактирует** automation напрямую. Недельное расписание хранится в `input_text.{id}_schedule` (JSON v1).
 
-| Entity | UI в SH-15 |
-|--------|------------|
-| `input_boolean.evening_schedule_enabled` | Toggle «По расписанию» |
-| `input_datetime.evening_schedule_time` | Time picker |
-| `input_boolean.sleep_schedule_enabled` | … |
-| `input_datetime.sleep_schedule_time` | … |
-| `input_boolean.morning_schedule_enabled` | … |
-| `input_datetime.morning_schedule_time` | … |
+| UI | HA entity |
+|----|-----------|
+| Мастер-toggle «По расписанию» + дни Пн–Вс | `input_text.{id}_schedule` |
 
-Automation `automation.{id}_schedule`: trigger по `input_datetime`, condition на `input_boolean`, action → `script.{id}`.
+JSON-схема (v1):
+
+```json
+{
+  "version": 1,
+  "enabled": true,
+  "weekdays": {
+    "mon": { "enabled": true, "time": "07:00" },
+    "sat": { "enabled": true, "time": "08:00" }
+  }
+}
+```
+
+Automation `automation.{id}_schedule`: trigger `time_pattern` каждую минуту, condition — template читает JSON.
+
+Подпись на карточке: ближайший включённый день и время («Сегодня в 07:00», «Ср в 08:00»).
 
 ## Automations runtime (Сон)
 

@@ -1,5 +1,5 @@
 import { HA_ENTITIES } from '@/config/scenarioHaMapping';
-import { SCENARIO_DEFINITIONS } from '@/features/scenarios/config/scenarios';
+import { SCENARIO_DEFINITIONS } from '@/config/scenarios';
 import {
   applyMockHaService,
   readMockBooleanParam,

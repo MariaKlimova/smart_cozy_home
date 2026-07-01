@@ -12,7 +12,7 @@ import { BedroomDeviceControls } from '@/features/bedroom/ui/BedroomDeviceContro
 import { BedroomSensorControls } from '@/features/bedroom/ui/BedroomSensorControls';
 import { useBedroom } from '@/features/now/lib/useBedroom';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { useHaBackend } from '@/ha/useHaBackend';
+import { useHaBackend } from '@/hooks/useHaBackend';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { CalmButton } from '@/ui/CalmButton';

@@ -23,6 +23,7 @@ import {
   mapTemperature,
   mapTimelineFromLogbook,
 } from '@/ha/mappers/domainMapper';
+import { mapAllScenarioSchedules, collectScenarioScheduleEntityIds } from '@/ha/mappers/mapScenarioSettings';
 import { mapScenarioHaState } from '@/ha/mappers/mapScenarioHaState';
 import { loadHomeConfig } from '@/config/homeConfig';
 import { useConnectionStore } from '@/store/connectionStore';
@@ -119,7 +120,9 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     }
 
     try {
-      const entityIds = collectWatchedEntityIds();
+      const entityIds = [
+        ...new Set([...collectWatchedEntityIds(), ...collectScenarioScheduleEntityIds()]),
+      ];
       const states = await fetchEntityStates(haBaseUrl, haToken, entityIds);
       const receivedIds = new Set(states.map((s) => s.entityId));
       const missingEntityIds = entityIds.filter((id) => !receivedIds.has(id));
@@ -166,9 +169,11 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
         statePreview: buildStatePreview(states),
       };
 
+      const schedules = mapAllScenarioSchedules(states);
+
       set({
         homeState,
-        scenarios: listScenarios(),
+        scenarios: listScenarios(new Date(), schedules),
         activeScenarioId,
         preparedScenarioId,
         rooms,

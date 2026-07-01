@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { Text, type ScrollView, type TextInput } from 'react-native';
 
 import { copy } from '@/copy/ru';
-import type { IConnectionProfile } from '@/ha/types';
+import type { IConnectionProfile } from '@/domain/connection.typings';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useConnectionStore } from '@/store/connectionStore';
 import { CalmButton } from '@/ui/CalmButton';

@@ -212,6 +212,22 @@ export function applyMockHaService(
     if (typeof value === 'number') {
       updateMockEntityState(entityId, String(value), getEntry(entityId)?.attributes);
     }
+    return;
+  }
+
+  if (domain === 'input_datetime' && service === 'set_datetime') {
+    const time = data.time;
+    if (typeof time === 'string') {
+      updateMockEntityState(entityId, time, getEntry(entityId)?.attributes);
+    }
+    return;
+  }
+
+  if (domain === 'input_text' && service === 'set_value') {
+    const value = data.value;
+    if (typeof value === 'string') {
+      updateMockEntityState(entityId, value, getEntry(entityId)?.attributes);
+    }
   }
 }
 

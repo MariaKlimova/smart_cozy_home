@@ -69,10 +69,8 @@ export interface IEveningScenarioParams {
   curtains: string;
   /** Включать увлажнитель */
   humidifier: string;
-  /** Расписание включено */
-  scheduleEnabled: string;
-  /** Время расписания */
-  scheduleTime: string;
+  /** JSON расписание по дням недели */
+  scheduleConfig: string;
 }
 
 /** Параметры сценария «Сон» */
@@ -81,10 +79,8 @@ export interface ISleepScenarioParams {
   temperature: string;
   /** Открывать окно */
   window: string;
-  /** Расписание включено */
-  scheduleEnabled: string;
-  /** Время расписания */
-  scheduleTime: string;
+  /** JSON расписание по дням недели */
+  scheduleConfig: string;
 }
 
 /** Параметры сценария «Утро» */
@@ -93,10 +89,8 @@ export interface IMorningScenarioParams {
   brightness: string;
   /** Минуты плавного пробуждения */
   warmupMinutes: string;
-  /** Расписание включено */
-  scheduleEnabled: string;
-  /** Время расписания */
-  scheduleTime: string;
+  /** JSON расписание по дням недели */
+  scheduleConfig: string;
 }
 
 /** Параметры сценария «Уехали» */
@@ -105,6 +99,8 @@ export interface IAwayScenarioParams {
   temperature: string;
   /** Закрывать шторы */
   curtains: string;
+  /** JSON расписание по дням недели */
+  scheduleConfig: string;
 }
 
 /** Параметры сценария «Еду домой» */
@@ -115,6 +111,8 @@ export interface IComingHomeScenarioParams {
   temperature: string;
   /** Яркость встречи */
   brightness: string;
+  /** JSON расписание по дням недели */
+  scheduleConfig: string;
 }
 
 /** Параметры сценария «Уют» */
@@ -123,6 +121,8 @@ export interface ICozyScenarioParams {
   brightness: string;
   /** Температура */
   temperature: string;
+  /** JSON расписание по дням недели */
+  scheduleConfig: string;
 }
 
 /** Параметры сценария «Фокус» */
@@ -131,6 +131,8 @@ export interface IFocusScenarioParams {
   brightness: string;
   /** Температура */
   temperature: string;
+  /** JSON расписание по дням недели */
+  scheduleConfig: string;
 }
 
 /** Helpers параметров всех сценариев */
@@ -202,37 +204,38 @@ export const HA_ENTITIES: IHaEntities = {
       temperature: 'input_number.evening_temperature',
       curtains: 'input_boolean.evening_curtains',
       humidifier: 'input_boolean.evening_humidifier',
-      scheduleEnabled: 'input_boolean.evening_schedule_enabled',
-      scheduleTime: 'input_datetime.evening_schedule_time',
+      scheduleConfig: 'input_text.evening_schedule',
     },
     sleep: {
       temperature: 'input_number.sleep_temperature',
       window: 'input_boolean.sleep_window',
-      scheduleEnabled: 'input_boolean.sleep_schedule_enabled',
-      scheduleTime: 'input_datetime.sleep_schedule_time',
+      scheduleConfig: 'input_text.sleep_schedule',
     },
     morning: {
       brightness: 'input_number.morning_brightness',
       warmupMinutes: 'input_number.morning_warmup_minutes',
-      scheduleEnabled: 'input_boolean.morning_schedule_enabled',
-      scheduleTime: 'input_datetime.morning_schedule_time',
+      scheduleConfig: 'input_text.morning_schedule',
     },
     away: {
       temperature: 'input_number.away_temperature',
       curtains: 'input_boolean.away_curtains',
+      scheduleConfig: 'input_text.away_schedule',
     },
     comingHome: {
       minutes: 'input_number.coming_home_minutes',
       temperature: 'input_number.coming_home_temperature',
       brightness: 'input_number.coming_home_brightness',
+      scheduleConfig: 'input_text.coming_home_schedule',
     },
     cozy: {
       brightness: 'input_number.cozy_brightness',
       temperature: 'input_number.cozy_temperature',
+      scheduleConfig: 'input_text.cozy_schedule',
     },
     focus: {
       brightness: 'input_number.focus_brightness',
       temperature: 'input_number.focus_temperature',
+      scheduleConfig: 'input_text.focus_schedule',
     },
   },
 } as const;

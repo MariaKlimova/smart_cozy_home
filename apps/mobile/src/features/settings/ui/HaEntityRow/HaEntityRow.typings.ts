@@ -1,4 +1,4 @@
-import type { IHaEntityListItem } from '@/ha/entityList';
+import type { IHaEntityListItem } from '@/domain/haEntityList.typings';
 
 export interface IHaEntityRowProps {
   /** Entity из HA */

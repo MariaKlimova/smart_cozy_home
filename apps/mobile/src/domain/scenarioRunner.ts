@@ -3,10 +3,11 @@ import {
   SCENARIO_DEFINITIONS,
   getScenarioDefinition,
   getScenarioByHomeModeOption,
-} from '@/features/scenarios/config/scenarios';
-import { formatScenarioSchedule } from '@/features/scenarios/lib/formatScenarioSchedule';
-import { runHaScript, setInputSelectOption } from '@/ha/haClient';
+} from '@/config/scenarios';
+import { formatScenarioSchedule } from '@/config/formatScenarioSchedule';
+import type { IScenarioScheduleState } from '@/domain/scenarioSettings.typings';
 import type { IScenario } from '@/domain/types';
+import { runHaScript, setInputSelectOption } from '@/ha/haClient';
 
 /** id режима по option input_select.home_mode */
 export function resolveModeScenarioIdFromHomeMode(option: string): string | null {
@@ -18,14 +19,21 @@ export function resolveModeScenarioIdFromHomeMode(option: string): string | null
 }
 
 /** Список сценариев для UI */
-export function listScenarios(now: Date = new Date()): IScenario[] {
-  return SCENARIO_DEFINITIONS.map((definition) => ({
-    id: definition.id,
-    label: definition.label,
-    icon: definition.icon,
-    hasSchedule: definition.hasSchedule,
-    scheduleSubtitle: formatScenarioSchedule(definition, now),
-  }));
+export function listScenarios(
+  now: Date = new Date(),
+  schedules?: Record<string, IScenarioScheduleState>,
+): IScenario[] {
+  return SCENARIO_DEFINITIONS.map((definition) => {
+    const schedule = schedules?.[definition.id];
+    return {
+      id: definition.id,
+      label: definition.label,
+      icon: definition.icon,
+      hasSchedule: definition.hasSchedule,
+      schedule,
+      scheduleSubtitle: formatScenarioSchedule(definition, schedule, now),
+    };
+  });
 }
 
 /** Запуск сценария через HA script */
