@@ -35,8 +35,9 @@
 
 | Subagent | Файл | Когда вызывать |
 |----------|------|----------------|
+| **Code Review** | [`code-review.md`](.cursor/agents/code-review.md) | ревью PR/diff перед push или merge, `/code-review`, после крупной задачи |
 | **HA Bridge** | [`ha-bridge.md`](.cursor/agents/ha-bridge.md) | любые правки в `apps/mobile/src/ha/**`, новый mapping HA → domain, reconnect/failover, secure storage профиля |
 
-Вызов вручную: `/ha-bridge <задача>` или «делегируй HA Bridge …». Главный агент сам делегирует, когда видит совпадение по `description`.
+Вызов вручную: `/code-review`, `/ha-bridge <задача>` или «делегируй Code Review / HA Bridge …». Главный агент сам делегирует, когда видит совпадение по `description`.
 
-Остальные роли (Product Guardian, Calm Design, Mobile Craft, Domain Architect, Automation Composer) живут через **skills + rules + BUGBOT**, без отдельных subagents — этого хватает на текущем размере проекта.
+Остальные роли (Product Guardian, Calm Design, Mobile Craft, Domain Architect, Automation Composer) живут через **skills + rules + BUGBOT**; для ревью их правила подхватывает **Code Review** по зонам diff.
