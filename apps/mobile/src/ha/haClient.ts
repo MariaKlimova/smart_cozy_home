@@ -1,6 +1,32 @@
+import { runMockScript } from '@/ha/mockScriptRunner';
+import {
+  applyMockHaService,
+  getAllMockEntityStates,
+  getMockEntityStates,
+  updateMockEntityState,
+} from '@/ha/haMockStore';
 import type { IHaEntityState } from '@/ha/types';
 
 const FETCH_TIMEOUT_MS = 30_000;
+
+/**
+ * Мок-режим HA: данные из scenarioMocks.ts, без сетевых запросов.
+ * В test-раннере выключен, чтобы не ломать unit-тесты кастомных entity.
+ * Для реального HA: EXPO_PUBLIC_USE_HA_MOCKS=false
+ */
+export const USE_HA_MOCKS =
+  process.env.EXPO_PUBLIC_USE_HA_MOCKS === 'true' ||
+  (process.env.EXPO_PUBLIC_USE_HA_MOCKS !== 'false' && process.env.NODE_ENV !== 'test');
+
+/** Можно ли читать/писать HA (реальное подключение или моки) */
+export function canUseHaBackend(
+  isConnected: boolean,
+  baseUrl: string | null | undefined,
+  token: string | null | undefined,
+): boolean {
+  if (USE_HA_MOCKS) return true;
+  return Boolean(isConnected && baseUrl && token);
+}
 
 function authHeaders(token: string): HeadersInit {
   return {
@@ -23,11 +49,21 @@ function mapRawState(e: TRawHaState): IHaEntityState {
   };
 }
 
+function logMockService(domain: string, service: string, data?: Record<string, unknown>): void {
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    console.info('[HA mock]', `${domain}.${service}`, data ?? {});
+  }
+}
+
 /** Все состояния entities из HA */
 export async function fetchAllEntityStates(
   baseUrl: string,
   token: string,
 ): Promise<IHaEntityState[]> {
+  if (USE_HA_MOCKS) {
+    return getAllMockEntityStates();
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
@@ -53,6 +89,10 @@ export async function fetchEntityStates(
 ): Promise<IHaEntityState[]> {
   if (entityIds.length === 0) return [];
 
+  if (USE_HA_MOCKS) {
+    return getMockEntityStates(entityIds);
+  }
+
   const all = await fetchAllEntityStates(baseUrl, token);
   const idSet = new Set(entityIds);
   return all.filter((e) => idSet.has(e.entityId));
@@ -65,6 +105,12 @@ export async function callHaService(
   service: string,
   data?: Record<string, unknown>,
 ): Promise<void> {
+  if (USE_HA_MOCKS) {
+    logMockService(domain, service, data);
+    applyMockHaService(domain, service, data);
+    return;
+  }
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
@@ -89,6 +135,12 @@ export async function runHaScript(
   token: string,
   scriptEntityId: string,
 ): Promise<void> {
+  if (USE_HA_MOCKS) {
+    runMockScript(scriptEntityId);
+    logMockService('script', 'turn_on', { entity_id: scriptEntityId });
+    return;
+  }
+
   await callHaService(baseUrl, token, 'script', 'turn_on', { entity_id: scriptEntityId });
 }
 
@@ -103,6 +155,42 @@ export async function setInputSelectOption(
     entity_id: entityId,
     option,
   });
+}
+
+/** Записать значение input_number */
+export async function setNumberValue(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  value: number,
+): Promise<void> {
+  if (USE_HA_MOCKS) {
+    updateMockEntityState(entityId, String(value));
+    logMockService('input_number', 'set_value', { entity_id: entityId, value });
+    return;
+  }
+
+  await callHaService(baseUrl, token, 'input_number', 'set_value', {
+    entity_id: entityId,
+    value,
+  });
+}
+
+/** Вкл/выкл input_boolean */
+export async function setBooleanState(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  value: boolean,
+): Promise<void> {
+  if (USE_HA_MOCKS) {
+    updateMockEntityState(entityId, value ? 'on' : 'off');
+    logMockService('input_boolean', value ? 'turn_on' : 'turn_off', { entity_id: entityId });
+    return;
+  }
+
+  const service = value ? 'turn_on' : 'turn_off';
+  await callHaService(baseUrl, token, 'input_boolean', service, { entity_id: entityId });
 }
 
 export async function toggleLight(
@@ -176,6 +264,10 @@ export async function fetchLogbook(
   token: string,
   entityIds: string[],
 ): Promise<{ when: string; name: string; message: string; entity_id?: string }[]> {
+  if (USE_HA_MOCKS) {
+    return [];
+  }
+
   const end = new Date();
   const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
   const params = new URLSearchParams({

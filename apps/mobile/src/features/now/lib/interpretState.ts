@@ -5,7 +5,7 @@ import type { IBedroomReadings } from './bedroomReadings.typings';
 /** Визуальный тон карточки по доминирующему отклонению */
 export type TBedroomStateTone = 'neutral' | 'comfort' | 'air' | 'warm' | 'cool' | 'dry';
 
-/** Есть хотя бы одно числовое показание */
+/** Есть хотя бы одно числовое показание датчиков спальни */
 export function hasAnyBedroomReading(readings: IBedroomReadings): boolean {
   return (
     readings.co2Ppm !== undefined ||
@@ -14,17 +14,36 @@ export function hasAnyBedroomReading(readings: IBedroomReadings): boolean {
   );
 }
 
-/** Одна метрика для отображения в карточке */
-export interface IBedroomMetricView {
+/** Есть хотя бы одно показание внешних условий */
+export function hasAnyOutdoorReading(readings: IBedroomReadings): boolean {
+  return readings.outdoorTemperatureC !== undefined || readings.sunEvent !== undefined;
+}
+
+/** Одна метрика для чипа */
+export interface IMetricChipView {
   /** Идентификатор метрики */
-  id: 'temperature' | 'humidity' | 'co2';
+  id: string;
   /** Эмодзи-иконка */
   icon: string;
   /** Подпись под значением */
   label: string;
   /** Отформатированное значение */
   value: string;
+  /** Показать « ppm » рядом со значением */
+  showPpmUnit?: boolean;
 }
+
+/** Метрика датчиков спальни */
+export type IBedroomMetricView = IMetricChipView & {
+  /** Идентификатор метрики спальни */
+  id: 'temperature' | 'humidity' | 'co2';
+};
+
+/** Метрика внешних условий */
+export type IOutdoorMetricView = IMetricChipView & {
+  /** Идентификатор внешней метрики */
+  id: 'outdoorTemperature' | 'sunEvent';
+};
 
 /** Интерпретация показаний спальни одной фразой (приоритет: CO₂ → температура → влажность) */
 export function interpretBedroomState(readings: IBedroomReadings): string {
@@ -66,7 +85,7 @@ export function getBedroomStateTone(readings: IBedroomReadings): TBedroomStateTo
   return 'comfort';
 }
 
-/** Метрики для ряда чипов под фразой */
+/** Метрики датчиков спальни (три чипа) */
 export function formatBedroomMetrics(readings: IBedroomReadings): IBedroomMetricView[] {
   const dash = copy.now.metricsUnavailable;
   const labels = copy.now.metrics;
@@ -91,6 +110,40 @@ export function formatBedroomMetrics(readings: IBedroomReadings): IBedroomMetric
       icon: '🌬',
       label: labels.co2,
       value: readings.co2Ppm !== undefined ? `${Math.round(readings.co2Ppm)}` : dash,
+      showPpmUnit: true,
+    },
+  ];
+}
+
+/** Метрики внешних условий (улица + солнце) */
+export function formatOutdoorMetrics(readings: IBedroomReadings): IOutdoorMetricView[] {
+  const dash = copy.now.metricsUnavailable;
+  const labels = copy.now.outdoorMetrics;
+  const sunEvent = readings.sunEvent;
+  const sunIcon = sunEvent?.kind === 'sunset' ? '🌇' : '🌅';
+
+  let sunLabel: string = dash;
+  if (sunEvent?.kind === 'sunset') {
+    sunLabel = labels.sunset;
+  } else if (sunEvent?.kind === 'sunrise') {
+    sunLabel = labels.sunrise;
+  }
+
+  return [
+    {
+      id: 'outdoorTemperature',
+      icon: '🌤',
+      label: labels.temperature,
+      value:
+        readings.outdoorTemperatureC !== undefined
+          ? `${Math.round(readings.outdoorTemperatureC)}°`
+          : dash,
+    },
+    {
+      id: 'sunEvent',
+      icon: sunIcon,
+      label: sunLabel,
+      value: sunEvent?.time ?? dash,
     },
   ];
 }

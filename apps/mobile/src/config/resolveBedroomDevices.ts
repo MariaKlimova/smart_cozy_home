@@ -4,6 +4,22 @@ import type {
 } from '@/config/bedroomDeviceSlotMapping.typings';
 import { HOME_CONFIG } from '@/config/homeConfig';
 import type { IBedroomDeviceMapping } from '@/config/homeConfig.typings';
+import { HA_ENTITIES } from '@/config/scenarioHaMapping';
+import { USE_HA_MOCKS } from '@/ha/haClient';
+
+const MOCK_BEDROOM_ENTITY_IDS = new Set<string>(Object.values(HA_ENTITIES.devices));
+
+function resolveBedroomEntity(
+  slot: TBedroomDeviceSlot,
+  defaultEntity: string,
+  config: IBedroomDeviceUserConfig | null,
+): string {
+  const customEntity = config?.entities?.[slot];
+  const candidate = customEntity ?? defaultEntity;
+  if (!USE_HA_MOCKS) return candidate;
+  if (MOCK_BEDROOM_ENTITY_IDS.has(candidate)) return candidate;
+  return defaultEntity;
+}
 
 /** Дефолты из homeConfig + пользовательская конфигурация */
 export function resolveBedroomDevices(
@@ -16,7 +32,7 @@ export function resolveBedroomDevices(
     .map((device) => {
       const slot = device.id as TBedroomDeviceSlot;
       if (hidden.has(slot)) return null;
-      const entity = config?.entities?.[slot] ?? device.entity;
+      const entity = resolveBedroomEntity(slot, device.entity, config);
       if (!entity) return null;
       return { ...device, entity };
     })

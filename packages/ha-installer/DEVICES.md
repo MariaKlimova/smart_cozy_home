@@ -20,6 +20,9 @@
 | `sensor.bedroom_co2` | Датчик CO₂ | bedroom sensors UI |
 | `sensor.bedroom_temperature` | Датчик температуры | bedroom sensors UI |
 | `sensor.bedroom_humidity` | Датчик влажности | bedroom sensors UI |
+| `binary_sensor.bedroom_occupancy` | Присутствие в спальне | automation sleep_air_quality |
+| `sensor.outdoor_temperature` | Температура на улице (template из `weather.home`) | блок «Снаружи», физика mock |
+| `sun.sun` | Следующий восход / закат (`next_rising`, `next_setting`) | блок «Снаружи»: «Восход в …» / «Закат в …» |
 
 ### Climate в сценариях
 

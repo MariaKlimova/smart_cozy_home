@@ -8,10 +8,12 @@ import {
   loadBedroomSensorMapping,
   saveBedroomSensorMapping,
 } from '@/config/bedroomSensorMappingStorage';
+import { MOCK_BEDROOM_SENSOR_MAPPING } from '@/config/scenarioMocks';
 import {
   getActiveBedroomSensorEntityIds,
   resolveBedroomSensors,
 } from '@/config/resolveBedroomSensors';
+import { USE_HA_MOCKS } from '@/ha/haClient';
 
 interface IBedroomSensorStore {
   /** Пользовательские привязки */
@@ -40,7 +42,8 @@ export const useBedroomSensorStore = create<IBedroomSensorStore>((set, get) => (
     if (hydratePromise) return hydratePromise;
 
     hydratePromise = (async () => {
-      const overrides = await loadBedroomSensorMapping();
+      const saved = await loadBedroomSensorMapping();
+      const overrides = USE_HA_MOCKS ? MOCK_BEDROOM_SENSOR_MAPPING : saved;
       set({ overrides, hasHydrated: true });
     })();
 
@@ -55,6 +58,9 @@ export const useBedroomSensorStore = create<IBedroomSensorStore>((set, get) => (
   },
 
   isConfigured: () => {
+    if (USE_HA_MOCKS) {
+      return getActiveBedroomSensorEntityIds(get().getResolvedMapping()).length > 0;
+    }
     const overrides = get().overrides;
     if (!overrides) return false;
     return (

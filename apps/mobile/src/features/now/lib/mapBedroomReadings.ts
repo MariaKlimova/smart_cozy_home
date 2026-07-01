@@ -1,7 +1,9 @@
 import type { IBedroomSensorsMapping } from '@/config/homeConfig.typings';
+import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import type { IHaEntityState } from '@/ha/types';
 
 import type { IBedroomReadings } from './bedroomReadings.typings';
+import { parseSunEventFromHaState } from './parseSunEvent';
 
 function parseNumericState(state: IHaEntityState | undefined): number | undefined {
   if (!state || state.state === 'unavailable' || state.state === 'unknown') {
@@ -27,5 +29,9 @@ export function mapBedroomReadings(
     co2Ppm: co2Entity ? parseNumericState(byId.get(co2Entity)) : undefined,
     temperatureC: tempEntity ? parseNumericState(byId.get(tempEntity)) : undefined,
     humidityPct: humidityEntity ? parseNumericState(byId.get(humidityEntity)) : undefined,
+    outdoorTemperatureC: parseNumericState(
+      byId.get(HA_ENTITIES.devices.outdoorTemperature),
+    ),
+    sunEvent: parseSunEventFromHaState(byId.get(HA_ENTITIES.system.sun)),
   };
 }

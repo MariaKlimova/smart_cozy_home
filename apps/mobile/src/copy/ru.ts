@@ -17,6 +17,13 @@ export const copy = {
       temperature: 'Температура',
       humidity: 'Влажность',
       co2: 'CO₂',
+      ppmUnit: 'ppm',
+    },
+    outdoorSectionTitle: 'Снаружи',
+    outdoorMetrics: {
+      temperature: 'Температура',
+      sunset: 'Закат',
+      sunrise: 'Восход',
     },
   },
   quickActions: {

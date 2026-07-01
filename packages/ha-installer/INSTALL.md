@@ -23,6 +23,7 @@
   inputs.yaml
   scripts.yaml
   automations.yaml
+  templates.yaml
   DEVICES.md
   SCENARIOS.md
   INSTALL.md
@@ -52,7 +53,8 @@ homeassistant:
 
 - Helpers: `input_select.home_mode`, `input_number.evening_brightness`, …
 - Scripts: `script.evening`, `script.sleep`, … (7 штук)
-- Automations: `automation.evening_schedule`, `automation.sleep_schedule`, `automation.morning_schedule`
+- Template sensor: `sensor.outdoor_temperature` (из `weather.home`)
+- Automations: `automation.evening_schedule`, `automation.sleep_schedule`, `automation.morning_schedule`, `automation.sleep_air_quality`, `automation.ac_off_when_window_open`
 
 ---
 

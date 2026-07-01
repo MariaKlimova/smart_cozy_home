@@ -6,6 +6,7 @@ import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings'
 import type { IBedroomDeviceState } from '@/domain/bedroomDevice.typings';
 import { setBedroomDevice } from '@/domain/bedroomDeviceControl';
 import { fetchEntityStates } from '@/ha/haClient';
+import { useHaBackend } from '@/ha/useHaBackend';
 import { mapBedroomDevices } from '@/ha/mappers/domainMapper';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useConnectionStore } from '@/store/connectionStore';
@@ -44,38 +45,41 @@ export function useBedroomControls(
 ): IUseBedroomControlsResult {
   const pollingEnabled = options?.enabled ?? true;
   const queryClient = useQueryClient();
-  const isConnected = useConnectionStore((s) => s.isConnected);
   const baseUrl = useConnectionStore((s) => s.baseUrl);
-  const token = useConnectionStore((s) => s.profile?.accessToken);
+  const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const config = useBedroomDeviceStore((s) => s.config);
   const entityIds = useMemo(
     () => getActiveBedroomDeviceEntityIds(resolveBedroomDevices(config)),
     [config],
   );
   const mappingKey = bedroomDeviceMappingQueryKey(config);
+  const devicesQueryKey = useMemo(
+    () => ['bedroom-devices', baseUrl, mappingKey] as const,
+    [baseUrl, mappingKey],
+  );
   const [pendingDeviceId, setPendingDeviceId] = useState<string>();
 
   const query = useQuery({
-    queryKey: ['bedroom-devices', baseUrl, mappingKey],
+    queryKey: devicesQueryKey,
     enabled: Boolean(
-      pollingEnabled && isConnected && baseUrl && token && entityIds.length > 0,
+      pollingEnabled && haReady && entityIds.length > 0,
     ),
     staleTime: BEDROOM_DEVICES_STALE_MS,
     refetchInterval: pollingEnabled ? BEDROOM_DEVICES_STALE_MS : false,
     queryFn: async () => {
-      const states = await fetchEntityStates(baseUrl!, token!, entityIds);
+      const states = await fetchEntityStates(haBaseUrl, haToken, entityIds);
       return mapBedroomDevices(states, config);
     },
   });
 
   const runAction = useCallback(
     async (deviceId: string, action: TBedroomDeviceAction): Promise<boolean> => {
-      if (!baseUrl || !token) return false;
+      if (!haReady) return false;
       setPendingDeviceId(deviceId);
       try {
-        await setBedroomDevice(deviceId, action, baseUrl, token, config);
+        await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config);
         await queryClient.invalidateQueries({
-          queryKey: ['bedroom-devices', baseUrl, mappingKey],
+          queryKey: devicesQueryKey,
         });
         return true;
       } catch {
@@ -85,7 +89,7 @@ export function useBedroomControls(
         setPendingDeviceId(undefined);
       }
     },
-    [baseUrl, token, queryClient, mappingKey, config],
+    [haReady, haBaseUrl, haToken, queryClient, devicesQueryKey, config],
   );
 
   const setSlider = useCallback(
@@ -111,9 +115,9 @@ export function useBedroomControls(
 
   const refresh = useCallback(async () => {
     await queryClient.invalidateQueries({
-      queryKey: ['bedroom-devices', baseUrl, mappingKey],
+      queryKey: devicesQueryKey,
     });
-  }, [queryClient, baseUrl, mappingKey]);
+  }, [queryClient, devicesQueryKey]);
 
   return {
     devices: query.data,

@@ -92,7 +92,22 @@
 | `input_boolean.sleep_schedule_enabled` | boolean | false |
 | `input_datetime.sleep_schedule_time` | datetime (has_time: true, has_date: false) | 23:00 |
 
-**Automation:** аналогично Вечеру.
+**Automation расписания:** аналогично Вечеру (`automation.sleep_schedule`).
+
+**Runtime loop (качество воздуха):** `automation.sleep_air_quality` — работает пока `home_mode = sleep`, `sleep_window = on`, `binary_sensor.bedroom_occupancy = on`:
+
+| CO₂ | Действия |
+|-----|----------|
+| ≥ 900 ppm | Открыть окно, выключить увлажнитель и AC |
+| ≤ 750 ppm | Закрыть окно, включить увлажнитель, setpoint sleep temp на climate |
+
+Пороги sync with `apps/mobile/src/domain/sleepAirQuality.const.ts`.
+
+`script.sleep` задаёт **начальное** состояние (свет off, опционально окно, setpoint, `home_mode = sleep`). Цикл CO₂ выполняет automation, не приложение.
+
+`automation.ac_off_when_window_open` — AC выключается при любом открытии окна.
+
+**Уличная температура:** `sensor.outdoor_temperature` (template из `weather.home`) — для UI и физики mock; создаётся `templates.yaml` пакета.
 
 ---
 
