@@ -32,35 +32,42 @@ npm run quality   # typecheck + lint
 1. GitHub → репозиторий → **Settings** → **Branches** → правило для `main`.
 2. Включить **Require status checks to pass**.
 3. Выбрать check **`quality`** (job из workflow `CI`).
+4. **Не** добавлять **`Cursor Bugbot`** в required checks (см. ниже — cloud Bugbot сейчас выключен).
 
-## Cursor Bugbot (AI-ревью PR)
+## Cursor Bugbot (AI-ревью PR) — **временно выключен**
 
-Bugbot анализирует diff и оставляет inline-комментарии. Правила проекта — в [`.cursor/BUGBOT.md`](../.cursor/BUGBOT.md).
+> Cloud Bugbot **не входит** в workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml).
+> Check `Cursor Bugbot` на PR приходит от GitHub App Cursor, а не от GitHub Actions.
 
-### Подключение (один раз)
+Правила ревью по-прежнему в [`.cursor/BUGBOT.md`](../.cursor/BUGBOT.md) — их использует локальный subagent
+[Code Review](../.cursor/agents/code-review.md) (`/code-review`).
 
-1. [Cursor → Integrations → GitHub](https://cursor.com/docs/integrations/github) — установить GitHub App на организацию или репозиторий.
-2. [Bugbot dashboard](https://cursor.com/dashboard/bugbot) — включить репозиторий `MariaKlimova/smart_cozy_home`.
-3. (Команда) При необходимости — Team rules в dashboard для общих стандартов.
+### Как выключить на PR (один раз в dashboard)
 
-### Поведение
+1. [Bugbot dashboard](https://cursor.com/dashboard/bugbot) → репозиторий `MariaKlimova/smart_cozy_home`.
+2. Переключатель **Off** (или `enabled: false` через [Admin API](https://cursor.com/docs/bugbot#enabling-or-disabling-repositories)).
+3. GitHub → **Settings** → **Branches** → если в protection есть **`Cursor Bugbot`**, убрать из required checks.
+
+После этого на PR остаётся только job **`quality`** из Actions.
+
+### Включить обратно
+
+1. [Integrations → GitHub](https://cursor.com/docs/integrations/github) — GitHub App установлен.
+2. [Bugbot dashboard](https://cursor.com/dashboard/bugbot) — включить репозиторий.
+3. (Опционально) Team rules в dashboard, required check в branch protection.
+
+### Поведение (когда включён)
 
 - Автоматически на каждое обновление PR (настраивается в dashboard).
 - Вручную: комментарий `cursor review` или `bugbot run` в PR.
 - Check в GitHub: **`Cursor Bugbot`**.
 
-### Branch protection (опционально)
-
-- Добавить required check **`Cursor Bugbot`**, если хотите гарантировать запуск ревью.
-- По умолчанию findings дают conclusion **`neutral`**, merge не блокируется. Чтобы блокировать merge при нерешённых замечаниях, включите fail-on-unresolved в настройках команды в Bugbot dashboard.
-
 ### Billing
 
-Bugbot — usage-based. Нужна подписка Bugbot / Bugbot Teams. Секрет `CURSOR_API_KEY` в Actions **не нужен** — Bugbot работает через GitHub App.
+Bugbot — usage-based. Секрет `CURSOR_API_KEY` в Actions **не нужен** — Bugbot работает через GitHub App.
 
-## Проверка после настройки
+## Проверка CI
 
 1. Открыть тестовый PR.
 2. Убедиться, что job **`quality`** в Actions зелёный.
-3. Убедиться, что появился check **`Cursor Bugbot`** и комментарии в diff.
-4. При необходимости — `@cursor remember …` в комментарии PR для learned rules.
+3. Check **`Cursor Bugbot`** на PR **не должен** появляться, пока Bugbot выключен в dashboard.

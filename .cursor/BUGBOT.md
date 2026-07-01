@@ -1,5 +1,8 @@
 # Bugbot — smart_cozy_home
 
+> **Cloud Bugbot на PR временно выключен** (настройка в [Cursor dashboard](https://cursor.com/dashboard/bugbot)).
+> Этот файл по-прежнему используется локальным subagent [Code Review](.cursor/agents/code-review.md) и `/review-bugbot`.
+
 Проект: эмоциональный UI-слой умного дома поверх Home Assistant. Основной код — `apps/mobile` (Expo Router, TypeScript strict).
 
 ## Общие принципы
@@ -154,4 +157,4 @@ When reviewing `apps/mobile/src/domain/**`:
 
 ## CI
 
-GitHub Actions job `quality` запускает `npm run typecheck` и `npm run lint`. Не комментируй стилистику, которую уже ловит ESLint, если это не архитектурный риск.
+GitHub Actions job `quality` запускает `npm run typecheck` и `npm run lint`. Cloud Bugbot в Actions **не** запускается. Не комментируй стилистику, которую уже ловит ESLint, если это не архитектурный риск.
