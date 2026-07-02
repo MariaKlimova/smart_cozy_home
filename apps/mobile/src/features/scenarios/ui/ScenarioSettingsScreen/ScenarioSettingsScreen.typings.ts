@@ -5,8 +5,6 @@ import type { TScenarioRunState } from '@/features/scenarios/lib/useRunScenario'
 export interface IScenarioSettingsScreenProps {
   /** id сценария */
   scenarioId: string;
-  /** Название сценария */
-  title: string;
   /** Краткое описание */
   description: string;
   /** Настройки из HA */

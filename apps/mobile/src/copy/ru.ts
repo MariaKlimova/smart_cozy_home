@@ -2,6 +2,9 @@ export const copy = {
   common: {
     done: 'Готово',
   },
+  units: {
+    minutesShort: 'мин',
+  },
   now: {
     screenTitle: 'Сейчас',
     setupSensorsHint: 'Настрой датчики в спальне — тогда увидишь температуру, влажность и CO₂.',
@@ -53,6 +56,15 @@ export const copy = {
   },
   scenarios: {
     sectionTitle: 'Сценарии',
+    names: {
+      evening: 'Вечер',
+      sleep: 'Сон',
+      morning: 'Утро',
+      away: 'Уехали',
+      coming_home: 'Еду домой',
+      cozy: 'Уют',
+      focus: 'Фокус',
+    },
     scheduleToday: 'Сегодня в {time}',
     scheduleTomorrow: 'Завтра в {time}',
     scheduleWeekday: '{weekday} в {time}',

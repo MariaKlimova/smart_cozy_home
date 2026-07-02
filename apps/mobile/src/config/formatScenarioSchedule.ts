@@ -1,8 +1,8 @@
 import { copy } from '@/copy/ru';
 import type { IScenarioDefinition } from '@/config/scenarios.typings';
+import { weekdayLabel } from '@/config/weekdayLabel';
 import type { IScenarioScheduleState } from '@/domain/scenarioSettings.typings';
 import { findNextScheduleRun } from '@/domain/scenarioWeeklySchedule';
-import type { TWeekdayId } from '@/domain/scenarioWeeklySchedule.typings';
 
 function formatTime(hours: number, minutes: number): string {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
@@ -20,11 +20,6 @@ function isTomorrow(from: Date, target: Date): boolean {
   const tomorrow = new Date(from);
   tomorrow.setDate(tomorrow.getDate() + 1);
   return isSameCalendarDay(tomorrow, target);
-}
-
-function weekdayLabel(weekdayId: TWeekdayId): string {
-  const labels = copy.scenarios.weekdays as Record<TWeekdayId, string>;
-  return labels[weekdayId] ?? weekdayId;
 }
 
 /**

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
+import { weekdayLabel } from '@/config/weekdayLabel';
 import { copy } from '@/copy/ru';
 import { WEEKDAY_IDS } from '@/domain/scenarioWeeklySchedule';
 import type { IScenarioWeeklySchedule, TWeekdayId } from '@/domain/scenarioWeeklySchedule.typings';
@@ -13,11 +14,6 @@ import { typography } from '@/theme/tokens';
 
 import type { IScenarioWeeklyScheduleProps } from './ScenarioWeeklySchedule.typings';
 import { styles } from './ScenarioWeeklySchedule.styles';
-
-function weekdayLabel(weekdayId: TWeekdayId): string {
-  const labels = copy.scenarios.weekdays as Record<TWeekdayId, string>;
-  return labels[weekdayId] ?? weekdayId;
-}
 
 export function ScenarioWeeklySchedule({
   schedule,

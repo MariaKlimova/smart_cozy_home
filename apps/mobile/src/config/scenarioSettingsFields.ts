@@ -1,5 +1,9 @@
+import { copy } from '@/copy/ru';
+
 /** Тип поля настроек сценария */
 export type TScenarioFieldKind = 'number' | 'boolean';
+
+const MINUTES_UNIT = copy.units.minutesShort;
 
 /** Описание одного поля настроек */
 export interface IScenarioFieldDefinition {
@@ -33,14 +37,14 @@ export const SCENARIO_FIELD_DEFINITIONS: Record<string, IScenarioFieldDefinition
   ],
   morning: [
     { key: 'brightness', kind: 'number', copyKey: 'brightness', min: 1, max: 100, step: 1, unit: '%' },
-    { key: 'warmupMinutes', kind: 'number', copyKey: 'warmupMinutes', min: 5, max: 60, step: 5, unit: 'мин' },
+    { key: 'warmupMinutes', kind: 'number', copyKey: 'warmupMinutes', min: 5, max: 60, step: 5, unit: MINUTES_UNIT },
   ],
   away: [
     { key: 'temperature', kind: 'number', copyKey: 'awayTemperature', min: 12, max: 20, step: 0.5, unit: '°C' },
     { key: 'curtains', kind: 'boolean', copyKey: 'curtains' },
   ],
   coming_home: [
-    { key: 'minutes', kind: 'number', copyKey: 'minutes', min: 5, max: 120, step: 5, unit: 'мин' },
+    { key: 'minutes', kind: 'number', copyKey: 'minutes', min: 5, max: 120, step: 5, unit: MINUTES_UNIT },
     { key: 'temperature', kind: 'number', copyKey: 'temperature', min: 18, max: 26, step: 0.5, unit: '°C' },
     { key: 'brightness', kind: 'number', copyKey: 'brightness', min: 1, max: 100, step: 1, unit: '%' },
   ],

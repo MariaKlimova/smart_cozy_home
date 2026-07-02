@@ -1,13 +1,13 @@
 import { StyleSheet } from 'react-native';
 
-import { spacing } from '@/theme/tokens';
+import { spacing, touchMin } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   masterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    minHeight: 48,
+    minHeight: touchMin,
   },
   days: {
     marginTop: spacing.md,
@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
   dayRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 48,
+    minHeight: touchMin,
   },
   dayLabel: {
     width: 32,

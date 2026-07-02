@@ -1,15 +1,17 @@
 import { StyleSheet } from 'react-native';
 
-import { spacing, touchMin } from '@/theme/tokens';
+import { overlay, radii, spacing, touchMin } from '@/theme/tokens';
+
+import { CALM_TIME_PICKER_MIN_WIDTH } from './CalmTimePicker.const';
 
 export const styles = StyleSheet.create({
   button: {
     minHeight: touchMin,
-    minWidth: 72,
+    minWidth: CALM_TIME_PICKER_MIN_WIDTH,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    borderRadius: 12,
+    borderRadius: radii.sm,
     borderWidth: 1,
   },
   time: {
@@ -21,11 +23,11 @@ export const styles = StyleSheet.create({
   },
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: overlay.scrim,
   },
   modalSheet: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: radii.md,
+    borderTopRightRadius: radii.md,
     borderTopWidth: 1,
     paddingTop: spacing.sm,
     paddingHorizontal: spacing.md,
@@ -36,11 +38,8 @@ export const styles = StyleSheet.create({
   },
   doneButton: {
     minHeight: touchMin,
-    borderRadius: 12,
+    borderRadius: radii.sm,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  doneLabel: {
-    fontWeight: '600',
   },
 });

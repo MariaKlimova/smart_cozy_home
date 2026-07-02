@@ -1,8 +1,4 @@
-/** Имя блока CalmTimePicker */
-export const CALM_TIME_PICKER_BLOCK = 'CalmTimePicker' as const;
+import { spacing } from '@/theme/tokens';
 
-/** Accessibility для кнопки подтверждения */
-export const CALM_TIME_PICKER_DONE_A11Y = 'Готово';
-
-/** Цвет текста на кнопке подтверждения */
-export const CALM_TIME_PICKER_DONE_TEXT = '#FFFFFF';
+/** Минимальная ширина кнопки выбора времени */
+export const CALM_TIME_PICKER_MIN_WIDTH = spacing.lg * 3;

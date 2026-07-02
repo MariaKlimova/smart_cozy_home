@@ -1,14 +1,16 @@
 import { HA_ENTITIES } from '@/config/scenarioHaMapping';
+import { copy } from '@/copy/ru';
 
 import type { IScenarioDefinition } from './scenarios.typings';
 
 const { scripts } = HA_ENTITIES;
+const SCENARIO_NAMES = copy.scenarios.names as Record<string, string>;
 
 /** Все сценарии дома в порядке отображения */
 export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
   {
     id: 'evening',
-    label: 'Вечер',
+    label: SCENARIO_NAMES.evening,
     icon: 'moon-o',
     script: scripts.evening,
     hasSchedule: true,
@@ -18,7 +20,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
   },
   {
     id: 'sleep',
-    label: 'Сон',
+    label: SCENARIO_NAMES.sleep,
     icon: 'bed',
     script: scripts.sleep,
     hasSchedule: true,
@@ -28,7 +30,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
   },
   {
     id: 'morning',
-    label: 'Утро',
+    label: SCENARIO_NAMES.morning,
     icon: 'sun-o',
     script: scripts.morning,
     hasSchedule: true,
@@ -38,7 +40,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
   },
   {
     id: 'away',
-    label: 'Уехали',
+    label: SCENARIO_NAMES.away,
     icon: 'sign-out',
     script: scripts.away,
     hasSchedule: true,
@@ -48,7 +50,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
   },
   {
     id: 'coming_home',
-    label: 'Еду домой',
+    label: SCENARIO_NAMES.coming_home,
     icon: 'home',
     script: scripts.comingHome,
     hasSchedule: true,
@@ -58,7 +60,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
   },
   {
     id: 'cozy',
-    label: 'Уют',
+    label: SCENARIO_NAMES.cozy,
     icon: 'coffee',
     script: scripts.cozy,
     hasSchedule: true,
@@ -68,7 +70,7 @@ export const SCENARIO_DEFINITIONS: IScenarioDefinition[] = [
   },
   {
     id: 'focus',
-    label: 'Фокус',
+    label: SCENARIO_NAMES.focus,
     icon: 'laptop',
     script: scripts.focus,
     hasSchedule: true,

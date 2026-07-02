@@ -7,9 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { copy } from '@/copy/ru';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { typography } from '@/theme/tokens';
+import { spacing, typography } from '@/theme/tokens';
 
-import { CALM_TIME_PICKER_DONE_A11Y, CALM_TIME_PICKER_DONE_TEXT } from './CalmTimePicker.const';
 import type { ICalmTimePickerProps } from './CalmTimePicker.typings';
 import { styles } from './CalmTimePicker.styles';
 
@@ -120,7 +119,7 @@ export function CalmTimePicker({
                 {
                   backgroundColor: c.surface,
                   borderColor: c.border,
-                  paddingBottom: Math.max(insets.bottom, 16),
+                  paddingBottom: Math.max(insets.bottom, spacing.md),
                 },
               ]}
             >
@@ -135,7 +134,7 @@ export function CalmTimePicker({
               </View>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={CALM_TIME_PICKER_DONE_A11Y}
+                accessibilityLabel={copy.common.done}
                 onPress={confirmPicker}
                 style={({ pressed }: { pressed: boolean }) => [
                   styles.doneButton,
@@ -145,7 +144,7 @@ export function CalmTimePicker({
                   },
                 ]}
               >
-                <Text style={[typography.subtitle, styles.doneLabel, { color: CALM_TIME_PICKER_DONE_TEXT }]}>
+                <Text style={[typography.subtitle, { color: c.onAccent }]}>
                   {copy.common.done}
                 </Text>
               </Pressable>

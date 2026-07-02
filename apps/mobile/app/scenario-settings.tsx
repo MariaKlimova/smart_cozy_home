@@ -59,7 +59,6 @@ export default function ScenarioSettingsRoute() {
       <Stack.Screen options={{ title, headerBackTitle: copy.scenarios.sectionTitle }} />
       <ScenarioSettingsScreen
         scenarioId={scenarioId}
-        title={title}
         description={description}
         settings={settings}
         isLoading={isLoading}

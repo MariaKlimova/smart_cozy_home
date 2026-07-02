@@ -3,7 +3,7 @@ name: code-review
 description: >-
   Code Review — локальный ревьюер по правилам BUGBOT.md. Use proactively when:
   пользователь просит ревью PR/diff/ветки. Проверяет архитектуру, БЭМ, copy,
-  TypeScript, дублирование кода, захардкоженный copy и design tokens (`@/copy/ru`, `@/theme/tokens`).
+  TypeScript, дублирование, захардкоженный copy/tokens, мёртвый код (`@/copy/ru`, `@/theme/tokens`).
 model: inherit
 readonly: true
 ---
@@ -58,9 +58,10 @@ BUGBOT.md.
 6. **Проверка на дублирование** — см. раздел 3.1 и BUGBOT.md «Дублирование кода».
 7. **Hardcoded copy в UI** — см. раздел 3.2 и BUGBOT.md «Product voice и copy».
 8. **Hardcoded tokens** — см. раздел 3.3 и BUGBOT.md «Calm UI и design tokens».
+9. **Мёртвый код** — см. раздел 3.4 и BUGBOT.md «Мёртвый код»; запусти `npm run quality`.
 
 Не комментируй стилистику, которую уже ловит ESLint (`npm run lint`), если это
-не архитектурный риск (см. секцию CI в BUGBOT.md).
+не архитектурный риск — **кроме** cross-file мёртвых exports и orphan-файлов (§3.4).
 
 ---
 
@@ -166,6 +167,30 @@ BUGBOT.md.
 4. Цвета в `*.styles.ts` без theme hook — **blocking**; переноси в tsx через `useThemeColors()` или параметризуй стиль.
 5. Игнорируй допустимые литералы из BUGBOT.md (`0`, `1`, `'transparent'`, opacity, flex).
 
+### 3.4. Мёртвый код (обязательная проверка)
+
+После diff **обязательно** проверь мёртвый код. Правила — BUGBOT.md «Мёртвый код».
+
+### Алгоритм
+
+1. **`npm run quality`** из корня — зафиксируй unused/unreachable из lint и tsc (группируй, не по одному finding на import).
+2. **Новые exports** в diff — для каждого `export function|const|type|class` grep по имени в `apps/mobile/` и `packages/`:
+   - 0 ссылок вне файла определения и `*.test.ts` → **blocking**.
+3. **Новые файлы** — grep по пути/import (`@/…`, относительный import); если не `app/` route и не импортируется → **blocking** orphan.
+4. **Рефактор в PR** — если удалили вызовы, grep оставшиеся символы из того же модуля; orphan → **recommendation**.
+5. **Закомментированный код** в diff (≥3 строк `//` или `/* */` с кодом) → **recommendation**.
+6. **Недостижимый код** после `return`/`throw` в изменённых функциях → **recommendation** (blocking, если явная ошибка логики).
+7. **Copy / const** — новые или старые ключи в `ru.ts`, `*.const.ts` без grep-ссылок → **recommendation**.
+
+### Severity (мёртвый код)
+
+| Уровень | Когда |
+| ------- | ----- |
+| **blocking** | Новый export без usages; orphan-файл; PR добавляет код «в никуда» |
+| **recommendation** | Закомментированный код, stale keys после рефактора, недостижимые ветки |
+
+PR, который **чистит** мёртвый код — отметь в «Что проверено и чисто».
+
 ---
 
 ### HA Bridge (blocking security)
@@ -198,8 +223,8 @@ BUGBOT.md.
 
 | Уровень            | Когда                                                                                           |
 | ------------------ | ----------------------------------------------------------------------------------------------- |
-| **blocking**       | Нарушение архитектуры, утечка секретов, security, сломанный контракт БЭМ/domain, HA-жаргон в UI, захардкоженный copy/tokens вне `copy`/`tokens.ts`, дублирование логики ≥8 строк / HA mapping в двух слоях |
-| **recommendation** | Константы в `.const.ts`, вынос разметки из `app/`, дубли copy/стилей/мелких helpers, lineHeight без typography |
+| **blocking**       | Архитектура, секреты, security, БЭМ/domain, copy/tokens, дубли ≥8 строк / HA mapping, **новый неиспользуемый export / orphan-файл** |
+| **recommendation** | `.const.ts`, разметка из `app/`, мелкие дубли, lineHeight, **закомментированный / stale код после рефактора** |
 
 ---
 
@@ -222,9 +247,9 @@ BUGBOT.md.
 
 ### Сводка
 
-| Blocking | Recommendation | Duplication | OK                            |
-| -------- | -------------- | ------------- | ----------------------------- |
-| N        | N              | N             | кратко: что проверено и чисто |
+| Blocking | Recommendation | Duplication | Dead code | OK                            |
+| -------- | -------------- | ----------- | --------- | ----------------------------- |
+| N        | N              | N           | N         | кратко: что проверено и чисто |
 
 ### Findings
 
@@ -267,6 +292,14 @@ BUGBOT.md.
 | 1   | blocking / recommendation | `path` | `path` | ~N | ... |
 
 (если нет — «—». Blocking-дубли **также** учитывай в счётчике Blocking в сводке.)
+
+#### Dead code
+
+| #   | Severity | Файл   | Символ / блок | Проблема | Действие |
+| --- | -------- | ------ | ------------- | -------- | -------- |
+| 1   | blocking / recommendation | `path` | `fooBar` | export без imports | удалить или подключить |
+
+(если нет — «—». Blocking-пункты учитывай в счётчике Blocking.)
 
 ### Что проверено и чисто
 
