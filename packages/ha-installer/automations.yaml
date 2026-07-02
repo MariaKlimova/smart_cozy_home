@@ -1,14 +1,25 @@
 automation:
   - id: evening_schedule
     alias: Расписание — Вечер
-    description: Запускает сценарий «Вечер» по расписанию если включено в приложении
+    description: Запускает сценарий «Вечер» по недельному расписанию из приложения
     trigger:
-      - platform: time
-        at: input_datetime.evening_schedule_time
+      - platform: time_pattern
+        minutes: "/1"
     condition:
-      - condition: state
-        entity_id: input_boolean.evening_schedule_enabled
-        state: "on"
+      - condition: template
+        value_template: >
+          {% set raw = states('input_text.evening_schedule') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}false
+          {% else %}
+            {% set s = raw | from_json(default={}) %}
+            {% if not s.get('enabled', false) %}false
+            {% else %}
+              {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
+              {% set day = days[now().weekday()] %}
+              {% set d = s.get('weekdays', {}).get(day, {}) %}
+              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+            {% endif %}
+          {% endif %}
     action:
       - service: script.turn_on
         target:
@@ -17,14 +28,25 @@ automation:
 
   - id: sleep_schedule
     alias: Расписание — Сон
-    description: Запускает сценарий «Сон» по расписанию если включено в приложении
+    description: Запускает сценарий «Сон» по недельному расписанию из приложения
     trigger:
-      - platform: time
-        at: input_datetime.sleep_schedule_time
+      - platform: time_pattern
+        minutes: "/1"
     condition:
-      - condition: state
-        entity_id: input_boolean.sleep_schedule_enabled
-        state: "on"
+      - condition: template
+        value_template: >
+          {% set raw = states('input_text.sleep_schedule') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}false
+          {% else %}
+            {% set s = raw | from_json(default={}) %}
+            {% if not s.get('enabled', false) %}false
+            {% else %}
+              {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
+              {% set day = days[now().weekday()] %}
+              {% set d = s.get('weekdays', {}).get(day, {}) %}
+              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+            {% endif %}
+          {% endif %}
     action:
       - service: script.turn_on
         target:
@@ -33,18 +55,137 @@ automation:
 
   - id: morning_schedule
     alias: Расписание — Утро
-    description: Запускает сценарий «Утро» по расписанию если включено в приложении
+    description: Запускает сценарий «Утро» по недельному расписанию из приложения
     trigger:
-      - platform: time
-        at: input_datetime.morning_schedule_time
+      - platform: time_pattern
+        minutes: "/1"
     condition:
-      - condition: state
-        entity_id: input_boolean.morning_schedule_enabled
-        state: "on"
+      - condition: template
+        value_template: >
+          {% set raw = states('input_text.morning_schedule') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}false
+          {% else %}
+            {% set s = raw | from_json(default={}) %}
+            {% if not s.get('enabled', false) %}false
+            {% else %}
+              {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
+              {% set day = days[now().weekday()] %}
+              {% set d = s.get('weekdays', {}).get(day, {}) %}
+              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+            {% endif %}
+          {% endif %}
     action:
       - service: script.turn_on
         target:
           entity_id: script.morning
+    mode: single
+
+  - id: away_schedule
+    alias: Расписание — Уехали
+    description: Запускает сценарий «Уехали» по недельному расписанию из приложения
+    trigger:
+      - platform: time_pattern
+        minutes: "/1"
+    condition:
+      - condition: template
+        value_template: >
+          {% set raw = states('input_text.away_schedule') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}false
+          {% else %}
+            {% set s = raw | from_json(default={}) %}
+            {% if not s.get('enabled', false) %}false
+            {% else %}
+              {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
+              {% set day = days[now().weekday()] %}
+              {% set d = s.get('weekdays', {}).get(day, {}) %}
+              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+            {% endif %}
+          {% endif %}
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.away
+    mode: single
+
+  - id: coming_home_schedule
+    alias: Расписание — Еду домой
+    description: Запускает сценарий «Еду домой» по недельному расписанию из приложения
+    trigger:
+      - platform: time_pattern
+        minutes: "/1"
+    condition:
+      - condition: template
+        value_template: >
+          {% set raw = states('input_text.coming_home_schedule') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}false
+          {% else %}
+            {% set s = raw | from_json(default={}) %}
+            {% if not s.get('enabled', false) %}false
+            {% else %}
+              {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
+              {% set day = days[now().weekday()] %}
+              {% set d = s.get('weekdays', {}).get(day, {}) %}
+              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+            {% endif %}
+          {% endif %}
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.coming_home
+    mode: single
+
+  - id: cozy_schedule
+    alias: Расписание — Уют
+    description: Запускает сценарий «Уют» по недельному расписанию из приложения
+    trigger:
+      - platform: time_pattern
+        minutes: "/1"
+    condition:
+      - condition: template
+        value_template: >
+          {% set raw = states('input_text.cozy_schedule') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}false
+          {% else %}
+            {% set s = raw | from_json(default={}) %}
+            {% if not s.get('enabled', false) %}false
+            {% else %}
+              {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
+              {% set day = days[now().weekday()] %}
+              {% set d = s.get('weekdays', {}).get(day, {}) %}
+              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+            {% endif %}
+          {% endif %}
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.cozy
+    mode: single
+
+  - id: focus_schedule
+    alias: Расписание — Фокус
+    description: Запускает сценарий «Фокус» по недельному расписанию из приложения
+    trigger:
+      - platform: time_pattern
+        minutes: "/1"
+    condition:
+      - condition: template
+        value_template: >
+          {% set raw = states('input_text.focus_schedule') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}false
+          {% else %}
+            {% set s = raw | from_json(default={}) %}
+            {% if not s.get('enabled', false) %}false
+            {% else %}
+              {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
+              {% set day = days[now().weekday()] %}
+              {% set d = s.get('weekdays', {}).get(day, {}) %}
+              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+            {% endif %}
+          {% endif %}
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.focus
     mode: single
 
   - id: sleep_air_quality

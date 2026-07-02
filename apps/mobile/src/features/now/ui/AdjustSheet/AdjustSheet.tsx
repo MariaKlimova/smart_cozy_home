@@ -6,7 +6,7 @@ import { copy } from '@/copy/ru';
 import { useBedroomControls } from '@/features/bedroom/lib/useBedroomControls';
 import { BedroomDeviceControls } from '@/features/bedroom/ui/BedroomDeviceControls';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { useHaBackend } from '@/ha/useHaBackend';
+import { useHaBackend } from '@/hooks/useHaBackend';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { CalmSheet } from '@/ui/CalmSheet';
 import { typography } from '@/theme/tokens';

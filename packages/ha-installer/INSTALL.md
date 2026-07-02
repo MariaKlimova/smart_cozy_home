@@ -54,7 +54,7 @@ homeassistant:
 - Helpers: `input_select.home_mode`, `input_number.evening_brightness`, …
 - Scripts: `script.evening`, `script.sleep`, … (7 штук)
 - Template sensor: `sensor.outdoor_temperature` (из `weather.home`)
-- Automations: `automation.evening_schedule`, `automation.sleep_schedule`, `automation.morning_schedule`, `automation.sleep_air_quality`, `automation.ac_off_when_window_open`
+- Automations: `automation.evening_schedule`, `automation.sleep_schedule`, `automation.morning_schedule`, `automation.away_schedule`, `automation.coming_home_schedule`, `automation.cozy_schedule`, `automation.focus_schedule`, `automation.sleep_air_quality`, `automation.ac_off_when_window_open`
 
 ---
 
@@ -75,8 +75,8 @@ homeassistant:
 | `input_select.home_mode` | state = `none` |
 | Запуск `script.evening` | `home_mode` → `evening`, свет плавно гаснет |
 | Запуск `script.coming_home` | `home_ready_for_arrival` → `on`, `home_mode` → `none` |
-| `input_boolean.evening_schedule_enabled` | toggle без ошибок |
-| Automations | все три enabled, condition на boolean |
+| `input_text.evening_schedule` | state — JSON с расписанием |
+| Automations | все три enabled, condition читает JSON |
 
 ---
 
@@ -101,7 +101,7 @@ homeassistant:
 
 ## Известные ограничения
 
-- **Утро:** automation срабатывает в `morning_schedule_time`; плавный подъём света начинается в этот момент, а не за `morning_warmup_minutes` до подъёма.
+- **Утро:** automation срабатывает по JSON-расписанию; плавный подъём света начинается в этот момент, а не за `morning_warmup_minutes` до подъёма.
 - **Синтаксис YAML:** scripts используют `service:` и `data_template` (legacy HA). Работает на большинстве установок.
 
 ---

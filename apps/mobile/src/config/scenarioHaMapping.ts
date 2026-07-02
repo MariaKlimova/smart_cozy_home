@@ -41,115 +41,54 @@ export interface IHaSystemEntities {
   sun: string;
 }
 
+/** Ключ сценария в HA_ENTITIES.scripts и .scenarioParams */
+export type TScenarioHaEntityKey =
+  | 'evening'
+  | 'sleep'
+  | 'morning'
+  | 'away'
+  | 'comingHome'
+  | 'cozy'
+  | 'focus';
+
+/** id сценария в приложении → ключ в HA_ENTITIES */
+export const SCENARIO_ID_TO_HA_ENTITY_KEY: Record<string, TScenarioHaEntityKey> = {
+  evening: 'evening',
+  sleep: 'sleep',
+  morning: 'morning',
+  away: 'away',
+  coming_home: 'comingHome',
+  cozy: 'cozy',
+  focus: 'focus',
+};
+
 /** Scripts сценариев */
-export interface IHaScriptEntities {
-  /** script.evening */
-  evening: string;
-  /** script.sleep */
-  sleep: string;
-  /** script.morning */
-  morning: string;
-  /** script.away */
-  away: string;
-  /** script.coming_home */
-  comingHome: string;
-  /** script.cozy */
-  cozy: string;
-  /** script.focus */
-  focus: string;
-}
+export type IHaScriptEntities = Record<TScenarioHaEntityKey, string>;
 
-/** Параметры сценария «Вечер» */
-export interface IEveningScenarioParams {
-  /** Яркость, % */
-  brightness: string;
-  /** Температура, °C */
-  temperature: string;
-  /** Закрывать шторы */
-  curtains: string;
-  /** Включать увлажнитель */
-  humidifier: string;
-  /** Расписание включено */
-  scheduleEnabled: string;
-  /** Время расписания */
-  scheduleTime: string;
-}
+/** Ключи helpers параметров сценария в HA */
+export type TScenarioHaParamKey =
+  | 'brightness'
+  | 'temperature'
+  | 'curtains'
+  | 'humidifier'
+  | 'window'
+  | 'warmupMinutes'
+  | 'minutes'
+  | 'scheduleConfig';
 
-/** Параметры сценария «Сон» */
-export interface ISleepScenarioParams {
-  /** Ночная температура */
-  temperature: string;
-  /** Открывать окно */
-  window: string;
-  /** Расписание включено */
-  scheduleEnabled: string;
-  /** Время расписания */
-  scheduleTime: string;
-}
-
-/** Параметры сценария «Утро» */
-export interface IMorningScenarioParams {
-  /** Яркость */
-  brightness: string;
-  /** Минуты плавного пробуждения */
-  warmupMinutes: string;
-  /** Расписание включено */
-  scheduleEnabled: string;
-  /** Время расписания */
-  scheduleTime: string;
-}
-
-/** Параметры сценария «Уехали» */
-export interface IAwayScenarioParams {
-  /** Температура при отъезде */
-  temperature: string;
-  /** Закрывать шторы */
-  curtains: string;
-}
-
-/** Параметры сценария «Еду домой» */
-export interface IComingHomeScenarioParams {
-  /** За сколько минут нажать */
-  minutes: string;
-  /** Температура встречи */
-  temperature: string;
-  /** Яркость встречи */
-  brightness: string;
-}
-
-/** Параметры сценария «Уют» */
-export interface ICozyScenarioParams {
-  /** Яркость */
-  brightness: string;
-  /** Температура */
-  temperature: string;
-}
-
-/** Параметры сценария «Фокус» */
-export interface IFocusScenarioParams {
-  /** Яркость */
-  brightness: string;
-  /** Температура */
-  temperature: string;
+/**
+ * Entity_id helpers одного сценария.
+ * У каждого сценария свой поднабор ключей из {@link TScenarioHaParamKey}.
+ */
+export interface IScenarioHaParams {
+  /** JSON расписание по дням недели */
+  scheduleConfig: string;
+  /** Entity_id остальных helpers сценария */
+  [paramKey: string]: string;
 }
 
 /** Helpers параметров всех сценариев */
-export interface IHaScenarioParamEntities {
-  /** Вечер */
-  evening: IEveningScenarioParams;
-  /** Сон */
-  sleep: ISleepScenarioParams;
-  /** Утро */
-  morning: IMorningScenarioParams;
-  /** Уехали */
-  away: IAwayScenarioParams;
-  /** Еду домой */
-  comingHome: IComingHomeScenarioParams;
-  /** Уют */
-  cozy: ICozyScenarioParams;
-  /** Фокус */
-  focus: IFocusScenarioParams;
-}
+export type IHaScenarioParamEntities = Record<TScenarioHaEntityKey, IScenarioHaParams>;
 
 /** Полный контракт entity_id HA ↔ приложение */
 export interface IHaEntities {
@@ -202,37 +141,38 @@ export const HA_ENTITIES: IHaEntities = {
       temperature: 'input_number.evening_temperature',
       curtains: 'input_boolean.evening_curtains',
       humidifier: 'input_boolean.evening_humidifier',
-      scheduleEnabled: 'input_boolean.evening_schedule_enabled',
-      scheduleTime: 'input_datetime.evening_schedule_time',
+      scheduleConfig: 'input_text.evening_schedule',
     },
     sleep: {
       temperature: 'input_number.sleep_temperature',
       window: 'input_boolean.sleep_window',
-      scheduleEnabled: 'input_boolean.sleep_schedule_enabled',
-      scheduleTime: 'input_datetime.sleep_schedule_time',
+      scheduleConfig: 'input_text.sleep_schedule',
     },
     morning: {
       brightness: 'input_number.morning_brightness',
       warmupMinutes: 'input_number.morning_warmup_minutes',
-      scheduleEnabled: 'input_boolean.morning_schedule_enabled',
-      scheduleTime: 'input_datetime.morning_schedule_time',
+      scheduleConfig: 'input_text.morning_schedule',
     },
     away: {
       temperature: 'input_number.away_temperature',
       curtains: 'input_boolean.away_curtains',
+      scheduleConfig: 'input_text.away_schedule',
     },
     comingHome: {
       minutes: 'input_number.coming_home_minutes',
       temperature: 'input_number.coming_home_temperature',
       brightness: 'input_number.coming_home_brightness',
+      scheduleConfig: 'input_text.coming_home_schedule',
     },
     cozy: {
       brightness: 'input_number.cozy_brightness',
       temperature: 'input_number.cozy_temperature',
+      scheduleConfig: 'input_text.cozy_schedule',
     },
     focus: {
       brightness: 'input_number.focus_brightness',
       temperature: 'input_number.focus_temperature',
+      scheduleConfig: 'input_text.focus_schedule',
     },
   },
 } as const;

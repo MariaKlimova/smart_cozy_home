@@ -1,3 +1,8 @@
+import type {
+  IWeekdayScheduleEntry,
+  TWeekdayId,
+} from '@/domain/scenarioWeeklySchedule.typings';
+
 export type LifeState =
   | 'morning'
   | 'evening'
@@ -41,6 +46,13 @@ export interface IScenario {
   hasSchedule: boolean;
   /** Подпись расписания: «Сегодня в 22:30»; пусто — без подписи */
   scheduleSubtitle: string;
+  /** Состояние расписания из HA для пересчёта подписи */
+  schedule?: {
+    /** Включено ли расписание */
+    enabled: boolean;
+    /** Настройки по дням */
+    weekdays: Record<TWeekdayId, IWeekdayScheduleEntry>;
+  };
 }
 
 /** @deprecated Используй IScenario */

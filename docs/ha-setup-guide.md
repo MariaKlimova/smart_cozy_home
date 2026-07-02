@@ -19,7 +19,7 @@
 | Запуск сценария | `script.turn_on` (`script.evening`, …) |
 | Active / prepared | Чтение `input_select.home_mode`, `input_boolean.home_ready_for_arrival` |
 | Параметры (яркость, температура, …) | Запись в `input_number.*` / `input_boolean.*` |
-| Расписание | Запись в `input_boolean.*_schedule_enabled`, `input_datetime.*_schedule_time` |
+| Расписание | Запись в `input_text.{id}_schedule` (JSON v1) |
 
 Scripts и automations в HA **не редактируются** из приложения.
 

@@ -6,6 +6,7 @@ export const colors = {
     textMuted: '#6B6560',
     accent: '#C4785A',
     accentMuted: '#E8D5CC',
+    onAccent: '#FFFFFF',
     border: '#E5DFD8',
     success: '#7A9E7E',
     warning: '#C4A35A',
@@ -17,10 +18,15 @@ export const colors = {
     textMuted: '#A39E98',
     accent: '#D4927A',
     accentMuted: '#4A3F3A',
+    onAccent: '#FFFFFF',
     border: '#3D3834',
     success: '#8FB393',
     warning: '#D4B86A',
   },
+} as const;
+
+export const overlay = {
+  scrim: 'rgba(0, 0, 0, 0.35)',
 } as const;
 
 export const spacing = {

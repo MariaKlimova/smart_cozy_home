@@ -34,7 +34,7 @@ export function formatScenarioCardSubtitle(
   }
   const definition = getScenarioDefinition(scenario.id);
   if (definition) {
-    return formatScenarioSchedule(definition, now);
+    return formatScenarioSchedule(definition, scenario.schedule, now);
   }
   return scenario.scheduleSubtitle;
 }

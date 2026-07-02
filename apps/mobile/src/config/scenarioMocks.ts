@@ -1,7 +1,15 @@
 import type { IBedroomSensorMapping } from '@/config/bedroomSensorMapping.typings';
 import { HA_ENTITIES } from '@/config/scenarioHaMapping';
+import {
+  createUniformWeeklySchedule,
+  serializeWeeklyScheduleJson,
+} from '@/domain/scenarioWeeklySchedule';
 
-/** Снимок state одной entity в моках */
+/** JSON расписания для моков */
+function mockScheduleState(enabled: boolean, time: string): string {
+  return serializeWeeklyScheduleJson(createUniformWeeklySchedule(enabled, time, time));
+}
+
 export interface IMockEntitySnapshot {
   /** state string из HA */
   state: string;
@@ -95,25 +103,40 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
     [HA_ENTITIES.scenarioParams.evening.temperature]: { state: '18' },
     [HA_ENTITIES.scenarioParams.evening.curtains]: { state: 'on' },
     [HA_ENTITIES.scenarioParams.evening.humidifier]: { state: 'on' },
-    [HA_ENTITIES.scenarioParams.evening.scheduleEnabled]: { state: 'off' },
-    [HA_ENTITIES.scenarioParams.evening.scheduleTime]: { state: '22:30:00' },
+    [HA_ENTITIES.scenarioParams.evening.scheduleConfig]: {
+      state: mockScheduleState(false, '22:30'),
+    },
     [HA_ENTITIES.scenarioParams.sleep.temperature]: { state: '17' },
     [HA_ENTITIES.scenarioParams.sleep.window]: { state: 'off' },
-    [HA_ENTITIES.scenarioParams.sleep.scheduleEnabled]: { state: 'off' },
-    [HA_ENTITIES.scenarioParams.sleep.scheduleTime]: { state: '23:00:00' },
+    [HA_ENTITIES.scenarioParams.sleep.scheduleConfig]: {
+      state: mockScheduleState(false, '23:00'),
+    },
     [HA_ENTITIES.scenarioParams.morning.brightness]: { state: '80' },
     [HA_ENTITIES.scenarioParams.morning.warmupMinutes]: { state: '20' },
-    [HA_ENTITIES.scenarioParams.morning.scheduleEnabled]: { state: 'off' },
-    [HA_ENTITIES.scenarioParams.morning.scheduleTime]: { state: '07:00:00' },
+    [HA_ENTITIES.scenarioParams.morning.scheduleConfig]: {
+      state: mockScheduleState(false, '07:00'),
+    },
     [HA_ENTITIES.scenarioParams.away.temperature]: { state: '16' },
     [HA_ENTITIES.scenarioParams.away.curtains]: { state: 'on' },
+    [HA_ENTITIES.scenarioParams.away.scheduleConfig]: {
+      state: mockScheduleState(false, '08:00'),
+    },
     [HA_ENTITIES.scenarioParams.comingHome.minutes]: { state: '20' },
     [HA_ENTITIES.scenarioParams.comingHome.temperature]: { state: '21' },
     [HA_ENTITIES.scenarioParams.comingHome.brightness]: { state: '60' },
+    [HA_ENTITIES.scenarioParams.comingHome.scheduleConfig]: {
+      state: mockScheduleState(false, '18:00'),
+    },
     [HA_ENTITIES.scenarioParams.cozy.brightness]: { state: '40' },
     [HA_ENTITIES.scenarioParams.cozy.temperature]: { state: '21' },
+    [HA_ENTITIES.scenarioParams.cozy.scheduleConfig]: {
+      state: mockScheduleState(false, '20:00'),
+    },
     [HA_ENTITIES.scenarioParams.focus.brightness]: { state: '90' },
     [HA_ENTITIES.scenarioParams.focus.temperature]: { state: '19' },
+    [HA_ENTITIES.scenarioParams.focus.scheduleConfig]: {
+      state: mockScheduleState(false, '09:00'),
+    },
     [HA_ENTITIES.system.homeMode]: { state: 'none' },
     [HA_ENTITIES.system.homeReadyForArrival]: { state: 'off' },
   },

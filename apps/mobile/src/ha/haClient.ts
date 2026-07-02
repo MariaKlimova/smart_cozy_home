@@ -193,6 +193,47 @@ export async function setBooleanState(
   await callHaService(baseUrl, token, 'input_boolean', service, { entity_id: entityId });
 }
 
+/** Записать время input_datetime (только time, без даты) */
+export async function setInputDatetime(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  time: string,
+): Promise<void> {
+  const [hours, minutes] = time.split(':');
+  const timeValue = `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:00`;
+
+  if (USE_HA_MOCKS) {
+    updateMockEntityState(entityId, timeValue);
+    logMockService('input_datetime', 'set_datetime', { entity_id: entityId, time: timeValue });
+    return;
+  }
+
+  await callHaService(baseUrl, token, 'input_datetime', 'set_datetime', {
+    entity_id: entityId,
+    time: timeValue,
+  });
+}
+
+/** Записать значение input_text */
+export async function setTextValue(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  value: string,
+): Promise<void> {
+  if (USE_HA_MOCKS) {
+    updateMockEntityState(entityId, value);
+    logMockService('input_text', 'set_value', { entity_id: entityId, value });
+    return;
+  }
+
+  await callHaService(baseUrl, token, 'input_text', 'set_value', {
+    entity_id: entityId,
+    value,
+  });
+}
+
 export async function toggleLight(
   baseUrl: string,
   token: string,

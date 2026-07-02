@@ -18,22 +18,6 @@ input_boolean:
     initial: false
     icon: mdi:home-import-outline
 
-  # Расписание
-  evening_schedule_enabled:
-    name: Расписание вечера включено
-    initial: false
-    icon: mdi:clock-outline
-
-  sleep_schedule_enabled:
-    name: Расписание сна включено
-    initial: false
-    icon: mdi:clock-outline
-
-  morning_schedule_enabled:
-    name: Расписание утра включено
-    initial: false
-    icon: mdi:clock-outline
-
   # Параметры сценариев
   evening_curtains:
     name: Закрывать шторы вечером
@@ -55,24 +39,41 @@ input_boolean:
     initial: true
     icon: mdi:curtains
 
-input_datetime:
-  evening_schedule_time:
-    name: Время вечернего ритуала
-    has_date: false
-    has_time: true
-    initial: "22:30:00"
+input_text:
+  evening_schedule:
+    name: Расписание вечера (JSON)
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"22:30"},"tue":{"enabled":false,"time":"22:30"},"wed":{"enabled":false,"time":"22:30"},"thu":{"enabled":false,"time":"22:30"},"fri":{"enabled":false,"time":"22:30"},"sat":{"enabled":false,"time":"22:30"},"sun":{"enabled":false,"time":"22:30"}}}'
+    max: 512
 
-  sleep_schedule_time:
-    name: Время сна
-    has_date: false
-    has_time: true
-    initial: "23:00:00"
+  sleep_schedule:
+    name: Расписание сна (JSON)
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"23:00"},"tue":{"enabled":false,"time":"23:00"},"wed":{"enabled":false,"time":"23:00"},"thu":{"enabled":false,"time":"23:00"},"fri":{"enabled":false,"time":"23:00"},"sat":{"enabled":false,"time":"23:00"},"sun":{"enabled":false,"time":"23:00"}}}'
+    max: 512
 
-  morning_schedule_time:
-    name: Время подъёма
-    has_date: false
-    has_time: true
-    initial: "07:00:00"
+  morning_schedule:
+    name: Расписание утра (JSON)
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"07:00"},"tue":{"enabled":false,"time":"07:00"},"wed":{"enabled":false,"time":"07:00"},"thu":{"enabled":false,"time":"07:00"},"fri":{"enabled":false,"time":"07:00"},"sat":{"enabled":false,"time":"07:00"},"sun":{"enabled":false,"time":"07:00"}}}'
+    max: 512
+
+  away_schedule:
+    name: Расписание «Уехали» (JSON)
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"08:00"},"tue":{"enabled":false,"time":"08:00"},"wed":{"enabled":false,"time":"08:00"},"thu":{"enabled":false,"time":"08:00"},"fri":{"enabled":false,"time":"08:00"},"sat":{"enabled":false,"time":"08:00"},"sun":{"enabled":false,"time":"08:00"}}}'
+    max: 512
+
+  coming_home_schedule:
+    name: Расписание «Еду домой» (JSON)
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"18:00"},"tue":{"enabled":false,"time":"18:00"},"wed":{"enabled":false,"time":"18:00"},"thu":{"enabled":false,"time":"18:00"},"fri":{"enabled":false,"time":"18:00"},"sat":{"enabled":false,"time":"18:00"},"sun":{"enabled":false,"time":"18:00"}}}'
+    max: 512
+
+  cozy_schedule:
+    name: Расписание «Уют» (JSON)
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"20:00"},"tue":{"enabled":false,"time":"20:00"},"wed":{"enabled":false,"time":"20:00"},"thu":{"enabled":false,"time":"20:00"},"fri":{"enabled":false,"time":"20:00"},"sat":{"enabled":false,"time":"20:00"},"sun":{"enabled":false,"time":"20:00"}}}'
+    max: 512
+
+  focus_schedule:
+    name: Расписание «Фокус» (JSON)
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"09:00"},"tue":{"enabled":false,"time":"09:00"},"wed":{"enabled":false,"time":"09:00"},"thu":{"enabled":false,"time":"09:00"},"fri":{"enabled":false,"time":"09:00"},"sat":{"enabled":false,"time":"09:00"},"sun":{"enabled":false,"time":"09:00"}}}'
+    max: 512
 
 input_number:
   # Вечер

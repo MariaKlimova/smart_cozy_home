@@ -10,7 +10,7 @@
 
 **Script** (`script.<id>`) — последовательность действий. Читает параметры из helpers (`input_number`, `input_boolean`), не из hardcode. Приложение вызывает script через `script.turn_on`.
 
-**Automation** (`automation.<id>_schedule`) — только для Вечера, Сна и Утра. Триггер по времени из `input_datetime`, условие — `input_boolean.*_schedule_enabled`. Automation **всегда enabled**; включение/выключение расписания идёт через boolean, не через `automation.turn_on/off`.
+**Automation** (`automation.<id>_schedule`) — для всех сценариев с расписанием. Триггер `time_pattern` каждую минуту; условие — template читает JSON из `input_text.<id>_schedule`. Automation **всегда enabled**; включение/выключение расписания — через поле `enabled` в JSON, не через `automation.turn_on/off`.
 
 Параметры хранятся в HA как helpers — приложение их читает и пишет через REST API.
 
@@ -61,10 +61,9 @@
 
 | Entity | Тип | Дефолт |
 |---|---|---|
-| `input_boolean.evening_schedule_enabled` | boolean | false |
-| `input_datetime.evening_schedule_time` | datetime (has_time: true, has_date: false) | 22:30 |
+| `input_text.evening_schedule` | text (JSON v1) | все дни выкл, время 22:30 |
 
-**Automation:** триггер `platform: time`, `at: input_datetime.evening_schedule_time`, условие `input_boolean.evening_schedule_enabled = true`, действие `script.turn_on: script.evening`.
+**Automation:** `automation.evening_schedule` — template сравнивает текущий день недели и время с JSON, действие `script.turn_on: script.evening`.
 
 ---
 
@@ -89,8 +88,7 @@
 
 | Entity | Тип | Дефолт |
 |---|---|---|
-| `input_boolean.sleep_schedule_enabled` | boolean | false |
-| `input_datetime.sleep_schedule_time` | datetime (has_time: true, has_date: false) | 23:00 |
+| `input_text.sleep_schedule` | text (JSON v1) | все дни выкл, время 23:00 |
 
 **Automation расписания:** аналогично Вечеру (`automation.sleep_schedule`).
 
@@ -133,10 +131,9 @@
 
 | Entity | Тип | Дефолт |
 |---|---|---|
-| `input_boolean.morning_schedule_enabled` | boolean | false |
-| `input_datetime.morning_schedule_time` | datetime (has_time: true, has_date: false) | 07:00 |
+| `input_text.morning_schedule` | text (JSON v1) | все дни выкл, время 07:00 |
 
-**Automation:** срабатывает в `morning_schedule_time`. Плавный подъём света начинается в момент запуска script (не за `morning_warmup_minutes` до подъёма).
+**Automation:** срабатывает по JSON-расписанию. Плавный подъём света начинается в момент запуска script (не за `morning_warmup_minutes` до подъёма).
 
 ---
 
@@ -241,6 +238,6 @@
 ## Что НЕ нужно делать
 
 - Не hardcode параметры в scripts — всё читается из helpers
-- Не делать automation enabled/disabled через API — только через `input_boolean.*_schedule_enabled`
+- Не делать automation enabled/disabled через API — расписание управляется JSON в `input_text.*_schedule`
 - Не создавать отдельные scripts для "выключить всё" — это делает `script.away`
 - Не трогать entity_id устройств после инсталляции — приложение завязано на стандартные имена

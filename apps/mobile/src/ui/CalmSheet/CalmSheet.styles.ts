@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-import { radii, spacing } from '@/theme/tokens';
+import { radii, spacing, overlay } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: overlay.scrim,
   },
   sheet: {
     position: 'absolute',

@@ -9,10 +9,11 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "NODE_ENV=test node --import tsx --test src/ha/mappers/mapBedroomDevices.test.ts src/domain/bedroomDeviceControl.test.ts src/domain/mockRoomPhysics.test.ts src/ha/mockScriptRunner.test.ts src/ha/mockSleepMaintainer.test.ts src/features/now/lib/parseSunEvent.test.ts src/features/settings/lib/devicePickerFilters.test.ts src/features/now/lib/getContextualScenarioId.test.ts"
+    "test": "NODE_ENV=test node --import tsx --test src/ha/mappers/mapBedroomDevices.test.ts src/ha/mappers/mapScenarioSettings.test.ts src/domain/scenarioWeeklySchedule.test.ts src/domain/bedroomDeviceControl.test.ts src/domain/mockRoomPhysics.test.ts src/ha/mockScriptRunner.test.ts src/ha/mockSleepMaintainer.test.ts src/features/now/lib/parseSunEvent.test.ts src/features/settings/lib/devicePickerFilters.test.ts src/features/now/lib/getContextualScenarioId.test.ts src/features/scenarios/lib/scenarioFieldLabels.test.ts src/features/scenarios/lib/scenarioSettingsSchedule.test.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
+    "@react-native-community/datetimepicker": "8.4.4",
     "@react-native-community/slider": "^5.2.0",
     "@react-navigation/native": "^7.1.8",
     "@tanstack/react-query": "^5.100.10",

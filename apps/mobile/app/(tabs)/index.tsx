@@ -17,7 +17,7 @@ import { BedroomStateCard } from '@/features/now/ui/BedroomStateCard';
 import { QuickActions } from '@/features/now/ui/QuickActions';
 import { useGentleNotifications } from '@/hooks/useGentleNotifications';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { useHaBackend } from '@/ha/useHaBackend';
+import { useHaBackend } from '@/hooks/useHaBackend';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useHomeStore } from '@/store/homeStore';
 import { CalmButton } from '@/ui/CalmButton';

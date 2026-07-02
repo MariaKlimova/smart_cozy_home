@@ -92,18 +92,44 @@ If a new UI component is placed directly in `app/` with substantial markup inste
 
 ## Product voice и copy
 
-When reviewing `apps/mobile/app/**`, `apps/mobile/src/features/**/ui/**`, `apps/mobile/src/copy/**`:
+When reviewing `apps/mobile/app/**`, `apps/mobile/src/features/**/ui/**`, `apps/mobile/src/ui/**`, `apps/mobile/src/copy/**`:
 
 **Запрещено в пользовательских строках:**
 
 - `entity_id`, `device_class`, `automation`, `script_id`, сырые state из HA
 - CAPS, восклицания, приказной тон
+- **Захардкоженный user-visible текст** в UI-слое вместо `copy` из `src/copy/`
 
 **Ожидается:**
 
 - Спокойный, тёплый тон на «ты»
 - Контекст комнаты/ритуала вместо «свет включён»
-- Copy в `apps/mobile/src/copy/ru.ts`, не размазанный по компонентам
+- Все пользовательские строки — из `apps/mobile/src/copy/ru.ts` (или `src/copy/timeline.ts` для Timeline)
+- Импорт: `import { copy } from '@/copy/ru'` (или `@/copy/timeline`)
+- В JSX/пропсах UI: `copy.section.key`, не литералы `'…'` / `"…"`
+
+**Допустимые литералы в UI (не считать нарушением):**
+
+- `testID`, `accessibilityHint` — в `*.const.ts`, не user-facing copy
+- Служебные символы: `'—'`, `'·'`, `'/'`, пустая строка `''`
+- Технические ключи: `keyboardType`, `autoComplete`, enum-like internal keys
+- Интерполяция **из** `copy`: `` `${copy.foo} ${value}` ``, `copy.bar.replace(...)`
+- Числа, проценты, единицы без слов (`'48'`, `'#fff'`) — если не заменяются copy
+
+If a changed file under `apps/mobile/app/`, `apps/mobile/src/features/**/ui/`, or `apps/mobile/src/ui/` contains a **new or modified** user-visible string literal (кириллица/латиница ≥2 символов) in:
+
+- JSX text nodes (`<Text>…</Text>`, `<Button title="…">`),
+- props: `title`, `label`, `placeholder`, `accessibilityLabel`, `headerTitle`, `emptyText`, `hint`, `message`, `description`, `subtitle`,
+- `Alert.alert('…', '…')`, `Toast.show({ text: '…' })`,
+
+and the string is **not** imported from `@/copy/ru` or `@/copy/timeline`, then:
+
+- Add a **blocking** finding: «User-visible строка захардкожена — вынеси в `src/copy/ru.ts` и используй `copy.*`».
+- Предложи ключ в структуре `copy` (секция + имя поля).
+
+If the same string already exists in `ru.ts` but компонент дублирует литерал вместо `copy.*`:
+
+- Add a **blocking** finding: «Строка уже есть в copy — используй существующий ключ `copy.<path>`».
 
 If user-visible strings contain HA jargon or raw entity identifiers:
 
@@ -111,12 +137,59 @@ If user-visible strings contain HA jargon or raw entity identifiers:
 
 ---
 
-## Calm UI
+## Calm UI и design tokens
 
-When reviewing UI components and `apps/mobile/src/theme/**`:
+When reviewing `apps/mobile/app/**`, `apps/mobile/src/features/**/ui/**`, `apps/mobile/src/ui/**`, `apps/mobile/src/theme/**`:
 
-- Используй design tokens из `src/theme/tokens.ts`, не magic numbers для цветов/отступов без причины.
-- Минимальная зона нажатия — 48dp для интерактивных элементов.
+**Источник правды:** `apps/mobile/src/theme/tokens.ts`
+
+- **Цвета** — через `useThemeColors()` → `colors[scheme]` из tokens; в JSX/style props: `c.background`, `c.text`, … Не hex/rgb/rgba литералы.
+- **Отступы** — `spacing.xs | sm | md | lg | xl` (padding, margin, gap).
+- **Скругления** — `radii.sm | md`.
+- **Touch target** — `touchMin` (48) для интерактивных элементов.
+- **Типографика** — `typography.title | subtitle | body | caption`.
+
+**Импорт в `*.styles.ts`:**
+
+```ts
+import { radii, spacing, touchMin, typography } from '@/theme/tokens';
+```
+
+**Цвета в компонентах:**
+
+```ts
+import { useThemeColors } from '@/hooks/useThemeColors';
+// ...
+const c = useThemeColors();
+// style={{ backgroundColor: c.surface, color: c.text }}
+```
+
+**Допустимые литералы (не нарушение):**
+
+- `0`, `1` (borderWidth, hairline)
+- `'transparent'`, `'100%'`, flex/position/zIndex/transform
+- `opacity` от 0 до 1
+- Арифметика **на базе tokens**: `spacing.lg + 6`, `touchMin / 2`
+- Файл `src/theme/tokens.ts` — единственное место для новых значений палитры/шкалы
+
+If a changed file under UI-слоя (`app/`, `features/**/ui/`, `src/ui/`) contains a **new or modified** hardcoded:
+
+- **цвет**: `#[0-9A-Fa-f]{3,8}`, `rgb(`, `rgba(` в `*.tsx`, `*.styles.ts` (кроме `tokens.ts`),
+- **отступ**: `padding*`, `margin*`, `gap` с числом не из `spacing.*` (например `padding: 20`, `marginTop: 12`),
+- **радиус**: `borderRadius: N` не из `radii.*`,
+- **touch**: `minHeight` / `minWidth` на Pressable/Button < `touchMin` или magic 48 вместо `touchMin`,
+- **типографика**: новый набор `fontSize` + `fontWeight` вместо spread `typography.*`,
+
+then:
+
+- Add a **blocking** finding: «Используй tokens из `@/theme/tokens` (и `useThemeColors` для цветов)».
+- Укажи конкретный token: `spacing.md`, `radii.sm`, `c.accent`, `typography.body`.
+
+If the same hex/spacing value already exists in `tokens.ts` but компонент дублирует литерал:
+
+- Add a **blocking** finding с именем существующего token.
+
+- Минимальная зона нажатия — `touchMin` (48dp) для интерактивных элементов.
 - Избегай резких анимаций; предпочитай fade/мягкие переходы.
 
 ---
@@ -144,6 +217,86 @@ When reviewing `apps/mobile/src/domain/**`:
 
 ---
 
+## Дублирование кода
+
+When reviewing any changed file under `apps/mobile/**` or `packages/ha-installer/**`:
+
+**Что искать (поиск по репозиторию обязателен, не только diff):**
+
+1. **Copy** — одна и та же user-visible строка или её вариация уже есть в `src/copy/ru.ts` или другом компоненте.
+2. **Логика** — блок ≥8 строк (условия, маппинг, парсинг, расчёт) повторяется в другом файле или в том же PR в другом месте.
+3. **Типы и константы** — одинаковые `interface`, union, enum, magic numbers/strings в нескольких файлах вместо общего модуля.
+4. **HA / config** — повтор mapping `entity_id` → domain, дубли `call_service`, одинаковые списки устройств в `config/` и `ha/`.
+5. **UI** — одинаковая разметка, стили или hook-паттерн в двух БЭМ-блоках без общего `@/ui/` компонента.
+6. **YAML / installer** — одинаковые sequence/script steps в `packages/ha-installer/` без шаблона или `!include`.
+
+**Как проверять:**
+
+- Для каждого нового/изменённого блока логики — `grep` по характерным идентификаторам, строкам, сигнатурам функций.
+- Сравни diff **внутри PR**: один и тот же паттерн в двух добавленных файлах — тоже дубль.
+- Игнорируй тривиальные совпадения: однострочные re-export, стандартные import, boilerplate `index.ts`, тестовые `describe/it`.
+
+**Severity:**
+
+If duplicated logic ≥8 строк or duplicated HA mapping / entity lists across layers, then:
+
+- Add a **blocking** finding: «Дублирование логики — вынеси в общий модуль».
+- Укажи **оба файла** (источник и дубль) и куда вынести: `src/domain/`, `src/features/*/lib/`, `src/ha/mappers/`, `src/ui/`, `src/copy/ru.ts`, `*.const.ts`.
+
+If duplicated copy strings, duplicated StyleSheet blocks, or duplicated constants (3+ совпадения или ≥4 строки), then:
+
+- Add a non-blocking finding с конкретным местом для DRY: `ru.ts`, shared UI, `*.const.ts`, helper в `lib/`.
+
+If the PR **extracts** shared code and removes duplication — отметь в «Что проверено и чисто», не поднимай finding.
+
+---
+
+## Мёртвый код
+
+When reviewing any changed file under `apps/mobile/**` or `packages/ha-installer/**`:
+
+**Что считать мёртвым кодом:**
+
+1. **Неиспользуемый export** — `export function`, `export const`, `export type`, компонент без импортов снаружи (grep по репозиторию).
+2. **Orphan-файл** — новый `.ts`/`.tsx` в diff, который никто не импортирует (кроме entry points: `app/**`, `index.ts` barrel).
+3. **Недостижимый код** — statements после `return` / `throw` / `break` / `continue`; ветки `if (false)`, `if (true) return` с мёртвым else.
+4. **Закомментированный код** — блоки ≥3 строк закомментированной логики в diff (не JSDoc, не TODO).
+5. **Устаревшие ключи** — поле в `copy/ru.ts`, константа в `*.const.ts`, export в `index.ts`, на которое больше нет ссылок после рефактора в том же PR.
+6. **Stale imports** — import, который не используется (если `npm run lint` / typecheck это не ловит — всё равно finding).
+
+**Как проверять:**
+
+- Запусти `npm run quality` из корня репозитория; unused/unreachable из lint/tsc — включай в findings.
+- Для **каждого нового export** в diff — `grep` по имени символа (`apps/mobile`, `packages/`); 0 usages вне файла определения и тестов → finding.
+- Для **удалённых вызовов** в diff — проверь, не осталась ли без ссылок функция/тип/константа в том же PR.
+- Entry points **не** считай orphan: `apps/mobile/app/**` (Expo Router), корневые providers.
+- Типы, используемые только как `import type` — проверяй отдельно; не помечай мёртвыми без grep `: ITypeName` / `extends ITypeName`.
+
+**Severity:**
+
+If the PR **adds** a new export (function, component, const, type) with **zero** references outside its file and tests, then:
+
+- Add a **blocking** finding: «Мёртвый код — export не используется; удали или подключи».
+- Укажи символ и файл.
+
+If the PR adds a new file that is never imported (not an Expo route), then:
+
+- Add a **blocking** finding: «Orphan-файл — нет импортов; подключи или удали».
+
+If unreachable code or commented-out blocks (≥3 lines) appear in changed files, then:
+
+- Add a non-blocking finding: «Недостижимый / закомментированный код — удали».
+
+If orphaned `copy.*` keys, `*.const.ts` values, or stale helpers remain after refactor in the same PR, then:
+
+- Add a non-blocking finding с символом и предложением удалить.
+
+If the PR **removes** dead code — отметь в «Что проверено и чисто», не поднимай finding.
+
+Не дублируй каждый `no-unused-vars` из ESLint отдельным finding — сгруппируй: «lint: N неиспользуемых import/vars в файлах …».
+
+---
+
 ## Зоны ревью по diff
 
 | Путь diff | Фокус |
@@ -157,4 +310,4 @@ When reviewing `apps/mobile/src/domain/**`:
 
 ## CI
 
-GitHub Actions job `quality` запускает `npm run typecheck` и `npm run lint`. Cloud Bugbot в Actions **не** запускается. Не комментируй стилистику, которую уже ловит ESLint, если это не архитектурный риск.
+GitHub Actions job `quality` запускает `npm run typecheck` и `npm run lint`. Cloud Bugbot в Actions **не** запускается. Не комментируй стилистику, которую уже ловит ESLint, если это не архитектурный риск — **кроме** cross-file мёртвых exports и orphan-файлов (см. «Мёртвый код»).

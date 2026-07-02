@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { copy } from '@/copy/ru';
-import { exitActiveScenario, runScenario } from '@/domain/scenarioRunner';
+import { exitActiveScenario, runScenario } from '@/ha/scenarioActions';
 import { getScenarioDefinition } from '@/features/scenarios/config/scenarios';
 import { useHaBackend } from '@/ha/useHaBackend';
 import { useHomeStore } from '@/store/homeStore';

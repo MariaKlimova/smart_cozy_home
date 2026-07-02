@@ -2,7 +2,8 @@
 name: code-review
 description: >-
   Code Review — локальный ревьюер по правилам BUGBOT.md. Use proactively when:
-  пользователь просит ревью PR/diff/ветки
+  пользователь просит ревью PR/diff/ветки. Проверяет архитектуру, БЭМ, copy,
+  TypeScript, дублирование, захардкоженный copy/tokens, мёртвый код (`@/copy/ru`, `@/theme/tokens`).
 model: inherit
 readonly: true
 ---
@@ -34,7 +35,7 @@ readonly: true
 
 | Путь в diff                                      | Skill                                                              |
 | ------------------------------------------------ | ------------------------------------------------------------------ |
-| `apps/mobile/app/`, `features/**/ui/`, `src/ui/` | `.cursor/skills/bem-components/SKILL.md`, `rn-calm-ui/SKILL.md`    |
+| `apps/mobile/app/`, `features/**/ui/`, `src/ui/` | `.cursor/skills/bem-components/SKILL.md`, `rn-calm-ui/SKILL.md`, `apps/mobile/src/theme/tokens.ts` |
 | `apps/mobile/src/copy/`                          | `.cursor/skills/product-voice/SKILL.md`, `human-timeline/SKILL.md` |
 | `apps/mobile/src/domain/`                        | `.cursor/skills/domain-model/SKILL.md`                             |
 | `apps/mobile/src/ha/`                            | `.cursor/skills/ha-integration/SKILL.md`                           |
@@ -54,9 +55,56 @@ BUGBOT.md.
    diff»).
 5. Для каждого finding прочитай **контекст вокруг изменения** (не только hunk),
    если нужно понять архитектурный риск.
+6. **Проверка на дублирование** — см. раздел 3.1 и BUGBOT.md «Дублирование кода».
+7. **Hardcoded copy в UI** — см. раздел 3.2 и BUGBOT.md «Product voice и copy».
+8. **Hardcoded tokens** — см. раздел 3.3 и BUGBOT.md «Calm UI и design tokens».
+9. **Мёртвый код** — см. раздел 3.4 и BUGBOT.md «Мёртвый код»; запусти `npm run quality`.
 
 Не комментируй стилистику, которую уже ловит ESLint (`npm run lint`), если это
-не архитектурный риск (см. секцию CI в BUGBOT.md).
+не архитектурный риск — **кроме** cross-file мёртвых exports и orphan-файлов (§3.4).
+
+---
+
+## 3.1. Дублирование кода (обязательная проверка)
+
+После анализа diff **обязательно** ищи дубли в репозитории (Grep / Read), не
+только в изменённых hunks. Правила — секция «Дублирование кода» в BUGBOT.md.
+
+### Алгоритм
+
+1. **Новые функции, хуки, компоненты** — grep по имени, по уникальным строкам
+   из тела (литералы, ключи объектов, `entity_id`, тексты UI).
+2. **Новые константы и типы** — grep по имени типа/константы; если уже есть
+   аналог в `domain/`, `config/`, `*.const.ts` — finding.
+3. **Copy** — каждая новая user-visible строка: grep по подстроке (≥6 символов)
+   в `src/copy/ru.ts` и остальном `apps/mobile/`.
+4. **HA mapping** — новые `entity_id`, device lists, service calls: сравни с
+   `src/config/`, `scenarioHaMapping.ts`, `src/ha/mappers/`, `homeConfig.ts`.
+5. **Внутри PR** — если diff добавляет похожие блоки в 2+ файлах, сравни их
+   напрямую; дубль в рамках одного PR тоже finding.
+6. **Стили UI** — одинаковые `StyleSheet` ключи/значения в разных
+   `*.styles.ts` → recommendation на shared styles или `@/ui/` блок.
+
+### Куда предлагать вынос (в recommendation/blocking)
+
+| Дубль | Куда |
+| ----- | ---- |
+| User-visible текст | `src/copy/ru.ts` |
+| Domain-логика, расчёты | `src/domain/` или `src/features/*/lib/` |
+| HA ↔ domain | `src/ha/mappers/`, `src/config/` |
+| UI-разметка / стили | `@/ui/` или элемент родительского блока |
+| Константы, testID | `*.const.ts` |
+| YAML steps | `templates.yaml`, `!include`, общий script |
+
+### Severity (дубли)
+
+| Уровень | Когда |
+| ------- | ----- |
+| **blocking** | ≥8 строк одинаковой логики; HA mapping / entity lists в двух слоях; один PR вводит два источника правды |
+| **recommendation** | Copy, константы, стили, мелкие helpers (4–7 строк) |
+
+Не поднимай finding, если PR **удаляет** дубль или явно рефакторит в shared
+модуль. Укажи это в «Что проверено и чисто».
 
 ---
 
@@ -82,14 +130,68 @@ BUGBOT.md.
 - `StyleSheet.create` только в `*.styles.ts`
 - Импорт снаружи — только из `index.ts`
 
-### Product voice (blocking)
+### Product voice и copy (blocking)
 
 - Нет HA-жаргона и `entity_id` в user-visible строках
-- Copy в `src/copy/ru.ts`
+- **Нет захардкоженного user-visible текста** в UI — только `copy` из `@/copy/ru` или `@/copy/timeline`
+- Новые строки добавлять в `src/copy/ru.ts`, не в `.tsx`
 
-### Calm UI (recommendation)
+### 3.2. Hardcoded copy (обязательная проверка UI)
 
-- tokens из `src/theme/tokens.ts`, min touch 48dp, мягкие анимации
+Для каждого изменённого файла в `app/`, `features/**/ui/`, `src/ui/`:
+
+1. Найди **новые или изменённые** строковые литералы в JSX и user-facing props
+   (`title`, `label`, `placeholder`, `accessibilityLabel`, `Alert.alert`, и т.д.).
+2. Игнорируй допустимые литералы из BUGBOT.md (testID в `*.const.ts`, `'—'`, тех.
+   ключи).
+3. Если литерал — кириллица/латиница ≥2 символов и **не** приходит из `copy.*` —
+   **blocking** finding с предложением ключа в `ru.ts`.
+4. Grep ту же подстроку в `src/copy/ru.ts`: если ключ уже есть — указать
+   `copy.<path>`, не создавать дубль.
+5. Файлы `src/features/*/lib/` с форматированием для UI — строки для пользователя
+   тоже из `copy`, не литералы (кроме `'—'`, единиц из copy).
+
+### Calm UI и design tokens (blocking)
+
+- Цвета — `useThemeColors()` + `c.*` из `tokens.ts`, не hex/rgb в UI
+- Отступы — `spacing.*`, скругления — `radii.*`, touch — `touchMin`, текст — `typography.*`
+- Новые значения палитры/шкалы — только в `src/theme/tokens.ts`
+
+### 3.3. Hardcoded tokens (обязательная проверка UI)
+
+Для каждого изменённого `*.tsx` / `*.styles.ts` в `app/`, `features/**/ui/`, `src/ui/`:
+
+1. Найди **новые или изменённые** литералы цветов (`#`, `rgb`, `rgba`).
+2. Найди magic numbers в `padding*`, `margin*`, `gap`, `borderRadius`, `minHeight`/`minWidth`.
+3. Сверь с `apps/mobile/src/theme/tokens.ts` — если значение уже в tokens, используй token.
+4. Цвета в `*.styles.ts` без theme hook — **blocking**; переноси в tsx через `useThemeColors()` или параметризуй стиль.
+5. Игнорируй допустимые литералы из BUGBOT.md (`0`, `1`, `'transparent'`, opacity, flex).
+
+### 3.4. Мёртвый код (обязательная проверка)
+
+После diff **обязательно** проверь мёртвый код. Правила — BUGBOT.md «Мёртвый код».
+
+### Алгоритм
+
+1. **`npm run quality`** из корня — зафиксируй unused/unreachable из lint и tsc (группируй, не по одному finding на import).
+2. **Новые exports** в diff — для каждого `export function|const|type|class` grep по имени в `apps/mobile/` и `packages/`:
+   - 0 ссылок вне файла определения и `*.test.ts` → **blocking**.
+3. **Новые файлы** — grep по пути/import (`@/…`, относительный import); если не `app/` route и не импортируется → **blocking** orphan.
+4. **Рефактор в PR** — если удалили вызовы, grep оставшиеся символы из того же модуля; orphan → **recommendation**.
+5. **Закомментированный код** в diff (≥3 строк `//` или `/* */` с кодом) → **recommendation**.
+6. **Недостижимый код** после `return`/`throw` в изменённых функциях → **recommendation** (blocking, если явная ошибка логики).
+7. **Copy / const** — новые или старые ключи в `ru.ts`, `*.const.ts` без grep-ссылок → **recommendation**.
+
+### Severity (мёртвый код)
+
+| Уровень | Когда |
+| ------- | ----- |
+| **blocking** | Новый export без usages; orphan-файл; PR добавляет код «в никуда» |
+| **recommendation** | Закомментированный код, stale keys после рефактора, недостижимые ветки |
+
+PR, который **чистит** мёртвый код — отметь в «Что проверено и чисто».
+
+---
 
 ### HA Bridge (blocking security)
 
@@ -121,8 +223,8 @@ BUGBOT.md.
 
 | Уровень            | Когда                                                                                           |
 | ------------------ | ----------------------------------------------------------------------------------------------- |
-| **blocking**       | Нарушение архитектуры, утечка секретов, security, сломанный контракт БЭМ/domain, HA-жаргон в UI |
-| **recommendation** | Стиль, константы в `.const.ts`, Calm UI, вынос разметки из `app/`                               |
+| **blocking**       | Архитектура, секреты, security, БЭМ/domain, copy/tokens, дубли ≥8 строк / HA mapping, **новый неиспользуемый export / orphan-файл** |
+| **recommendation** | `.const.ts`, разметка из `app/`, мелкие дубли, lineHeight, **закомментированный / stale код после рефактора** |
 
 ---
 
@@ -145,9 +247,9 @@ BUGBOT.md.
 
 ### Сводка
 
-| Blocking | Recommendation | OK                            |
-| -------- | -------------- | ----------------------------- |
-| N        | N              | кратко: что проверено и чисто |
+| Blocking | Recommendation | Duplication | Dead code | OK                            |
+| -------- | -------------- | ----------- | --------- | ----------------------------- |
+| N        | N              | N           | N         | кратко: что проверено и чисто |
 
 ### Findings
 
@@ -166,6 +268,38 @@ BUGBOT.md.
 | 1   | `path` | ~N     | ...      | ...          |
 
 (если нет — «—»)
+
+#### Hardcoded copy
+
+| #   | Файл   | Строка | Литерал | Предложенный ключ в `copy` |
+| --- | ------ | ------ | ------- | -------------------------- |
+| 1   | `path` | ~N     | `'…'`   | `copy.section.key`         |
+
+(если нет — «—». Каждый пункт — **blocking**, учитывай в счётчике Blocking.)
+
+#### Hardcoded tokens
+
+| #   | Файл   | Строка | Литерал | Token / паттерн |
+| --- | ------ | ------ | ------- | --------------- |
+| 1   | `path` | ~N     | `#FFF` / `20` | `c.surface` / `spacing.lg` |
+
+(если нет — «—». Каждый пункт — **blocking**, учитывай в счётчике Blocking.)
+
+#### Duplication
+
+| #   | Severity | Файл (дубль) | Дублирует | Строка | Куда вынести |
+| --- | -------- | ------------ | --------- | ------ | ------------ |
+| 1   | blocking / recommendation | `path` | `path` | ~N | ... |
+
+(если нет — «—». Blocking-дубли **также** учитывай в счётчике Blocking в сводке.)
+
+#### Dead code
+
+| #   | Severity | Файл   | Символ / блок | Проблема | Действие |
+| --- | -------- | ------ | ------------- | -------- | -------- |
+| 1   | blocking / recommendation | `path` | `fooBar` | export без imports | удалить или подключить |
+
+(если нет — «—». Blocking-пункты учитывай в счётчике Blocking.)
 
 ### Что проверено и чисто
 

@@ -1,4 +1,4 @@
-import { copy } from '@/copy/ru';
+import { titleForLifeState } from '@/config/homeStateLabels';
 import type { IHomeMetric, IHomeState, IPresenceMember, LifeState } from '@/domain/types';
 
 export interface IStateEngineInput {
@@ -34,25 +34,6 @@ function resolveLifeState(input: IStateEngineInput): LifeState {
   return 'rest';
 }
 
-function titleForLifeState(lifeState: LifeState): string {
-  switch (lifeState) {
-    case 'morning':
-      return 'Доброе утро';
-    case 'evening':
-      return 'Спокойный вечер';
-    case 'sleep':
-      return 'Время отдыха';
-    case 'away':
-      return copy.home.awayTitle;
-    case 'guests':
-      return copy.home.guestsTitle;
-    case 'work':
-      return 'Рабочий ритм';
-    case 'rest':
-    default:
-      return copy.home.defaultTitle;
-  }
-}
 
 function hintForLifeState(lifeState: LifeState, presence: IPresenceMember[]): string {
   const homeNames = presence.filter((p) => p.isHome).map((p) => p.label);

@@ -1,16 +1,7 @@
+import type { IHaEntityListItem } from '@/domain/haEntityList.typings';
 import type { IHaEntityState } from '@/ha/types';
 
-/** Элемент списка entities для экрана настройщика */
-export interface IHaEntityListItem {
-  /** entity_id, например light.kitchen */
-  entityId: string;
-  /** Домен: light, sensor, person… */
-  domain: string;
-  /** Текущее state */
-  state: string;
-  /** Человекочитаемое имя из attributes */
-  friendlyName: string;
-}
+export type { IHaEntityListItem } from '@/domain/haEntityList.typings';
 
 export function parseEntityDomain(entityId: string): string {
   const dot = entityId.indexOf('.');
