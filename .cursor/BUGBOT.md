@@ -144,6 +144,40 @@ When reviewing `apps/mobile/src/domain/**`:
 
 ---
 
+## Дублирование кода
+
+When reviewing any changed file under `apps/mobile/**` or `packages/ha-installer/**`:
+
+**Что искать (поиск по репозиторию обязателен, не только diff):**
+
+1. **Copy** — одна и та же user-visible строка или её вариация уже есть в `src/copy/ru.ts` или другом компоненте.
+2. **Логика** — блок ≥8 строк (условия, маппинг, парсинг, расчёт) повторяется в другом файле или в том же PR в другом месте.
+3. **Типы и константы** — одинаковые `interface`, union, enum, magic numbers/strings в нескольких файлах вместо общего модуля.
+4. **HA / config** — повтор mapping `entity_id` → domain, дубли `call_service`, одинаковые списки устройств в `config/` и `ha/`.
+5. **UI** — одинаковая разметка, стили или hook-паттерн в двух БЭМ-блоках без общего `@/ui/` компонента.
+6. **YAML / installer** — одинаковые sequence/script steps в `packages/ha-installer/` без шаблона или `!include`.
+
+**Как проверять:**
+
+- Для каждого нового/изменённого блока логики — `grep` по характерным идентификаторам, строкам, сигнатурам функций.
+- Сравни diff **внутри PR**: один и тот же паттерн в двух добавленных файлах — тоже дубль.
+- Игнорируй тривиальные совпадения: однострочные re-export, стандартные import, boilerplate `index.ts`, тестовые `describe/it`.
+
+**Severity:**
+
+If duplicated logic ≥8 строк or duplicated HA mapping / entity lists across layers, then:
+
+- Add a **blocking** finding: «Дублирование логики — вынеси в общий модуль».
+- Укажи **оба файла** (источник и дубль) и куда вынести: `src/domain/`, `src/features/*/lib/`, `src/ha/mappers/`, `src/ui/`, `src/copy/ru.ts`, `*.const.ts`.
+
+If duplicated copy strings, duplicated StyleSheet blocks, or duplicated constants (3+ совпадения или ≥4 строки), then:
+
+- Add a non-blocking finding с конкретным местом для DRY: `ru.ts`, shared UI, `*.const.ts`, helper в `lib/`.
+
+If the PR **extracts** shared code and removes duplication — отметь в «Что проверено и чисто», не поднимай finding.
+
+---
+
 ## Зоны ревью по diff
 
 | Путь diff | Фокус |
