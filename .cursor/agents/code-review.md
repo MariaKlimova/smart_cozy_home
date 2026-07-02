@@ -3,7 +3,7 @@ name: code-review
 description: >-
   Code Review — локальный ревьюер по правилам BUGBOT.md. Use proactively when:
   пользователь просит ревью PR/diff/ветки. Проверяет архитектуру, БЭМ, copy,
-  TypeScript и дублирование кода (grep по репозиторию).
+  TypeScript, дублирование кода, захардкоженный copy и design tokens (`@/copy/ru`, `@/theme/tokens`).
 model: inherit
 readonly: true
 ---
@@ -35,7 +35,7 @@ readonly: true
 
 | Путь в diff                                      | Skill                                                              |
 | ------------------------------------------------ | ------------------------------------------------------------------ |
-| `apps/mobile/app/`, `features/**/ui/`, `src/ui/` | `.cursor/skills/bem-components/SKILL.md`, `rn-calm-ui/SKILL.md`    |
+| `apps/mobile/app/`, `features/**/ui/`, `src/ui/` | `.cursor/skills/bem-components/SKILL.md`, `rn-calm-ui/SKILL.md`, `apps/mobile/src/theme/tokens.ts` |
 | `apps/mobile/src/copy/`                          | `.cursor/skills/product-voice/SKILL.md`, `human-timeline/SKILL.md` |
 | `apps/mobile/src/domain/`                        | `.cursor/skills/domain-model/SKILL.md`                             |
 | `apps/mobile/src/ha/`                            | `.cursor/skills/ha-integration/SKILL.md`                           |
@@ -56,6 +56,8 @@ BUGBOT.md.
 5. Для каждого finding прочитай **контекст вокруг изменения** (не только hunk),
    если нужно понять архитектурный риск.
 6. **Проверка на дублирование** — см. раздел 3.1 и BUGBOT.md «Дублирование кода».
+7. **Hardcoded copy в UI** — см. раздел 3.2 и BUGBOT.md «Product voice и copy».
+8. **Hardcoded tokens** — см. раздел 3.3 и BUGBOT.md «Calm UI и design tokens».
 
 Не комментируй стилистику, которую уже ловит ESLint (`npm run lint`), если это
 не архитектурный риск (см. секцию CI в BUGBOT.md).
@@ -127,14 +129,44 @@ BUGBOT.md.
 - `StyleSheet.create` только в `*.styles.ts`
 - Импорт снаружи — только из `index.ts`
 
-### Product voice (blocking)
+### Product voice и copy (blocking)
 
 - Нет HA-жаргона и `entity_id` в user-visible строках
-- Copy в `src/copy/ru.ts`
+- **Нет захардкоженного user-visible текста** в UI — только `copy` из `@/copy/ru` или `@/copy/timeline`
+- Новые строки добавлять в `src/copy/ru.ts`, не в `.tsx`
 
-### Calm UI (recommendation)
+### 3.2. Hardcoded copy (обязательная проверка UI)
 
-- tokens из `src/theme/tokens.ts`, min touch 48dp, мягкие анимации
+Для каждого изменённого файла в `app/`, `features/**/ui/`, `src/ui/`:
+
+1. Найди **новые или изменённые** строковые литералы в JSX и user-facing props
+   (`title`, `label`, `placeholder`, `accessibilityLabel`, `Alert.alert`, и т.д.).
+2. Игнорируй допустимые литералы из BUGBOT.md (testID в `*.const.ts`, `'—'`, тех.
+   ключи).
+3. Если литерал — кириллица/латиница ≥2 символов и **не** приходит из `copy.*` —
+   **blocking** finding с предложением ключа в `ru.ts`.
+4. Grep ту же подстроку в `src/copy/ru.ts`: если ключ уже есть — указать
+   `copy.<path>`, не создавать дубль.
+5. Файлы `src/features/*/lib/` с форматированием для UI — строки для пользователя
+   тоже из `copy`, не литералы (кроме `'—'`, единиц из copy).
+
+### Calm UI и design tokens (blocking)
+
+- Цвета — `useThemeColors()` + `c.*` из `tokens.ts`, не hex/rgb в UI
+- Отступы — `spacing.*`, скругления — `radii.*`, touch — `touchMin`, текст — `typography.*`
+- Новые значения палитры/шкалы — только в `src/theme/tokens.ts`
+
+### 3.3. Hardcoded tokens (обязательная проверка UI)
+
+Для каждого изменённого `*.tsx` / `*.styles.ts` в `app/`, `features/**/ui/`, `src/ui/`:
+
+1. Найди **новые или изменённые** литералы цветов (`#`, `rgb`, `rgba`).
+2. Найди magic numbers в `padding*`, `margin*`, `gap`, `borderRadius`, `minHeight`/`minWidth`.
+3. Сверь с `apps/mobile/src/theme/tokens.ts` — если значение уже в tokens, используй token.
+4. Цвета в `*.styles.ts` без theme hook — **blocking**; переноси в tsx через `useThemeColors()` или параметризуй стиль.
+5. Игнорируй допустимые литералы из BUGBOT.md (`0`, `1`, `'transparent'`, opacity, flex).
+
+---
 
 ### HA Bridge (blocking security)
 
@@ -166,8 +198,8 @@ BUGBOT.md.
 
 | Уровень            | Когда                                                                                           |
 | ------------------ | ----------------------------------------------------------------------------------------------- |
-| **blocking**       | Нарушение архитектуры, утечка секретов, security, сломанный контракт БЭМ/domain, HA-жаргон в UI, дублирование логики ≥8 строк / HA mapping в двух слоях |
-| **recommendation** | Стиль, константы в `.const.ts`, Calm UI, вынос разметки из `app/`, дубли copy/стилей/мелких helpers |
+| **blocking**       | Нарушение архитектуры, утечка секретов, security, сломанный контракт БЭМ/domain, HA-жаргон в UI, захардкоженный copy/tokens вне `copy`/`tokens.ts`, дублирование логики ≥8 строк / HA mapping в двух слоях |
+| **recommendation** | Константы в `.const.ts`, вынос разметки из `app/`, дубли copy/стилей/мелких helpers, lineHeight без typography |
 
 ---
 
@@ -211,6 +243,22 @@ BUGBOT.md.
 | 1   | `path` | ~N     | ...      | ...          |
 
 (если нет — «—»)
+
+#### Hardcoded copy
+
+| #   | Файл   | Строка | Литерал | Предложенный ключ в `copy` |
+| --- | ------ | ------ | ------- | -------------------------- |
+| 1   | `path` | ~N     | `'…'`   | `copy.section.key`         |
+
+(если нет — «—». Каждый пункт — **blocking**, учитывай в счётчике Blocking.)
+
+#### Hardcoded tokens
+
+| #   | Файл   | Строка | Литерал | Token / паттерн |
+| --- | ------ | ------ | ------- | --------------- |
+| 1   | `path` | ~N     | `#FFF` / `20` | `c.surface` / `spacing.lg` |
+
+(если нет — «—». Каждый пункт — **blocking**, учитывай в счётчике Blocking.)
 
 #### Duplication
 

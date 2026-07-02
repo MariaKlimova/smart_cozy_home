@@ -25,7 +25,7 @@ describe('formatScenarioSchedule', () => {
 
   it('returns weekday label for distant day', () => {
     const schedule = createUniformWeeklySchedule(true, '07:00', '07:00');
-    for (const id of Object.keys(schedule.weekdays) as Array<keyof typeof schedule.weekdays>) {
+    for (const id of Object.keys(schedule.weekdays) as (keyof typeof schedule.weekdays)[]) {
       schedule.weekdays[id].enabled = false;
     }
     schedule.weekdays.sat.enabled = true;

@@ -92,18 +92,44 @@ If a new UI component is placed directly in `app/` with substantial markup inste
 
 ## Product voice и copy
 
-When reviewing `apps/mobile/app/**`, `apps/mobile/src/features/**/ui/**`, `apps/mobile/src/copy/**`:
+When reviewing `apps/mobile/app/**`, `apps/mobile/src/features/**/ui/**`, `apps/mobile/src/ui/**`, `apps/mobile/src/copy/**`:
 
 **Запрещено в пользовательских строках:**
 
 - `entity_id`, `device_class`, `automation`, `script_id`, сырые state из HA
 - CAPS, восклицания, приказной тон
+- **Захардкоженный user-visible текст** в UI-слое вместо `copy` из `src/copy/`
 
 **Ожидается:**
 
 - Спокойный, тёплый тон на «ты»
 - Контекст комнаты/ритуала вместо «свет включён»
-- Copy в `apps/mobile/src/copy/ru.ts`, не размазанный по компонентам
+- Все пользовательские строки — из `apps/mobile/src/copy/ru.ts` (или `src/copy/timeline.ts` для Timeline)
+- Импорт: `import { copy } from '@/copy/ru'` (или `@/copy/timeline`)
+- В JSX/пропсах UI: `copy.section.key`, не литералы `'…'` / `"…"`
+
+**Допустимые литералы в UI (не считать нарушением):**
+
+- `testID`, `accessibilityHint` — в `*.const.ts`, не user-facing copy
+- Служебные символы: `'—'`, `'·'`, `'/'`, пустая строка `''`
+- Технические ключи: `keyboardType`, `autoComplete`, enum-like internal keys
+- Интерполяция **из** `copy`: `` `${copy.foo} ${value}` ``, `copy.bar.replace(...)`
+- Числа, проценты, единицы без слов (`'48'`, `'#fff'`) — если не заменяются copy
+
+If a changed file under `apps/mobile/app/`, `apps/mobile/src/features/**/ui/`, or `apps/mobile/src/ui/` contains a **new or modified** user-visible string literal (кириллица/латиница ≥2 символов) in:
+
+- JSX text nodes (`<Text>…</Text>`, `<Button title="…">`),
+- props: `title`, `label`, `placeholder`, `accessibilityLabel`, `headerTitle`, `emptyText`, `hint`, `message`, `description`, `subtitle`,
+- `Alert.alert('…', '…')`, `Toast.show({ text: '…' })`,
+
+and the string is **not** imported from `@/copy/ru` or `@/copy/timeline`, then:
+
+- Add a **blocking** finding: «User-visible строка захардкожена — вынеси в `src/copy/ru.ts` и используй `copy.*`».
+- Предложи ключ в структуре `copy` (секция + имя поля).
+
+If the same string already exists in `ru.ts` but компонент дублирует литерал вместо `copy.*`:
+
+- Add a **blocking** finding: «Строка уже есть в copy — используй существующий ключ `copy.<path>`».
 
 If user-visible strings contain HA jargon or raw entity identifiers:
 
@@ -111,12 +137,59 @@ If user-visible strings contain HA jargon or raw entity identifiers:
 
 ---
 
-## Calm UI
+## Calm UI и design tokens
 
-When reviewing UI components and `apps/mobile/src/theme/**`:
+When reviewing `apps/mobile/app/**`, `apps/mobile/src/features/**/ui/**`, `apps/mobile/src/ui/**`, `apps/mobile/src/theme/**`:
 
-- Используй design tokens из `src/theme/tokens.ts`, не magic numbers для цветов/отступов без причины.
-- Минимальная зона нажатия — 48dp для интерактивных элементов.
+**Источник правды:** `apps/mobile/src/theme/tokens.ts`
+
+- **Цвета** — через `useThemeColors()` → `colors[scheme]` из tokens; в JSX/style props: `c.background`, `c.text`, … Не hex/rgb/rgba литералы.
+- **Отступы** — `spacing.xs | sm | md | lg | xl` (padding, margin, gap).
+- **Скругления** — `radii.sm | md`.
+- **Touch target** — `touchMin` (48) для интерактивных элементов.
+- **Типографика** — `typography.title | subtitle | body | caption`.
+
+**Импорт в `*.styles.ts`:**
+
+```ts
+import { radii, spacing, touchMin, typography } from '@/theme/tokens';
+```
+
+**Цвета в компонентах:**
+
+```ts
+import { useThemeColors } from '@/hooks/useThemeColors';
+// ...
+const c = useThemeColors();
+// style={{ backgroundColor: c.surface, color: c.text }}
+```
+
+**Допустимые литералы (не нарушение):**
+
+- `0`, `1` (borderWidth, hairline)
+- `'transparent'`, `'100%'`, flex/position/zIndex/transform
+- `opacity` от 0 до 1
+- Арифметика **на базе tokens**: `spacing.lg + 6`, `touchMin / 2`
+- Файл `src/theme/tokens.ts` — единственное место для новых значений палитры/шкалы
+
+If a changed file under UI-слоя (`app/`, `features/**/ui/`, `src/ui/`) contains a **new or modified** hardcoded:
+
+- **цвет**: `#[0-9A-Fa-f]{3,8}`, `rgb(`, `rgba(` в `*.tsx`, `*.styles.ts` (кроме `tokens.ts`),
+- **отступ**: `padding*`, `margin*`, `gap` с числом не из `spacing.*` (например `padding: 20`, `marginTop: 12`),
+- **радиус**: `borderRadius: N` не из `radii.*`,
+- **touch**: `minHeight` / `minWidth` на Pressable/Button < `touchMin` или magic 48 вместо `touchMin`,
+- **типографика**: новый набор `fontSize` + `fontWeight` вместо spread `typography.*`,
+
+then:
+
+- Add a **blocking** finding: «Используй tokens из `@/theme/tokens` (и `useThemeColors` для цветов)».
+- Укажи конкретный token: `spacing.md`, `radii.sm`, `c.accent`, `typography.body`.
+
+If the same hex/spacing value already exists in `tokens.ts` but компонент дублирует литерал:
+
+- Add a **blocking** finding с именем существующего token.
+
+- Минимальная зона нажатия — `touchMin` (48dp) для интерактивных элементов.
 - Избегай резких анимаций; предпочитай fade/мягкие переходы.
 
 ---
