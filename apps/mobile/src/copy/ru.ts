@@ -36,9 +36,15 @@ export const copy = {
   },
   home: {
     screenTitle: 'Дом',
-    defaultTitle: 'Дом в порядке',
-    awayTitle: 'Дом ждёт тебя',
-    guestsTitle: 'Гости у нас',
+    lifeStateTitles: {
+      morning: 'Доброе утро',
+      evening: 'Спокойный вечер',
+      sleep: 'Время отдыха',
+      work: 'Рабочий ритм',
+      rest: 'Дом в порядке',
+      guests: 'Гости у нас',
+      away: 'Дом ждёт тебя',
+    },
   },
   connection: {
     offline: 'Дом сейчас недоступен. Проверь сеть или URL.',

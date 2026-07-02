@@ -1,6 +1,9 @@
 import {
   HA_ENTITIES,
-  type IHaScenarioParamEntities,
+  SCENARIO_ID_TO_HA_ENTITY_KEY,
+  type IScenarioHaParams,
+  type TScenarioHaEntityKey,
+  type TScenarioHaParamKey,
 } from '@/config/scenarioHaMapping';
 import { SCENARIO_DEFINITIONS } from '@/config/scenarios';
 import { getScenarioFieldDefinitions } from '@/config/scenarioSettingsFields';
@@ -15,22 +18,11 @@ import {
 } from '@/domain/scenarioWeeklySchedule';
 import type { IHaEntityState } from '@/ha/types';
 
-/** Маппинг id сценария → ключ в HA_ENTITIES.scenarioParams */
-const SCENARIO_ID_TO_PARAMS_KEY: Record<string, keyof IHaScenarioParamEntities> = {
-  evening: 'evening',
-  sleep: 'sleep',
-  morning: 'morning',
-  away: 'away',
-  coming_home: 'comingHome',
-  cozy: 'cozy',
-  focus: 'focus',
-};
+function resolveParamsKey(scenarioId: string): TScenarioHaEntityKey | undefined {
+  return SCENARIO_ID_TO_HA_ENTITY_KEY[scenarioId];
+}
 
 const SCHEDULE_FIELD_KEY = 'scheduleConfig';
-
-function resolveParamsKey(scenarioId: string): keyof IHaScenarioParamEntities | undefined {
-  return SCENARIO_ID_TO_PARAMS_KEY[scenarioId];
-}
 
 function getStateMap(states: IHaEntityState[]): Map<string, IHaEntityState> {
   return new Map(states.map((s) => [s.entityId, s]));
@@ -90,7 +82,7 @@ export function collectScenarioScheduleEntityIds(): string[] {
 }
 
 function mapWeeklyScheduleFromStates(
-  params: (typeof HA_ENTITIES.scenarioParams)[keyof typeof HA_ENTITIES.scenarioParams],
+  params: IScenarioHaParams,
   stateMap: Map<string, IHaEntityState>,
   defaultScheduleTime: string,
 ): IScenarioWeeklySchedule {
@@ -120,8 +112,8 @@ export function getScenarioFieldEntityId(
 ): string | undefined {
   const paramsKey = resolveParamsKey(scenarioId);
   if (!paramsKey) return undefined;
-  const params = HA_ENTITIES.scenarioParams[paramsKey] as unknown as Record<string, string>;
-  return params[fieldKey];
+  const params = HA_ENTITIES.scenarioParams[paramsKey];
+  return params[fieldKey as TScenarioHaParamKey];
 }
 
 /** Маппинг HA states → настройки сценария */

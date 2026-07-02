@@ -5,7 +5,6 @@ import {
   createUniformWeeklySchedule,
   findNextScheduleRun,
   parseWeeklyScheduleJson,
-  patchWeekdaySchedule,
   serializeWeeklyScheduleJson,
 } from '@/domain/scenarioWeeklySchedule';
 

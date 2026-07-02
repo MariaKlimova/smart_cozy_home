@@ -41,117 +41,54 @@ export interface IHaSystemEntities {
   sun: string;
 }
 
+/** Ключ сценария в HA_ENTITIES.scripts и .scenarioParams */
+export type TScenarioHaEntityKey =
+  | 'evening'
+  | 'sleep'
+  | 'morning'
+  | 'away'
+  | 'comingHome'
+  | 'cozy'
+  | 'focus';
+
+/** id сценария в приложении → ключ в HA_ENTITIES */
+export const SCENARIO_ID_TO_HA_ENTITY_KEY: Record<string, TScenarioHaEntityKey> = {
+  evening: 'evening',
+  sleep: 'sleep',
+  morning: 'morning',
+  away: 'away',
+  coming_home: 'comingHome',
+  cozy: 'cozy',
+  focus: 'focus',
+};
+
 /** Scripts сценариев */
-export interface IHaScriptEntities {
-  /** script.evening */
-  evening: string;
-  /** script.sleep */
-  sleep: string;
-  /** script.morning */
-  morning: string;
-  /** script.away */
-  away: string;
-  /** script.coming_home */
-  comingHome: string;
-  /** script.cozy */
-  cozy: string;
-  /** script.focus */
-  focus: string;
-}
+export type IHaScriptEntities = Record<TScenarioHaEntityKey, string>;
 
-/** Параметры сценария «Вечер» */
-export interface IEveningScenarioParams {
-  /** Яркость, % */
-  brightness: string;
-  /** Температура, °C */
-  temperature: string;
-  /** Закрывать шторы */
-  curtains: string;
-  /** Включать увлажнитель */
-  humidifier: string;
+/** Ключи helpers параметров сценария в HA */
+export type TScenarioHaParamKey =
+  | 'brightness'
+  | 'temperature'
+  | 'curtains'
+  | 'humidifier'
+  | 'window'
+  | 'warmupMinutes'
+  | 'minutes'
+  | 'scheduleConfig';
+
+/**
+ * Entity_id helpers одного сценария.
+ * У каждого сценария свой поднабор ключей из {@link TScenarioHaParamKey}.
+ */
+export interface IScenarioHaParams {
   /** JSON расписание по дням недели */
   scheduleConfig: string;
-}
-
-/** Параметры сценария «Сон» */
-export interface ISleepScenarioParams {
-  /** Ночная температура */
-  temperature: string;
-  /** Открывать окно */
-  window: string;
-  /** JSON расписание по дням недели */
-  scheduleConfig: string;
-}
-
-/** Параметры сценария «Утро» */
-export interface IMorningScenarioParams {
-  /** Яркость */
-  brightness: string;
-  /** Минуты плавного пробуждения */
-  warmupMinutes: string;
-  /** JSON расписание по дням недели */
-  scheduleConfig: string;
-}
-
-/** Параметры сценария «Уехали» */
-export interface IAwayScenarioParams {
-  /** Температура при отъезде */
-  temperature: string;
-  /** Закрывать шторы */
-  curtains: string;
-  /** JSON расписание по дням недели */
-  scheduleConfig: string;
-}
-
-/** Параметры сценария «Еду домой» */
-export interface IComingHomeScenarioParams {
-  /** За сколько минут нажать */
-  minutes: string;
-  /** Температура встречи */
-  temperature: string;
-  /** Яркость встречи */
-  brightness: string;
-  /** JSON расписание по дням недели */
-  scheduleConfig: string;
-}
-
-/** Параметры сценария «Уют» */
-export interface ICozyScenarioParams {
-  /** Яркость */
-  brightness: string;
-  /** Температура */
-  temperature: string;
-  /** JSON расписание по дням недели */
-  scheduleConfig: string;
-}
-
-/** Параметры сценария «Фокус» */
-export interface IFocusScenarioParams {
-  /** Яркость */
-  brightness: string;
-  /** Температура */
-  temperature: string;
-  /** JSON расписание по дням недели */
-  scheduleConfig: string;
+  /** Entity_id остальных helpers сценария */
+  [paramKey: string]: string;
 }
 
 /** Helpers параметров всех сценариев */
-export interface IHaScenarioParamEntities {
-  /** Вечер */
-  evening: IEveningScenarioParams;
-  /** Сон */
-  sleep: ISleepScenarioParams;
-  /** Утро */
-  morning: IMorningScenarioParams;
-  /** Уехали */
-  away: IAwayScenarioParams;
-  /** Еду домой */
-  comingHome: IComingHomeScenarioParams;
-  /** Уют */
-  cozy: ICozyScenarioParams;
-  /** Фокус */
-  focus: IFocusScenarioParams;
-}
+export type IHaScenarioParamEntities = Record<TScenarioHaEntityKey, IScenarioHaParams>;
 
 /** Полный контракт entity_id HA ↔ приложение */
 export interface IHaEntities {
