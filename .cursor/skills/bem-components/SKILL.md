@@ -20,17 +20,21 @@ description: >-
 
 ---
 
-## Папка компонента (обязательно)
+## Папка компонента
 
-Каждый **блок** и каждый **элемент** — отдельная папка с **пятью файлами**:
+Каждый **блок** и каждый **элемент** — отдельная папка. Минимум: `.tsx` + `index.ts` (и `.styles.ts`, если есть стили).
 
-| Файл | Содержимое |
-|------|------------|
-| `BlockName.tsx` | Разметка и логика компонента (`function BlockName()`). **Без** `StyleSheet.create` и без «магических» строк — только импорты. |
-| `BlockName.typings.ts` | `IBlockNameProps`, локальные типы/union. JSDoc на каждом поле публичного `interface`. |
-| `BlockName.styles.ts` | `StyleSheet.create({ ... })`, экспорт `styles`. Цвета/отступы — через `useThemeColors` в tsx или параметры стилей, не дублировать tokens вручную без причины. |
-| `BlockName.const.ts` | Локальные константы: `testID`, длительности анимаций, пороги, ключи. Если пока нет — файл всё равно создаётся с комментарием `/** Локальные константы блока */` и минимальным экспортом (например `export const BLOCK_NAME = 'BlockName' as const` для testID). |
-| `index.ts` | Публичный реэкспорт: `export { BlockName } from './BlockName'`; типы — `export type { IBlockNameProps } from './BlockName.typings'`. |
+**Рекомендуемая** пятёрка — когда компонент нетривиальный (пропсы, стили, константы, публичный API):
+
+| Файл | Когда нужен |
+|------|-------------|
+| `BlockName.tsx` | Всегда — разметка и логика. **Без** `StyleSheet.create` и без user-visible строк — только импорты. |
+| `BlockName.typings.ts` | Есть пропсы / локальные типы |
+| `BlockName.styles.ts` | Есть `StyleSheet` |
+| `BlockName.const.ts` | Есть testID, пороги, длительности анимаций |
+| `index.ts` | Всегда — публичный реэкспорт |
+
+**Не создавай пустые файлы «для галочки»** — мелкий внутренний элемент (например, одна ячейка скелетона) может жить в одном `.tsx` внутри `-Skeleton/`.
 
 Импорты внутри папки — относительные (`./BlockName.styles`).
 
@@ -52,7 +56,7 @@ import { CalmButton } from '@/ui/CalmButton';
 
 ## Элемент
 
-Та же схема пяти файлов, что у блока.
+Та же логика: отдельная папка, файлы по необходимости (см. таблицу выше).
 
 - **Папка:** `BlockName-ElementName/` или внутри блока `-ElementName/`
 - **Файлы:** `BlockName-ElementName.tsx`, `.typings.ts`, `.styles.ts`, `.const.ts`, `index.ts`
@@ -76,10 +80,10 @@ import { HomeStateCardHint } from './-Hint';
 ## Чеклист (новый компонент)
 
 - [ ] Папка PascalCase в `src/ui` или `src/features/*/ui`
-- [ ] Пять файлов: `.tsx`, `.typings.ts`, `.styles.ts`, `.const.ts`, `index.ts`
-- [ ] `IBlockNameProps` + JSDoc на полях
-- [ ] Стили только в `.styles.ts`
-- [ ] Константы только в `.const.ts`
+- [ ] `.tsx` + `index.ts`; `.typings.ts` / `.styles.ts` / `.const.ts` — по необходимости
+- [ ] `IBlockNameProps` + JSDoc на полях (если есть typings)
+- [ ] Стили только в `.styles.ts` (если есть стили)
+- [ ] Константы в `.const.ts` (если есть)
 - [ ] Публичный API только через `index.ts`
 - [ ] Элементы не экспортируются для других фич
 
@@ -89,4 +93,4 @@ import { HomeStateCardHint } from './-Hint';
 
 ## Миграция legacy
 
-Существующие блоки без `.styles.ts` / `.const.ts` — при любом касании компонента довести до полной пятёрки файлов.
+Существующие блоки без `.styles.ts` / `.const.ts` — при касании компонента выноси стили и константы, если они появились; полная пятёрка не обязательна для мелких элементов.

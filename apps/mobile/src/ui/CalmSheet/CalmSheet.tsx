@@ -28,7 +28,7 @@ import {
 import type { ICalmSheetProps } from './CalmSheet.typings';
 import { styles } from './CalmSheet.styles';
 
-export function CalmSheet({ visible, title, subtitle, onClose, children }: ICalmSheetProps) {
+export function CalmSheet({ visible, title, subtitle, titleStyle, onClose, children }: ICalmSheetProps) {
   const c = useThemeColors();
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
@@ -118,7 +118,7 @@ export function CalmSheet({ visible, title, subtitle, onClose, children }: ICalm
             <View style={[styles.handle, { backgroundColor: c.border }]} />
           </View>
 
-          <Text style={[typography.subtitle, styles.title, { color: c.text }]}>{title}</Text>
+          <Text style={[typography.subtitle, styles.title, titleStyle, { color: c.text }]}>{title}</Text>
           {subtitle ? (
             <Text style={[typography.caption, styles.subtitle, { color: c.textMuted }]}>
               {subtitle}

@@ -1,4 +1,5 @@
 import { runMockScript } from '@/ha/mockScriptRunner';
+import type { IHaHistoryState } from '@/ha/haHistory.typings';
 import {
   applyMockHaService,
   getAllMockEntityStates,
@@ -305,12 +306,33 @@ export async function fetchLogbook(
   token: string,
   entityIds: string[],
 ): Promise<{ when: string; name: string; message: string; entity_id?: string }[]> {
+  const end = new Date();
+  const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
+  return fetchLogbookRange(baseUrl, token, entityIds, start, end);
+}
+
+export interface THaLogbookEntry {
+  /** ISO-время события */
+  when: string;
+  /** Отображаемое имя */
+  name: string;
+  /** Текст сообщения */
+  message: string;
+  /** entity_id источника события */
+  entity_id?: string;
+}
+
+export async function fetchLogbookRange(
+  baseUrl: string,
+  token: string,
+  entityIds: string[],
+  start: Date,
+  end: Date,
+): Promise<THaLogbookEntry[]> {
   if (USE_HA_MOCKS) {
     return [];
   }
 
-  const end = new Date();
-  const start = new Date(end.getTime() - 24 * 60 * 60 * 1000);
   const params = new URLSearchParams({
     end_time: end.toISOString(),
     start_time: start.toISOString(),
@@ -326,4 +348,44 @@ export async function fetchLogbook(
     return [];
   }
   return res.json();
+}
+
+export async function fetchHistoryPeriod(
+  baseUrl: string,
+  token: string,
+  entityIds: string[],
+  start: Date,
+  end: Date,
+): Promise<IHaHistoryState[][]> {
+  if (USE_HA_MOCKS) {
+    return [];
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+  try {
+    const params = new URLSearchParams({
+      end_time: end.toISOString(),
+    });
+    for (const id of entityIds) {
+      params.append('filter_entity_id', id);
+    }
+
+    const res = await fetch(
+      `${baseUrl}/api/history/period/${encodeURIComponent(start.toISOString())}?${params.toString()}`,
+      {
+        headers: authHeaders(token),
+        signal: controller.signal,
+      },
+    );
+
+    if (!res.ok) {
+      throw new Error(`HA history failed: ${res.status}`);
+    }
+
+    return res.json();
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }

@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "NODE_ENV=test node --import tsx --test src/ha/mappers/mapBedroomDevices.test.ts src/ha/mappers/mapScenarioSettings.test.ts src/domain/scenarioWeeklySchedule.test.ts src/domain/bedroomDeviceControl.test.ts src/domain/mockRoomPhysics.test.ts src/ha/mockScriptRunner.test.ts src/ha/mockSleepMaintainer.test.ts src/features/now/lib/parseSunEvent.test.ts src/features/settings/lib/devicePickerFilters.test.ts src/features/now/lib/getContextualScenarioId.test.ts src/features/scenarios/lib/scenarioFieldLabels.test.ts src/features/scenarios/lib/scenarioSettingsSchedule.test.ts"
+    "test": "NODE_ENV=test node --import tsx --test src/ha/mappers/mapBedroomDevices.test.ts src/ha/mappers/mapScenarioSettings.test.ts src/domain/scenarioWeeklySchedule.test.ts src/domain/sleepNightWindows.test.ts src/domain/bedroomDeviceControl.test.ts src/domain/mockRoomPhysics.test.ts src/ha/mockScriptRunner.test.ts src/ha/mockSleepMaintainer.test.ts src/features/now/lib/parseSunEvent.test.ts src/features/settings/lib/devicePickerFilters.test.ts src/features/now/lib/getContextualScenarioId.test.ts src/features/scenarios/lib/scenarioFieldLabels.test.ts src/features/scenarios/lib/scenarioSettingsSchedule.test.ts src/features/sleep/lib/scoreSleepNight.test.ts src/features/sleep/lib/computeMetricNormPercent.test.ts src/features/sleep/lib/buildSleepMetricChartData.test.ts src/features/sleep/lib/formatSleepWeekRange.test.ts src/features/sleep/lib/formatSleepNightTitle.test.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -35,6 +35,7 @@
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.5.1",
     "yaml": "^2.9.0",
