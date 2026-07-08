@@ -125,8 +125,7 @@ BUGBOT.md.
 
 ### UI / БЭМ (blocking / recommendation)
 
-- Папка PascalCase с пятёркой файлов: `.tsx`, `.typings.ts`, `.styles.ts`,
-  `.const.ts`, `index.ts`
+- Папка PascalCase; минимум `.tsx` + `index.ts`; `.typings.ts` / `.styles.ts` / `.const.ts` — по необходимости (skill `bem-components`)
 - `StyleSheet.create` только в `*.styles.ts`
 - Импорт снаружи — только из `index.ts`
 

@@ -66,7 +66,7 @@ When reviewing `apps/mobile/src/ui/**` or `apps/mobile/src/features/**/ui/**`:
 Правила:
 
 - Импорт снаружи — только из `index.ts` папки (`@/ui/BlockName`, не из `.tsx` напрямую).
-- Элементы: папка `BlockName-ElementName/` или `-ElementName/`, та же пятёрка файлов; снаружи родительского блока не экспортируются.
+- Элементы: папка `BlockName-ElementName/` или `-ElementName/`; файлы по необходимости (skill `bem-components`); снаружи родительского блока не экспортируются.
 
 If a new or changed component is a single `.tsx` file without its own folder:
 
@@ -80,9 +80,13 @@ If component-local string/number literals (testID, durations, labels not from `s
 
 - Add a non-blocking finding: «Константы — в BlockName.const.ts».
 
-If a folder is missing `index.ts`, `.typings.ts`, `.styles.ts`, or `.const.ts`:
+If a folder is missing optional files (`.typings.ts`, `.styles.ts`, `.const.ts`) but компонент простой и без соответствующей логики:
 
-- Add a **blocking** finding with the list of missing files.
+- Do **not** add a blocking finding — пятёрка рекомендуемая, не обязательная (skill `bem-components`).
+
+If a folder is missing `index.ts` or `.tsx`:
+
+- Add a **blocking** finding.
 
 If a new UI component is placed directly in `app/` with substantial markup instead of `src/features/*/ui/` or `src/ui/`:
 

@@ -10,6 +10,7 @@ export const colors = {
     border: '#E5DFD8',
     success: '#7A9E7E',
     warning: '#C4A35A',
+    danger: '#B87070',
   },
   dark: {
     background: '#1E1C1A',
@@ -22,6 +23,7 @@ export const colors = {
     border: '#3D3834',
     success: '#8FB393',
     warning: '#D4B86A',
+    danger: '#C88484',
   },
 } as const;
 

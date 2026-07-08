@@ -1,6 +1,7 @@
 export const copy = {
   common: {
     done: 'Готово',
+    loadingA11y: 'Загрузка…',
   },
   units: {
     minutesShort: 'мин',
@@ -128,6 +129,53 @@ export const copy = {
   timeline: {
     sectionTitle: 'День дома',
     empty: 'Пока тихо — событий нет',
+  },
+  sleep: {
+    screenTitle: 'Сон',
+    sectionTitle: 'Качество среды за неделю',
+    legendGood: 'Всё в норме',
+    legendFair: 'Были отклонения',
+    legendPoor: 'Заметные отклонения',
+    legendNoData: 'Нет данных',
+    weekNavOlderA11y: 'Предыдущая неделя',
+    weekNavNewerA11y: 'Следующая неделя',
+    nightCellA11y: '{weekday}, ночь',
+    nightDetailTitle: 'Ночь',
+    nightDetailEmpty: 'Недостаточно данных за эту ночь',
+    metricTabs: {
+      co2: 'CO₂',
+      temperature: 'Температура',
+      humidity: 'Влажность',
+    },
+    metricInsights: {
+      co2: 'CO₂ был в норме {percent}% ночи',
+      temperature: 'Температура была комфортной {percent}% ночи',
+      humidity: 'Влажность была в норме {percent}% ночи',
+    },
+    noDataCell: '—',
+    monthsShort: ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
+    emptyWeek: 'Пока нет данных за эту неделю',
+    offlineHint: 'Подключи дом — тогда увидишь, как прошли ночи',
+    noSensorsHint: 'Настрой датчики в спальне — тогда появится история среды',
+    metrics: {
+      co2Range: 'CO₂ за ночь',
+      tempAvg: 'Средняя температура',
+      humidityAvg: 'Средняя влажность',
+      ppmUnit: 'ppm',
+    },
+    scoreGood: 'Среда была комфортной',
+    scoreFair: 'Были небольшие отклонения',
+    scorePoor: 'Среда мешала отдыху',
+    scoreNoData: 'Данных за эту ночь нет',
+    nightSummaryOpenLabel: 'Подробнее',
+    nightSummaryOpenA11y: 'Подробнее о ночи',
+    nightSummarySheetEmpty: 'Дополнительных данных за эту ночь нет',
+    issues: {
+      co2High: 'Воздух был душным — CO₂ поднимался выше нормы',
+      tempHigh: 'В спальне было жарковато',
+      tempLow: 'В спальне было прохладно',
+      humidityLow: 'Воздух был слишком сухим',
+    },
   },
   settings: {
     screenTitle: 'Настройки',

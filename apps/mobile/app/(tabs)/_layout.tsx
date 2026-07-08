@@ -43,10 +43,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="timeline"
+        name="sleep"
         options={{
-          title: copy.timeline.sectionTitle,
-          tabBarIcon: ({ color }) => <TabBarIcon name="clock-o" color={color} />,
+          title: copy.sleep.screenTitle,
+          tabBarIcon: ({ color }) => <TabBarIcon name="moon-o" color={color} />,
         }}
       />
       <Tabs.Screen

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { StyleProp, TextStyle } from 'react-native';
 
 export interface ICalmSheetProps {
   /** Видимость sheet */
@@ -7,6 +8,8 @@ export interface ICalmSheetProps {
   title: string;
   /** Подзаголовок под title */
   subtitle?: string;
+  /** Дополнительный стиль заголовка */
+  titleStyle?: StyleProp<TextStyle>;
   /** Закрыть sheet */
   onClose: () => void;
   /** Содержимое */
