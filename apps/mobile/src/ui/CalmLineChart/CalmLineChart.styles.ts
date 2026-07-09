@@ -14,6 +14,10 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: 'hidden',
   },
+  chartEmbedded: {
+    width: '100%',
+    overflow: 'hidden',
+  },
   empty: {
     alignItems: 'center',
     justifyContent: 'center',

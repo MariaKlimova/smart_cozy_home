@@ -1,3 +1,8 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const healthPermissions = require('./healthPermissions.js') as {
+  shareUsageDescription: string;
+};
+
 export const copy = {
   common: {
     done: 'Готово',
@@ -176,6 +181,32 @@ export const copy = {
       tempLow: 'В спальне было прохладно',
       humidityLow: 'Воздух был слишком сухим',
     },
+    wearableUnavailable: 'Данные о сне с телефона доступны только на iPhone',
+    wearableDenied: 'Нет доступа к данным о сне — разреши в настройках Здоровья',
+    wearableNoData:
+      'В Здоровье нет сна за эту ночь — проверь, что часы синхронизировались',
+    wearableLoadError: 'Не удалось загрузить сон с часов — попробуй ещё раз',
+    wearableLoading: 'Загружаем сон с часов…',
+    wearableSectionTitle: 'Трекер',
+    wearableOpenSettings: 'Открыть настройки',
+    wearableOpenHealth: 'Открыть Здоровье',
+    wearableBedtimeLabel: 'Засыпание — подъём',
+    wearableTotalSleepLabel: 'Всего сна',
+    wearableQualityLabel: 'Качество сна',
+    wearableQualityExcellent: 'Отличный',
+    wearableQualityGood: 'Хороший',
+    wearableQualityFair: 'Нормальный',
+    wearableQualityPoor: 'Прерывистый',
+    wearableQualityValue: '{score} · {label}',
+    wearableSleepNorm: 'Норма 7–9 ч',
+    wearableBedtimeSeparator: ' – ',
+    roomConditionsTitle: 'Условия в комнате',
+    wearableDurationHoursMinutes: '{hours} ч {minutes} мин',
+    wearableDurationHoursOnly: '{hours} ч',
+    wearableDurationMinutesOnly: '{minutes} мин',
+  },
+  health: {
+    shareUsageDescription: healthPermissions.shareUsageDescription,
   },
   settings: {
     screenTitle: 'Настройки',

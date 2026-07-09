@@ -8,9 +8,9 @@ export type TSleepNightIssueKey = 'co2High' | 'tempHigh' | 'tempLow' | 'humidity
 
 /** Временное окно одной ночи */
 export interface ISleepNightWindow {
-  /** Дата начала ночи (вечер), YYYY-MM-DD */
+  /** Дата пробуждения (утро), YYYY-MM-DD */
   nightDate: string;
-  /** День недели вечера */
+  /** День недели пробуждения */
   weekdayId: TWeekdayId;
   /** Начало ночи (вечерний сценарий или фоллбек) */
   startAt: Date;

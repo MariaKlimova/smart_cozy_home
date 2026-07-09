@@ -1,3 +1,5 @@
+import type { IConnectionProfile } from '@/domain/connection.typings';
+
 import { canUseHaBackend } from '@/ha/haClient';
 
 /** Base URL mock-store, когда профиль HA не задан */
@@ -5,6 +7,15 @@ export const MOCK_HA_BASE_URL = 'mock://ha';
 
 /** Токен-заглушка для mock-store */
 export const MOCK_HA_TOKEN = 'mock-token';
+
+/** Профиль-заглушка для mock-режима без onboarding */
+export const MOCK_CONNECTION_PROFILE: IConnectionProfile = {
+  id: 'mock',
+  name: 'Дом (мок)',
+  localUrl: MOCK_HA_BASE_URL,
+  accessToken: MOCK_HA_TOKEN,
+  preferred: 'local',
+};
 
 /** Контекст для REST-вызовов HA (реальный профиль или mock) */
 export interface IHaBackendContext {

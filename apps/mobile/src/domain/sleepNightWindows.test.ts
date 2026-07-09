@@ -21,6 +21,22 @@ describe('sleepNightWindows', () => {
     assert.equal(windows[0].hasScenarioData, false);
   });
 
+  it('привязывает ночь к дате пробуждения', () => {
+    const weekEnd = new Date('2026-07-08T12:00:00');
+    const windows = resolveNightWindows({
+      weekEnd,
+      logbookEntries: [],
+      eveningEntityId: 'script.evening',
+      morningEntityId: 'script.morning',
+    });
+
+    const today = windows.find((window) => window.nightDate === '2026-07-08');
+    assert.ok(today);
+    assert.equal(today.weekdayId, 'wed');
+    assert.equal(today.startAt.getDate(), 7);
+    assert.equal(today.endAt.getDate(), 8);
+  });
+
   it('uses logbook runs when available', () => {
     const weekEnd = new Date('2026-07-02T12:00:00');
     const windows = resolveNightWindows({
@@ -33,11 +49,12 @@ describe('sleepNightWindows', () => {
       morningEntityId: 'script.morning',
     });
 
-    const target = windows.find((window) => window.nightDate === '2026-07-01');
+    const target = windows.find((window) => window.nightDate === '2026-07-02');
     assert.ok(target);
     assert.equal(target.hasScenarioData, true);
     assert.equal(target.startAt.toISOString(), new Date('2026-07-01T22:15:00').toISOString());
     assert.equal(target.endAt.toISOString(), new Date('2026-07-02T07:45:00').toISOString());
+    assert.equal(target.weekdayId, 'thu');
   });
 
   it('shifts week end by offset', () => {

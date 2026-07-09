@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { copy } from '@/copy/ru';
@@ -17,8 +17,9 @@ import {
   formatSleepNightMetrics,
   sleepScoreLabel,
 } from '@/features/sleep/lib/formatSleepNightSummary';
-import { sleepScoreEmoji, sleepScoreTextColor } from '@/features/sleep/lib/sleepScorePresentation';
+import { sleepScoreTextColor } from '@/features/sleep/lib/sleepScorePresentation';
 import { useSleepNightSamples } from '@/features/sleep/lib/useSleepNightSamples';
+import { useWearableSleepForNight } from '@/features/sleep/lib/useWearableSleepForNight';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { CalmLineChart } from '@/ui/CalmLineChart';
 import { CalmSegmented } from '@/ui/CalmSegmented';
@@ -26,7 +27,12 @@ import { typography } from '@/theme/tokens';
 
 import { SleepNightDetailSkeleton } from './-Skeleton';
 import { SleepNightDetailSummarySheet } from './-SummarySheet';
-import { SLEEP_NIGHT_DETAIL, SLEEP_NIGHT_DETAIL_DETAILS_HIT_SLOP, SLEEP_NIGHT_DETAIL_METRIC_OPTIONS } from './SleepNightDetail.const';
+import { SleepNightDetailWearable } from './-Wearable';
+import {
+  SLEEP_NIGHT_DETAIL,
+  SLEEP_NIGHT_DETAIL_DETAILS_HIT_SLOP,
+  SLEEP_NIGHT_DETAIL_METRIC_OPTIONS,
+} from './SleepNightDetail.const';
 import type { ISleepNightDetailProps } from './SleepNightDetail.typings';
 import { styles } from './SleepNightDetail.styles';
 
@@ -47,6 +53,13 @@ export function SleepNightDetail({ night, weekOffset }: ISleepNightDetailProps) 
   const { samples, isLoading, isFetching } = useSleepNightSamples({
     nightWindow: night.window,
     weekOffset,
+  });
+
+  const isWearableSupported = Platform.OS === 'ios';
+
+  const { wearable, isLoading: isWearableLoading } = useWearableSleepForNight({
+    nightWindow: night.window,
+    enabled: isWearableSupported,
   });
 
   const showSkeleton = isLoading || (isFetching && samples.length === 0);
@@ -81,6 +94,7 @@ export function SleepNightDetail({ night, weekOffset }: ISleepNightDetailProps) 
   const scoreSummary = sleepScoreLabel(night.score);
   const nightTitle = formatSleepNightDetailTitle(night.window.nightDate);
   const hasSummaryDetails = night.issues.length > 0 || metricItems.length > 0;
+  const showScoreBadge = night.score !== 'no_data';
 
   useEffect(() => {
     setIsSummaryOpen(false);
@@ -88,28 +102,62 @@ export function SleepNightDetail({ night, weekOffset }: ISleepNightDetailProps) 
 
   return (
     <View style={styles.container} testID={SLEEP_NIGHT_DETAIL}>
+      <View style={styles.nightHeader}>
+        <Text style={[typography.subtitle, styles.nightTitle, { color: c.text }]}>{nightTitle}</Text>
+        <FontAwesome name="moon-o" size={22} color={c.warning} />
+      </View>
+
       {showSkeleton ? (
-        <>
-          <View style={styles.headerSection}>
-            <Text style={[typography.title, { color: c.text }]}>{nightTitle}</Text>
-          </View>
+        <View style={[styles.nightCard, { backgroundColor: c.surface }]}>
           <SleepNightDetailSkeleton />
-        </>
+        </View>
       ) : (
         <>
-          <View style={styles.headerSection}>
-            <Text style={[typography.title, { color: c.text }]}>{nightTitle}</Text>
+          <View style={[styles.nightCard, { backgroundColor: c.surface }]}>
+            {showScoreBadge ? (
+              <View style={[styles.scoreBadge, { backgroundColor: c.accentMuted }]}>
+                <Text
+                  style={[
+                    typography.caption,
+                    styles.scoreBadgeText,
+                    { color: sleepScoreTextColor(night.score, c) },
+                  ]}
+                >
+                  {scoreSummary}
+                </Text>
+              </View>
+            ) : null}
 
-            <View style={styles.scoreRow}>
-              <Text
-                style={[
-                  typography.body,
-                  styles.scoreSummary,
-                  { color: sleepScoreTextColor(night.score, c) },
-                ]}
-              >
-                {`${sleepScoreEmoji(night.score)}${scoreSummary}`}
+            {isWearableSupported ? (
+              <SleepNightDetailWearable wearable={wearable} isLoading={isWearableLoading} />
+            ) : null}
+          </View>
+
+          <View style={styles.roomSection}>
+            <Text style={[typography.subtitle, { color: c.text }]}>
+              {copy.sleep.roomConditionsTitle}
+            </Text>
+
+            <View style={[styles.roomCard, { backgroundColor: c.surface }]}>
+              <Text style={[typography.body, styles.insight, { color: c.textMuted }]}>
+                {formatInsight(activeMetric, insightPercent)}
               </Text>
+
+              <CalmSegmented
+                options={metricOptions}
+                value={activeMetric}
+                onValueChange={(value) => setActiveMetric(value as TSleepMetricId)}
+              />
+
+              <CalmLineChart
+                points={chartPoints}
+                normBand={normBand}
+                yDomain={yDomain}
+                xLabels={xLabels}
+                unit={getSleepMetricUnit(activeMetric)}
+                emptyMessage={copy.sleep.nightDetailEmpty}
+                embedded
+              />
 
               {hasSummaryDetails ? (
                 <Pressable
@@ -129,27 +177,6 @@ export function SleepNightDetail({ night, weekOffset }: ISleepNightDetailProps) 
                 </Pressable>
               ) : null}
             </View>
-          </View>
-
-          <View style={styles.contentSection}>
-            <Text style={[typography.body, styles.insight, { color: c.text }]}>
-              {formatInsight(activeMetric, insightPercent)}
-            </Text>
-
-            <CalmSegmented
-              options={metricOptions}
-              value={activeMetric}
-              onValueChange={(value) => setActiveMetric(value as TSleepMetricId)}
-            />
-
-            <CalmLineChart
-              points={chartPoints}
-              normBand={normBand}
-              yDomain={yDomain}
-              xLabels={xLabels}
-              unit={getSleepMetricUnit(activeMetric)}
-              emptyMessage={copy.sleep.nightDetailEmpty}
-            />
           </View>
         </>
       )}
