@@ -1,12 +1,17 @@
 import { create } from 'zustand';
 
+import type { IConnectionProfile } from '@/domain/connection.typings';
 import {
   clearConnectionProfile,
   loadConnectionProfile,
   saveConnectionProfile,
 } from '@/ha/connectionStorage';
 import { resolveActiveBaseUrl } from '@/ha/connectionManager';
-import type { IConnectionProfile } from '@/ha/types';
+import {
+  MOCK_CONNECTION_PROFILE,
+  MOCK_HA_BASE_URL,
+} from '@/ha/haBackend';
+import { USE_HA_MOCKS } from '@/ha/haClient';
 
 interface IConnectionStore {
   /** Профиль из secure storage */
@@ -29,6 +34,26 @@ interface IConnectionStore {
   disconnect: () => Promise<void>;
 }
 
+interface IMockConnectionState {
+  /** Профиль для UI */
+  profile: IConnectionProfile;
+  /** Mock base URL */
+  baseUrl: string;
+  /** Подключение считается активным */
+  isConnected: boolean;
+  /** Ошибок нет */
+  error: null;
+}
+
+function resolveMockConnection(profile: IConnectionProfile | null): IMockConnectionState {
+  return {
+    profile: profile ?? MOCK_CONNECTION_PROFILE,
+    baseUrl: MOCK_HA_BASE_URL,
+    isConnected: true,
+    error: null,
+  };
+}
+
 let hydratePromise: Promise<void> | null = null;
 
 export const useConnectionStore = create<IConnectionStore>((set) => ({
@@ -46,6 +71,17 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
       set({ isLoading: true, error: null });
       try {
         const profile = await loadConnectionProfile();
+
+        if (USE_HA_MOCKS) {
+          const mockState = resolveMockConnection(profile);
+          set({
+            ...mockState,
+            isLoading: false,
+            hasHydrated: true,
+          });
+          return;
+        }
+
         if (!profile) {
           set({
             profile: null,
@@ -57,6 +93,7 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
           });
           return;
         }
+
         const health = await resolveActiveBaseUrl(profile);
         set({
           profile,
@@ -84,6 +121,16 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
   connect: async (profile) => {
     set({ isLoading: true, error: null });
     try {
+      if (USE_HA_MOCKS) {
+        const mockState = resolveMockConnection(profile);
+        set({
+          ...mockState,
+          isLoading: false,
+          hasHydrated: true,
+        });
+        return;
+      }
+
       await saveConnectionProfile(profile);
       const health = await resolveActiveBaseUrl(profile);
       set({
@@ -105,7 +152,9 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
   },
 
   disconnect: async () => {
-    await clearConnectionProfile();
+    if (!USE_HA_MOCKS) {
+      await clearConnectionProfile();
+    }
     hydratePromise = null;
     set({
       profile: null,
@@ -114,6 +163,9 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
       error: null,
       isLoading: false,
     });
+    if (USE_HA_MOCKS) {
+      void useConnectionStore.getState().hydrate();
+    }
   },
 }));
 

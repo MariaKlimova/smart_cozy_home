@@ -5,7 +5,6 @@ import Svg, {
   ClipPath,
   Defs,
   G,
-  Line,
   Path,
   Rect,
   Text as SvgText,
@@ -18,88 +17,26 @@ import {
   CALM_LINE_CHART,
   CALM_LINE_CHART_DEFAULT_HEIGHT,
   CALM_LINE_CHART_DOT_RADIUS,
-  CALM_LINE_CHART_GRID_LINES,
   CALM_LINE_CHART_LINE_WIDTH,
   CALM_LINE_CHART_MIN_POINTS,
   CALM_LINE_CHART_NORM_OPACITY,
   CALM_LINE_CHART_OUT_OF_NORM_OPACITY,
   CALM_LINE_CHART_PADDING,
   CALM_LINE_CHART_PLOT_BG_OPACITY,
+  CALM_LINE_CHART_PLOT_CLIP_ID,
   CALM_LINE_CHART_PLOT_RADIUS,
   CALM_LINE_CHART_AXIS_LABEL_FONT_SIZE,
   CALM_LINE_CHART_X_LABEL_BOTTOM_OFFSET,
 } from './CalmLineChart.const';
-import type { ICalmLineChartPoint, ICalmLineChartProps } from './CalmLineChart.typings';
+import type { ICalmLineChartProps } from './CalmLineChart.typings';
 import { styles } from './CalmLineChart.styles';
-
-const PLOT_CLIP_ID = 'calmLineChartPlotClip';
-
-function mapX(normalizedX: number, plotLeft: number, chartWidth: number): number {
-  return plotLeft + normalizedX * chartWidth;
-}
-
-function mapY(
-  value: number,
-  yDomainMin: number,
-  yDomainMax: number,
-  plotTop: number,
-  chartHeight: number,
-): number {
-  const range = yDomainMax - yDomainMin;
-  if (range === 0) {
-    return plotTop + chartHeight / 2;
-  }
-
-  const ratio = (value - yDomainMin) / range;
-  return plotTop + chartHeight - ratio * chartHeight;
-}
-
-function buildLinePath(
-  points: ICalmLineChartPoint[],
-  plotLeft: number,
-  chartWidth: number,
-  plotTop: number,
-  chartHeight: number,
-  yDomainMin: number,
-  yDomainMax: number,
-): string {
-  if (points.length === 0) {
-    return '';
-  }
-
-  return points
-    .map((point, index) => {
-      const x = mapX(point.x, plotLeft, chartWidth);
-      const y = mapY(point.y, yDomainMin, yDomainMax, plotTop, chartHeight);
-      const command = index === 0 ? 'M' : 'L';
-      return `${command}${x},${y}`;
-    })
-    .join(' ');
-}
-
-function formatYLabel(value: number, unit: string): string {
-  const rounded = String(Math.round(value));
-  if (unit === '°C') {
-    return `${rounded}°`;
-  }
-  if (unit === '%') {
-    return `${rounded}%`;
-  }
-  return rounded;
-}
-
-function getXLabelAnchor(
-  index: number,
-  total: number,
-): 'start' | 'middle' | 'end' {
-  if (index === 0) {
-    return 'start';
-  }
-  if (index === total - 1) {
-    return 'end';
-  }
-  return 'middle';
-}
+import {
+  buildLinePath,
+  formatYLabel,
+  getXLabelAnchor,
+  mapX,
+  mapY,
+} from './CalmLineChart.utils';
 
 export function CalmLineChart({
   points,
@@ -109,6 +46,7 @@ export function CalmLineChart({
   unit,
   height = CALM_LINE_CHART_DEFAULT_HEIGHT,
   emptyMessage,
+  embedded = false,
 }: ICalmLineChartProps) {
   const c = useThemeColors();
   const [containerWidth, setContainerWidth] = useState(0);
@@ -116,6 +54,10 @@ export function CalmLineChart({
   const handleLayout = (event: LayoutChangeEvent) => {
     setContainerWidth(event.nativeEvent.layout.width);
   };
+
+  const chartContainerStyle = embedded
+    ? styles.chartEmbedded
+    : [styles.chartCard, { borderColor: c.border, backgroundColor: c.surface }];
 
   const svgWidth = containerWidth > 0 ? containerWidth : 1;
   const plotLeft = CALM_LINE_CHART_PADDING.left;
@@ -127,21 +69,22 @@ export function CalmLineChart({
 
   const linePath = useMemo(
     () =>
-      buildLinePath(points, plotLeft, chartWidth, plotTop, chartHeight, yDomain.min, yDomain.max),
+      buildLinePath({
+        points,
+        plotLeft,
+        chartWidth,
+        plotTop,
+        chartHeight,
+        yDomainMin: yDomain.min,
+        yDomainMax: yDomain.max,
+      }),
     [chartHeight, chartWidth, plotLeft, plotTop, points, yDomain.max, yDomain.min],
   );
-
-  const gridLineYs = useMemo(() => {
-    return Array.from({ length: CALM_LINE_CHART_GRID_LINES }, (_, index) => {
-      const ratio = index / (CALM_LINE_CHART_GRID_LINES - 1);
-      return plotTop + chartHeight - ratio * chartHeight;
-    });
-  }, [chartHeight, plotTop]);
 
   if (containerWidth === 0) {
     return (
       <View
-        style={[styles.chartCard, { borderColor: c.border, backgroundColor: c.surface }]}
+        style={chartContainerStyle}
         onLayout={handleLayout}
         testID={CALM_LINE_CHART}
       />
@@ -151,7 +94,12 @@ export function CalmLineChart({
   if (points.length < CALM_LINE_CHART_MIN_POINTS) {
     return (
       <View
-        style={[styles.empty, styles.chartCard, { borderColor: c.border, backgroundColor: c.accentMuted }]}
+        style={[
+          styles.empty,
+          embedded ? styles.chartEmbedded : styles.chartCard,
+          embedded ? null : { borderColor: c.border },
+          { backgroundColor: embedded ? 'transparent' : c.accentMuted },
+        ]}
         onLayout={handleLayout}
         testID={CALM_LINE_CHART}
       >
@@ -170,8 +118,20 @@ export function CalmLineChart({
   if (normBand) {
     const normTopValue = normBand.max ?? yDomain.max;
     const normBottomValue = normBand.min ?? yDomain.min;
-    const topY = mapY(normTopValue, yDomain.min, yDomain.max, plotTop, chartHeight);
-    const bottomY = mapY(normBottomValue, yDomain.min, yDomain.max, plotTop, chartHeight);
+    const topY = mapY({
+      value: normTopValue,
+      yDomainMin: yDomain.min,
+      yDomainMax: yDomain.max,
+      plotTop,
+      chartHeight,
+    });
+    const bottomY = mapY({
+      value: normBottomValue,
+      yDomainMin: yDomain.min,
+      yDomainMax: yDomain.max,
+      plotTop,
+      chartHeight,
+    });
     normBandY = Math.min(topY, bottomY);
     normBandHeight = Math.abs(bottomY - topY);
     aboveNormHeight = Math.max(0, normBandY - plotTop);
@@ -182,13 +142,13 @@ export function CalmLineChart({
 
   return (
     <View
-      style={[styles.chartCard, { borderColor: c.border, backgroundColor: c.surface }]}
+      style={chartContainerStyle}
       onLayout={handleLayout}
       testID={CALM_LINE_CHART}
     >
       <Svg width={svgWidth} height={svgHeight}>
         <Defs>
-          <ClipPath id={PLOT_CLIP_ID}>
+          <ClipPath id={CALM_LINE_CHART_PLOT_CLIP_ID}>
             <Rect
               x={plotLeft}
               y={plotTop}
@@ -200,7 +160,7 @@ export function CalmLineChart({
           </ClipPath>
         </Defs>
 
-        <G clipPath={`url(#${PLOT_CLIP_ID})`}>
+        <G clipPath={`url(#${CALM_LINE_CHART_PLOT_CLIP_ID})`}>
           <Rect
             x={plotLeft}
             y={plotTop}
@@ -243,19 +203,6 @@ export function CalmLineChart({
             />
           ) : null}
 
-          {gridLineYs.map((y, index) => (
-            <Line
-              key={`grid-${index}`}
-              x1={plotLeft}
-              y1={y}
-              x2={plotLeft + chartWidth}
-              y2={y}
-              stroke={c.border}
-              strokeWidth={1}
-              opacity={0.65}
-            />
-          ))}
-
           <Path
             d={linePath}
             stroke={c.accent}
@@ -266,8 +213,14 @@ export function CalmLineChart({
           />
 
           {points.map((point, index) => {
-            const x = mapX(point.x, plotLeft, chartWidth);
-            const y = mapY(point.y, yDomain.min, yDomain.max, plotTop, chartHeight);
+            const x = mapX({ normalizedX: point.x, plotLeft, chartWidth });
+            const y = mapY({
+              value: point.y,
+              yDomainMin: yDomain.min,
+              yDomainMax: yDomain.max,
+              plotTop,
+              chartHeight,
+            });
 
             return (
               <Circle
@@ -287,23 +240,31 @@ export function CalmLineChart({
           <SvgText
             key={tick}
             x={plotLeft - spacing.sm}
-            y={mapY(tick, yDomain.min, yDomain.max, plotTop, chartHeight) + spacing.xs}
+            y={
+              mapY({
+                value: tick,
+                yDomainMin: yDomain.min,
+                yDomainMax: yDomain.max,
+                plotTop,
+                chartHeight,
+              }) + spacing.xs
+            }
             fontSize={CALM_LINE_CHART_AXIS_LABEL_FONT_SIZE}
             fill={c.textMuted}
             textAnchor="end"
           >
-            {formatYLabel(tick, unit)}
+            {formatYLabel({ value: tick, unit })}
           </SvgText>
         ))}
 
         {xLabels.map((label, index) => (
           <SvgText
             key={`${label.x}-${label.label}`}
-            x={mapX(label.x, plotLeft, chartWidth)}
+            x={mapX({ normalizedX: label.x, plotLeft, chartWidth })}
             y={svgHeight - CALM_LINE_CHART_X_LABEL_BOTTOM_OFFSET}
             fontSize={CALM_LINE_CHART_AXIS_LABEL_FONT_SIZE}
             fill={c.textMuted}
-            textAnchor={getXLabelAnchor(index, xLabels.length)}
+            textAnchor={getXLabelAnchor({ index, total: xLabels.length })}
           >
             {label.label}
           </SvgText>

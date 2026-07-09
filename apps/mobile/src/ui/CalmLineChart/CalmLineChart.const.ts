@@ -17,9 +17,6 @@ export const CALM_LINE_CHART_PLOT_RADIUS = 12;
 /** Минимальное число точек для отрисовки линии */
 export const CALM_LINE_CHART_MIN_POINTS = 1;
 
-/** Число горизонтальных линий сетки */
-export const CALM_LINE_CHART_GRID_LINES = 4;
-
 /** Толщина линии данных, px */
 export const CALM_LINE_CHART_LINE_WIDTH = 2.5;
 
@@ -40,3 +37,6 @@ export const CALM_LINE_CHART_AXIS_LABEL_FONT_SIZE = 11;
 
 /** Смещение подписи оси X от нижнего края SVG, px */
 export const CALM_LINE_CHART_X_LABEL_BOTTOM_OFFSET = 6;
+
+/** Идентификатор clipPath области построения */
+export const CALM_LINE_CHART_PLOT_CLIP_ID = 'calmLineChartPlotClip';

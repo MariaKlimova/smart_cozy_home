@@ -77,7 +77,7 @@ function findMorningRun(
 }
 
 export interface IResolveNightWindowsParams {
-  /** Конец недели (день последней ночи, обычно сегодня) */
+  /** Конец недели (дата пробуждения последней ночи, обычно сегодня) */
   weekEnd: Date;
   /** Записи logbook за период */
   logbookEntries: ISleepLogbookEntry[];
@@ -87,16 +87,17 @@ export interface IResolveNightWindowsParams {
   morningEntityId: string;
 }
 
-/** Строит 7 ночных окон, заканчивающихся на weekEnd */
+/** Строит 7 ночных окон; nightDate — дата пробуждения (как в Здоровье / Polar) */
 export function resolveNightWindows(params: IResolveNightWindowsParams): ISleepNightWindow[] {
   const { weekEnd, logbookEntries, eveningEntityId, morningEntityId } = params;
   const anchor = startOfLocalDay(weekEnd);
-  const firstEveningDate = addDays(anchor, -(NIGHTS_PER_WEEK - 1));
+  const firstWakeDate = addDays(anchor, -(NIGHTS_PER_WEEK - 1));
 
   const windows: ISleepNightWindow[] = [];
 
   for (let index = 0; index < NIGHTS_PER_WEEK; index += 1) {
-    const eveningDate = addDays(firstEveningDate, index);
+    const wakeDate = addDays(firstWakeDate, index);
+    const eveningDate = addDays(wakeDate, -1);
     const fallback = buildFallbackWindow(eveningDate);
     const eveningRun = findEveningRun(logbookEntries, eveningDate, eveningEntityId);
     const morningRun = findMorningRun(logbookEntries, eveningDate, morningEntityId);
@@ -108,8 +109,8 @@ export function resolveNightWindows(params: IResolveNightWindowsParams): ISleepN
     }
 
     windows.push({
-      nightDate: formatNightDate(eveningDate),
-      weekdayId: jsDayToWeekdayId(eveningDate.getDay()),
+      nightDate: formatNightDate(wakeDate),
+      weekdayId: jsDayToWeekdayId(wakeDate.getDay()),
       startAt,
       endAt,
       hasScenarioData: eveningRun !== undefined,

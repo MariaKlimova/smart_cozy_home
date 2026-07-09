@@ -1,4 +1,3 @@
-import { runMockScript } from '@/ha/mockScriptRunner';
 import type { IHaHistoryState } from '@/ha/haHistory.typings';
 import {
   applyMockHaService,
@@ -6,6 +5,7 @@ import {
   getMockEntityStates,
   updateMockEntityState,
 } from '@/ha/haMockStore';
+import { runMockScript } from '@/ha/mockScriptRunner';
 import type { IHaEntityState } from '@/ha/types';
 
 const FETCH_TIMEOUT_MS = 30_000;

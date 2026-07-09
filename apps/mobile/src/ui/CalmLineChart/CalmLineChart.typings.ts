@@ -49,4 +49,6 @@ export interface ICalmLineChartProps {
   height?: number;
   /** Сообщение при отсутствии данных */
   emptyMessage?: string;
+  /** Встроенный режим без отдельной обводки карточки */
+  embedded?: boolean;
 }
