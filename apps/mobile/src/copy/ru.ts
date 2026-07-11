@@ -15,7 +15,8 @@ export const copy = {
     screenTitle: 'Сейчас',
     setupSensorsHint: 'Настрой датчики в спальне — тогда увидишь температуру, влажность и CO₂.',
     setupSensorsButton: 'Открыть спальню',
-    deviceActionFailed: 'Не получилось выполнить',
+    deviceActionFailed: 'Не получилось выполнить действие',
+    scenarioUnavailable: 'Сценарий сейчас недоступен',
     phrases: {
       stuffyVentilate: 'Душно — стоит проветрить',
       slightlyStuffy: 'Немного душновато',

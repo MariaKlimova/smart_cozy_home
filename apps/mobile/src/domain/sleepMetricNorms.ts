@@ -16,6 +16,20 @@ export interface ISleepMetricNorm {
 /** CO₂ выше порога, ppm */
 export const SLEEP_CO2_NORM_MAX_PPM = 1000;
 
+/** CO₂ «немного душно» — порог для подсказок и интерпретации, ppm */
+export const BEDROOM_CO2_ELEVATED_PPM = 800;
+
+/** CO₂ «душно» днём — порог для проветривания, ppm */
+export const BEDROOM_CO2_STUFFY_PPM = 1200;
+
+/** CO₂ ≥ порога «немного душно» */
+export function isBedroomCo2Elevated(co2Ppm: number | undefined): boolean {
+  if (co2Ppm === undefined) {
+    return false;
+  }
+  return co2Ppm >= BEDROOM_CO2_ELEVATED_PPM;
+}
+
 /** Масштаб оси Y на графике сна */
 export interface ISleepMetricChartScale {
   /** Дефолтный минимум оси, если все точки внутри диапазона */

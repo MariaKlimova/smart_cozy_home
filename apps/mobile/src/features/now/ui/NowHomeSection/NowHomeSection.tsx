@@ -47,6 +47,14 @@ export function NowHomeSection({
         />
       ) : null}
 
+      {suggestion.kind === 'scenario' && !scenarioSuggestion ? (
+        <CalmCard padding="md" tone="muted" style={styles.deviceCard}>
+          <Text style={[typography.body, { color: c.textMuted }]}>
+            {copy.now.scenarioUnavailable}
+          </Text>
+        </CalmCard>
+      ) : null}
+
       {suggestion.kind === 'device' ? (
         <CalmCard padding="md" tone="muted" style={styles.deviceCard}>
           <Text style={[typography.body, { color: c.text }]}>{suggestion.message}</Text>

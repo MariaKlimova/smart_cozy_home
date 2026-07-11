@@ -22,6 +22,7 @@ const config: ExpoConfig = {
     bundleIdentifier: 'com.klimova.smart-house',
   },
   android: {
+    // Android applicationId не допускает дефис — iOS bundleIdentifier: com.klimova.smart-house
     package: 'com.klimova.smarthouse',
     adaptiveIcon: {
       foregroundImage: './assets/images/adaptive-icon.png',

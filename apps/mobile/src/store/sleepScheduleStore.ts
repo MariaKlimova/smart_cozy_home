@@ -12,7 +12,9 @@ interface ISleepScheduleStore {
   /** Загрузить сохранённое расписание */
   hydrate: () => Promise<void>;
   /** Обновить и сохранить расписание */
-  setSchedule: (schedule: INightSchedule) => Promise<void>;
+  setSchedule: (
+    update: INightSchedule | ((prev: INightSchedule) => INightSchedule),
+  ) => Promise<void>;
   /** Текущее расписание (после hydrate) */
   getSchedule: () => INightSchedule;
 }
@@ -37,9 +39,10 @@ export const useSleepScheduleStore = create<ISleepScheduleStore>((set, get) => (
     return hydratePromise;
   },
 
-  setSchedule: async (schedule) => {
-    await saveSleepSchedule(schedule);
-    set({ schedule });
+  setSchedule: async (update) => {
+    const next = typeof update === 'function' ? update(get().schedule) : update;
+    await saveSleepSchedule(next);
+    set({ schedule: next });
   },
 
   getSchedule: () => get().schedule,
