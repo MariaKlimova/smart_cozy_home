@@ -11,6 +11,8 @@ import { mapSleepHistory } from '@/ha/mappers/mapSleepHistory';
 
 import { scoreSleepNight } from './scoreSleepNight';
 
+import type { INightSchedule } from '@/domain/nightSchedule.typings';
+
 export interface ILoadSleepWeekDataParams {
   /** baseUrl HA */
   baseUrl: string;
@@ -24,13 +26,15 @@ export interface ILoadSleepWeekDataParams {
     temperature: string;
     humidity: string;
   };
+  /** Границы ночи для fallback-окон */
+  nightSchedule: INightSchedule;
 }
 
 /** Загружает и оценивает одну неделю сна */
 export async function loadSleepWeekData(
   params: ILoadSleepWeekDataParams,
 ): Promise<{ weekEnd: Date; nights: ISleepNightSummary[] }> {
-  const { baseUrl, token, weekOffset, sensorEntityIds } = params;
+  const { baseUrl, token, weekOffset, sensorEntityIds, nightSchedule } = params;
   if (USE_HA_MOCKS) {
     await waitForMockSleepHistory();
   }
@@ -60,6 +64,7 @@ export async function loadSleepWeekData(
     logbookEntries,
     eveningEntityId: HA_ENTITIES.scripts.evening,
     morningEntityId: HA_ENTITIES.scripts.morning,
+    nightSchedule,
   });
 
   if (windows.length === 0) {

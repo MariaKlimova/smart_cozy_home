@@ -2,6 +2,8 @@ import Healthkit, { AuthorizationRequestStatus, AuthorizationStatus } from '@kin
 import { Platform } from 'react-native';
 
 import type { ISleepNightWindow } from '@/domain/sleepNight.typings';
+import type { INightSchedule } from '@/domain/nightSchedule.typings';
+import { DEFAULT_NIGHT_SCHEDULE } from '@/domain/nightSchedule';
 import { aggregateWearableNight } from '@/health/aggregateWearableNight';
 import { buildWearableQueryWindow } from '@/health/buildWearableQueryWindow';
 import { dedupeSleepSegments } from '@/health/dedupeSleepSegments';
@@ -46,6 +48,7 @@ async function ensureSleepReadAuthorization(): Promise<'ready' | 'denied' | 'una
 /** Загружает wearable-данные за ночное окно */
 export async function loadWearableSleepNight(
   nightWindow: ISleepNightWindow,
+  schedule: INightSchedule = DEFAULT_NIGHT_SCHEDULE,
 ): Promise<IWearableSleepNightResult> {
   const mockPreset = getWearableMockPreset();
   if (mockPreset !== null) {
@@ -61,7 +64,7 @@ export async function loadWearableSleepNight(
       return { status: 'denied' };
     }
 
-    const queryWindow = buildWearableQueryWindow(nightWindow);
+    const queryWindow = buildWearableQueryWindow(nightWindow, schedule);
 
     const samples = await Healthkit.queryCategorySamples(HEALTHKIT_SLEEP_CATEGORY, {
       filter: {

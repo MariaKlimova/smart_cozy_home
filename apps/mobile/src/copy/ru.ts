@@ -15,6 +15,7 @@ export const copy = {
     screenTitle: 'Сейчас',
     setupSensorsHint: 'Настрой датчики в спальне — тогда увидишь температуру, влажность и CO₂.',
     setupSensorsButton: 'Открыть спальню',
+    deviceActionFailed: 'Не получилось выполнить',
     phrases: {
       stuffyVentilate: 'Душно — стоит проветрить',
       slightlyStuffy: 'Немного душновато',
@@ -23,6 +24,11 @@ export const copy = {
       dryHumidifier: 'Суховато — увлажнитель поможет',
       comfortable: 'В спальне комфортно',
       noData: 'Данных пока нет',
+      stuffyForSleep: 'Душно для сна — стоит проветрить',
+      slightlyStuffyForSleep: 'Немного душновато для сна',
+      coolForSleep: 'Прохладно для сна',
+      dryForSleep: 'Суховато для сна — увлажнитель поможет',
+      comfortableForSleep: 'Для сна сейчас комфортно',
     },
     metricsUnavailable: '—',
     metrics: {
@@ -36,6 +42,14 @@ export const copy = {
       temperature: 'Температура',
       sunset: 'Закат',
       sunrise: 'Восход',
+    },
+    suggestions: {
+      stuffyForSleepVentilate: 'Душно для сна — проветрим?',
+      slightlyStuffyVentilate: 'Душновато — проветрим?',
+      openWindow: 'Открыть окно',
+      dryHumidifierOn: 'Суховато — включить увлажнитель?',
+      turnOnHumidifier: 'Включить увлажнитель',
+      turnOnLight: 'Включить свет',
     },
   },
   quickActions: {
@@ -215,6 +229,12 @@ export const copy = {
     syncRefreshing: 'Загружаем…',
     haDevicesList: 'Список устройств',
     reconnect: 'Изменить подключение к дому',
+    nightSchedule: {
+      title: 'Границы ночи',
+      hint: 'Используем для экрана «Сейчас», истории сна и графиков.',
+      bedtimeLabel: 'Обычно ложусь',
+      wakeTimeLabel: 'Обычно просыпаюсь',
+    },
     bedroomDevices: {
       screenTitle: 'Устройства в спальне',
       hint: 'Выбери, что показывать на экране спальни. Привязку к дому настраивай шестерёнкой на карточке.',

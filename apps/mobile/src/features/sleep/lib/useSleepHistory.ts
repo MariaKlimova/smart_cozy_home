@@ -4,6 +4,7 @@ import type { ISleepNightSummary } from '@/domain/sleepNight.typings';
 import { useHaBackend } from '@/ha/useHaBackend';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useConnectionStore } from '@/store/connectionStore';
+import { useSleepScheduleStore } from '@/store/sleepScheduleStore';
 import { useQuery } from '@tanstack/react-query';
 
 import { loadSleepWeekData } from './loadSleepWeekData';
@@ -42,6 +43,7 @@ export function useSleepHistory(options?: IUseSleepHistoryOptions): IUseSleepHis
   const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const overrides = useBedroomSensorStore((s) => s.overrides);
   const getResolvedMapping = useBedroomSensorStore((s) => s.getResolvedMapping);
+  const nightSchedule = useSleepScheduleStore((s) => s.schedule);
 
   const sensors = getResolvedMapping();
   const mappingKey = bedroomSensorMappingQueryKey(overrides);
@@ -53,7 +55,7 @@ export function useSleepHistory(options?: IUseSleepHistoryOptions): IUseSleepHis
   const activeSensorIds = getActiveBedroomSensorEntityIds(sensors);
 
   const query = useQuery({
-    queryKey: ['sleep-history', baseUrl, weekOffset, mappingKey],
+    queryKey: ['sleep-history', baseUrl, weekOffset, mappingKey, nightSchedule.bedtime, nightSchedule.wakeTime],
     enabled: Boolean(pollingEnabled && haReady && activeSensorIds.length > 0),
     staleTime: SLEEP_HISTORY_STALE_MS,
     queryFn: async () =>
@@ -62,6 +64,7 @@ export function useSleepHistory(options?: IUseSleepHistoryOptions): IUseSleepHis
         token: haToken,
         weekOffset,
         sensorEntityIds,
+        nightSchedule,
       }),
   });
 

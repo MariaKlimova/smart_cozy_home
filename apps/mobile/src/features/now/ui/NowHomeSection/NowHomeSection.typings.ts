@@ -1,21 +1,26 @@
 import type { IScenario } from '@/domain/types';
+import type { INowSuggestion } from '@/domain/nowSuggestion.typings';
 import type { TScenarioRunState } from '@/features/scenarios/lib/useRunScenario';
 
-export interface IQuickActionsProps {
-  /** Все сценарии из store */
+export interface INowHomeSectionProps {
+  /** Primary action */
+  suggestion: INowSuggestion;
+  /** Сценарии дома */
   scenarios: IScenario[];
-  /** id контекстного сценария; null — только ручное управление */
-  contextualScenarioId: string | null;
-  /** Состояние запуска по id */
+  /** Состояние запуска сценариев */
   runStateById: Record<string, TScenarioRunState>;
   /** Активный режим */
   activeScenarioId: string | null;
   /** Подготовленный сценарий */
   preparedScenarioId: string | null;
   /** Запуск сценария */
-  onScenarioPress: (scenarioId: string) => void;
+  onScenarioPress: (scenarioId: string) => Promise<void>;
   /** Настройки сценария */
   onSettingsPress: (scenarioId: string) => void;
-  /** Открыть ручное управление */
+  /** Ручное управление */
   onManualControlPress: () => void;
+  /** Device primary action */
+  onDeviceActionPress: () => Promise<void>;
+  /** Идёт device action */
+  isDeviceActionRunning: boolean;
 }

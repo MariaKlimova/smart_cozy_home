@@ -57,14 +57,19 @@ describe('sleepNightWindows', () => {
     assert.equal(target.weekdayId, 'thu');
   });
 
-  it('shifts week end by offset', () => {
-    const now = new Date(2026, 6, 14, 10, 0, 0);
-    const current = getWeekEndForOffset(0, now);
-    const previous = getWeekEndForOffset(1, now);
+  it('uses user night schedule for fallback windows', () => {
+    const weekEnd = new Date('2026-07-02T12:00:00');
+    const windows = resolveNightWindows({
+      weekEnd,
+      logbookEntries: [],
+      eveningEntityId: 'script.evening',
+      morningEntityId: 'script.morning',
+      nightSchedule: { bedtime: '22:00', wakeTime: '07:00' },
+    });
 
-    assert.equal(current.getFullYear(), 2026);
-    assert.equal(current.getMonth(), 6);
-    assert.equal(current.getDate(), 14);
-    assert.equal(previous.getDate(), 7);
+    const target = windows.find((window) => window.nightDate === '2026-07-02');
+    assert.ok(target);
+    assert.equal(target.startAt.getHours(), 22);
+    assert.equal(target.endAt.getHours(), 7);
   });
 });

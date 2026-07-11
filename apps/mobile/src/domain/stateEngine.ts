@@ -1,9 +1,17 @@
 import { titleForLifeState } from '@/config/homeStateLabels';
+import {
+  isEveningTime,
+  isMorningTime,
+  isNightTime,
+} from '@/domain/nightSchedule';
+import type { INightSchedule } from '@/domain/nightSchedule.typings';
 import type { IHomeMetric, IHomeState, IPresenceMember, LifeState } from '@/domain/types';
 
 export interface IStateEngineInput {
-  /** Час локального времени 0–23 */
-  hour: number;
+  /** Текущий момент */
+  now: Date;
+  /** Границы ночи пользователя */
+  nightSchedule: INightSchedule;
   /** Кто дома */
   presence: IPresenceMember[];
   /** id активного сценария-режима или undefined */
@@ -23,17 +31,19 @@ export interface IStateEngineInput {
 function resolveLifeState(input: IStateEngineInput): LifeState {
   const anyoneHome = input.presence.some((p) => p.isHome);
   const activeId = input.activeScenarioId ?? input.activeRitualId;
+  const { now, nightSchedule } = input;
+
   if (!anyoneHome || activeId === 'away') return 'away';
   if (activeId === 'sleep') return 'sleep';
   if (activeId === 'evening') return 'evening';
   if (activeId === 'morning') return 'morning';
   if (activeId === 'focus') return 'work';
-  if (input.hour >= 6 && input.hour < 11) return 'morning';
-  if (input.hour >= 18 && input.hour < 23) return 'evening';
-  if (input.hour >= 11 && input.hour < 18) return 'work';
+  if (isNightTime(now, nightSchedule)) return 'sleep';
+  if (isMorningTime(now, nightSchedule)) return 'morning';
+  if (isEveningTime(now, nightSchedule)) return 'evening';
+  if (now.getHours() >= 11 && now.getHours() < 18) return 'work';
   return 'rest';
 }
-
 
 function hintForLifeState(lifeState: LifeState, presence: IPresenceMember[]): string {
   const homeNames = presence.filter((p) => p.isHome).map((p) => p.label);

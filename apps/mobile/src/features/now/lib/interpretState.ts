@@ -1,6 +1,18 @@
 import { copy } from '@/copy/ru';
+import {
+  SLEEP_CO2_NORM_MAX_PPM,
+  SLEEP_HUMIDITY_NORM_MIN_PCT,
+  SLEEP_TEMP_NORM_MAX_C,
+  SLEEP_TEMP_NORM_MIN_C,
+} from '@/domain/sleepMetricNorms';
 
 import type { IBedroomReadings } from './bedroomReadings.typings';
+
+/** Контекст интерпретации показаний спальни */
+export interface IBedroomInterpretContext {
+  /** Сейчас ночь по пользовательскому расписанию */
+  isNight: boolean;
+}
 
 /** Визуальный тон карточки по доминирующему отклонению */
 export type TBedroomStateTone = 'neutral' | 'comfort' | 'air' | 'warm' | 'cool' | 'dry';
@@ -46,12 +58,33 @@ export type IOutdoorMetricView = IMetricChipView & {
 };
 
 /** Интерпретация показаний спальни одной фразой (приоритет: CO₂ → температура → влажность) */
-export function interpretBedroomState(readings: IBedroomReadings): string {
+export function interpretBedroomState(
+  readings: IBedroomReadings,
+  context: IBedroomInterpretContext = { isNight: false },
+): string {
   const { co2Ppm, temperatureC, humidityPct } = readings;
   const phrases = copy.now.phrases;
 
   if (!hasAnyBedroomReading(readings)) {
     return phrases.noData;
+  }
+
+  if (context.isNight) {
+    if (co2Ppm !== undefined) {
+      if (co2Ppm > SLEEP_CO2_NORM_MAX_PPM) return phrases.stuffyForSleep;
+      if (co2Ppm >= 800) return phrases.slightlyStuffyForSleep;
+    }
+
+    if (temperatureC !== undefined) {
+      if (temperatureC > SLEEP_TEMP_NORM_MAX_C) return phrases.warmForSleep;
+      if (temperatureC < SLEEP_TEMP_NORM_MIN_C) return phrases.coolForSleep;
+    }
+
+    if (humidityPct !== undefined && humidityPct < SLEEP_HUMIDITY_NORM_MIN_PCT) {
+      return phrases.dryForSleep;
+    }
+
+    return phrases.comfortableForSleep;
   }
 
   if (co2Ppm !== undefined) {
@@ -72,10 +105,21 @@ export function interpretBedroomState(readings: IBedroomReadings): string {
 }
 
 /** Тон акцента карточки (синхронен с приоритетом interpretBedroomState) */
-export function getBedroomStateTone(readings: IBedroomReadings): TBedroomStateTone {
+export function getBedroomStateTone(
+  readings: IBedroomReadings,
+  context: IBedroomInterpretContext = { isNight: false },
+): TBedroomStateTone {
   const { co2Ppm, temperatureC, humidityPct } = readings;
 
   if (!hasAnyBedroomReading(readings)) return 'neutral';
+
+  if (context.isNight) {
+    if (co2Ppm !== undefined && co2Ppm >= 800) return 'air';
+    if (temperatureC !== undefined && temperatureC > SLEEP_TEMP_NORM_MAX_C) return 'warm';
+    if (temperatureC !== undefined && temperatureC < SLEEP_TEMP_NORM_MIN_C) return 'cool';
+    if (humidityPct !== undefined && humidityPct < SLEEP_HUMIDITY_NORM_MIN_PCT) return 'dry';
+    return 'comfort';
+  }
 
   if (co2Ppm !== undefined && co2Ppm >= 800) return 'air';
   if (temperatureC !== undefined && temperatureC > 22) return 'warm';

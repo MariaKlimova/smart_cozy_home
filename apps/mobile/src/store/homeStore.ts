@@ -27,6 +27,7 @@ import { mapAllScenarioSchedules, collectScenarioScheduleEntityIds } from '@/ha/
 import { mapScenarioHaState } from '@/ha/mappers/mapScenarioHaState';
 import { loadHomeConfig } from '@/config/homeConfig';
 import { useConnectionStore } from '@/store/connectionStore';
+import { useSleepScheduleStore } from '@/store/sleepScheduleStore';
 
 /** Опции синхронизации homeStore */
 export interface IHomeRefreshOptions {
@@ -133,10 +134,12 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
       const lights = mapLightsSummary(states);
       const securityStatus = mapSecurityStatus(states);
       const { activeScenarioId, preparedScenarioId } = mapScenarioHaState(states, presence);
-      const hour = new Date().getHours();
+      const now = new Date();
+      const nightSchedule = useSleepScheduleStore.getState().getSchedule();
 
       const homeState = computeHomeState({
-        hour,
+        now,
+        nightSchedule,
         presence,
         activeScenarioId: activeScenarioId ?? undefined,
         temperature,
