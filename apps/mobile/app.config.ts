@@ -22,6 +22,7 @@ const config: ExpoConfig = {
     bundleIdentifier: 'com.klimova.smart-house',
   },
   android: {
+    package: 'com.klimova.smarthouse',
     adaptiveIcon: {
       foregroundImage: './assets/images/adaptive-icon.png',
       backgroundColor: '#F7F3EE',
@@ -37,6 +38,7 @@ const config: ExpoConfig = {
   },
   plugins: [
     'expo-router',
+    'expo-secure-store',
     [
       '@kingstinct/react-native-healthkit',
       {

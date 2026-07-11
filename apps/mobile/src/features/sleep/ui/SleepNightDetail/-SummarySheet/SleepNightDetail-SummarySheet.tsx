@@ -32,15 +32,19 @@ export function SleepNightDetailSummarySheet({
   return (
     <CalmSheet visible={visible} title={title} titleStyle={typography.title} onClose={onClose}>
       <View style={styles.sheetContent} testID={SLEEP_NIGHT_DETAIL_SUMMARY_SHEET}>
-        <Text
-          style={[
-            typography.body,
-            styles.scoreSummary,
-            { color: sleepScoreTextColor(score, c) },
-          ]}
-        >
-          {`${sleepScoreEmoji(score)}${scoreSummary}`}
-        </Text>
+        <View style={styles.issueRow}>
+          <Text style={styles.issueEmoji}>{sleepScoreEmoji(score)}</Text>
+          <Text
+            style={[
+              typography.body,
+              styles.issueText,
+              styles.scoreSummary,
+              { color: sleepScoreTextColor(score, c) },
+            ]}
+          >
+            {scoreSummary}
+          </Text>
+        </View>
 
         {hasIssues ? (
           <View style={styles.section}>
