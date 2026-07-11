@@ -1,11 +1,9 @@
 import type { ISleepLogbookEntry, ISleepNightWindow } from '@/domain/sleepNight.typings';
+import type { INightSchedule } from '@/domain/nightSchedule.typings';
+import { DEFAULT_NIGHT_SCHEDULE, parseTimeParts } from '@/domain/nightSchedule';
 import type { TWeekdayId } from '@/domain/scenarioWeeklySchedule.typings';
 
 const NIGHTS_PER_WEEK = 7;
-const FALLBACK_EVENING_HOUR = 23;
-const FALLBACK_EVENING_MINUTE = 0;
-const FALLBACK_MORNING_HOUR = 8;
-const FALLBACK_MORNING_MINUTE = 0;
 
 function jsDayToWeekdayId(day: number): TWeekdayId {
   const map: TWeekdayId[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -31,12 +29,18 @@ function addDays(date: Date, days: number): Date {
   return result;
 }
 
-function buildFallbackWindow(eveningDate: Date): { startAt: Date; endAt: Date } {
+function buildFallbackWindow(
+  eveningDate: Date,
+  schedule: INightSchedule,
+): { startAt: Date; endAt: Date } {
+  const bedtime = parseTimeParts(schedule.bedtime);
+  const wake = parseTimeParts(schedule.wakeTime);
+
   const startAt = new Date(eveningDate);
-  startAt.setHours(FALLBACK_EVENING_HOUR, FALLBACK_EVENING_MINUTE, 0, 0);
+  startAt.setHours(bedtime.hours, bedtime.minutes, 0, 0);
 
   const endAt = addDays(eveningDate, 1);
-  endAt.setHours(FALLBACK_MORNING_HOUR, FALLBACK_MORNING_MINUTE, 0, 0);
+  endAt.setHours(wake.hours, wake.minutes, 0, 0);
 
   return { startAt, endAt };
 }
@@ -85,11 +89,19 @@ export interface IResolveNightWindowsParams {
   eveningEntityId: string;
   /** entity_id утреннего сценария */
   morningEntityId: string;
+  /** Пользовательские границы ночи для fallback */
+  nightSchedule?: INightSchedule;
 }
 
 /** Строит 7 ночных окон; nightDate — дата пробуждения (как в Здоровье / Polar) */
 export function resolveNightWindows(params: IResolveNightWindowsParams): ISleepNightWindow[] {
-  const { weekEnd, logbookEntries, eveningEntityId, morningEntityId } = params;
+  const {
+    weekEnd,
+    logbookEntries,
+    eveningEntityId,
+    morningEntityId,
+    nightSchedule = DEFAULT_NIGHT_SCHEDULE,
+  } = params;
   const anchor = startOfLocalDay(weekEnd);
   const firstWakeDate = addDays(anchor, -(NIGHTS_PER_WEEK - 1));
 
@@ -98,7 +110,7 @@ export function resolveNightWindows(params: IResolveNightWindowsParams): ISleepN
   for (let index = 0; index < NIGHTS_PER_WEEK; index += 1) {
     const wakeDate = addDays(firstWakeDate, index);
     const eveningDate = addDays(wakeDate, -1);
-    const fallback = buildFallbackWindow(eveningDate);
+    const fallback = buildFallbackWindow(eveningDate, nightSchedule);
     const eveningRun = findEveningRun(logbookEntries, eveningDate, eveningEntityId);
     const morningRun = findMorningRun(logbookEntries, eveningDate, morningEntityId);
 

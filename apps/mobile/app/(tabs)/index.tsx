@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
+import { isNightTime } from '@/domain/nightSchedule';
 import { GentleNotificationCard } from '@/features/notifications/ui/GentleNotificationCard';
 import {
   formatBedroomMetrics,
@@ -11,15 +12,17 @@ import {
   interpretBedroomState,
 } from '@/features/now/lib/interpretState';
 import { useBedroom } from '@/features/now/lib/useBedroom';
-import { useQuickActions } from '@/features/now/lib/useQuickActions';
+import { useNowHome } from '@/features/now/lib/useNowHome';
 import { AdjustSheet } from '@/features/now/ui/AdjustSheet';
 import { BedroomStateCard } from '@/features/now/ui/BedroomStateCard';
-import { QuickActions } from '@/features/now/ui/QuickActions';
+import { NowHomeSection } from '@/features/now/ui/NowHomeSection';
+import { useScheduleClockTick } from '@/features/scenarios/lib/useScheduleClockTick';
 import { useGentleNotifications } from '@/hooks/useGentleNotifications';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useHaBackend } from '@/hooks/useHaBackend';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useHomeStore } from '@/store/homeStore';
+import { useSleepScheduleStore } from '@/store/sleepScheduleStore';
 import { CalmButton } from '@/ui/CalmButton';
 import { CalmToast } from '@/ui/CalmToast';
 import { ScreenLayout } from '@/ui/ScreenLayout';
@@ -28,8 +31,20 @@ import { typography } from '@/theme/tokens';
 export default function NowScreen() {
   const c = useThemeColors();
   const { haReady } = useHaBackend();
+  const scheduleNow = useScheduleClockTick();
+  const nightSchedule = useSleepScheduleStore((s) => s.schedule);
+  const { readings, isLoading: isBedroomLoading } = useBedroom();
+  const hasSensorHydrated = useBedroomSensorStore((s) => s.hasHydrated);
+  const isSensorsConfigured = useBedroomSensorStore((s) => s.isConfigured());
+
+  const isRefreshing = useHomeStore((s) => s.isRefreshing);
+  const refresh = useHomeStore((s) => s.refresh);
+  const { visibleNotifications, handleAccept, handleDismiss } = useGentleNotifications();
+
+  const resolvedReadings = readings ?? {};
   const {
-    contextualScenarioId,
+    suggestion,
+    scenarios,
     isManualControlOpen,
     closeManualControl,
     openManualControl,
@@ -40,27 +55,31 @@ export default function NowScreen() {
     activeScenarioId,
     preparedScenarioId,
     runScenarioById,
-  } = useQuickActions();
-  const { readings, isLoading: isBedroomLoading } = useBedroom();
-  const hasSensorHydrated = useBedroomSensorStore((s) => s.hasHydrated);
-  const isSensorsConfigured = useBedroomSensorStore((s) => s.isConfigured());
-
-  const scenarios = useHomeStore((s) => s.scenarios);
-  const isRefreshing = useHomeStore((s) => s.isRefreshing);
-  const refresh = useHomeStore((s) => s.refresh);
-  const { visibleNotifications, handleAccept, handleDismiss } = useGentleNotifications();
+    runDeviceAction,
+    primaryGentleNotificationId,
+    isDeviceActionRunning,
+  } = useNowHome(resolvedReadings);
 
   useEffect(() => {
     if (haReady) void refresh();
   }, [haReady, refresh]);
 
-  const resolvedReadings = readings ?? {};
-  const phrase = interpretBedroomState(resolvedReadings);
+  const isNight = useMemo(
+    () => isNightTime(scheduleNow, nightSchedule),
+    [scheduleNow, nightSchedule],
+  );
+  const bedroomContext = useMemo(() => ({ isNight }), [isNight]);
+
+  const phrase = interpretBedroomState(resolvedReadings, bedroomContext);
   const bedroomMetrics = formatBedroomMetrics(resolvedReadings);
   const outdoorMetrics = formatOutdoorMetrics(resolvedReadings);
-  const tone = getBedroomStateTone(resolvedReadings);
+  const tone = getBedroomStateTone(resolvedReadings, bedroomContext);
   const showBedroomSkeleton = haReady && isBedroomLoading;
   const showSetupCta = haReady && hasSensorHydrated && !isSensorsConfigured;
+
+  const filteredNotifications = visibleNotifications.filter(
+    (notification) => notification.id !== primaryGentleNotificationId,
+  );
 
   const handleSettingsPress = (scenarioId: string) => {
     router.push({ pathname: '/scenario-settings', params: { id: scenarioId } });
@@ -86,15 +105,17 @@ export default function NowScreen() {
       />
 
       {haReady ? (
-        <QuickActions
+        <NowHomeSection
+          suggestion={suggestion}
           scenarios={scenarios}
-          contextualScenarioId={contextualScenarioId}
           runStateById={runStateById}
           activeScenarioId={activeScenarioId}
           preparedScenarioId={preparedScenarioId}
           onScenarioPress={runScenarioById}
           onSettingsPress={handleSettingsPress}
           onManualControlPress={openManualControl}
+          onDeviceActionPress={runDeviceAction}
+          isDeviceActionRunning={isDeviceActionRunning}
         />
       ) : null}
 
@@ -111,7 +132,7 @@ export default function NowScreen() {
         </View>
       ) : null}
 
-      {visibleNotifications.map((n) => (
+      {filteredNotifications.map((n) => (
         <GentleNotificationCard
           key={n.id}
           notification={n}

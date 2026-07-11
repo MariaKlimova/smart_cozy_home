@@ -24,13 +24,13 @@ function sampleAt(iso: string, values: Partial<ISleepSensorSample>): ISleepSenso
 }
 
 describe('scoreSleepNight', () => {
-  it('returns no_data when scenario did not run', () => {
+  it('scores night from sensor samples even without scenario logbook', () => {
     const result = scoreSleepNight(
       buildWindow({ hasScenarioData: false }),
-      [sampleAt('2026-07-02T01:00:00', { co2Ppm: 700 })],
+      [sampleAt('2026-07-02T01:00:00', { co2Ppm: 700, temperatureC: 18, humidityPct: 45 })],
     );
-    assert.equal(result.score, 'no_data');
-    assert.equal(result.hasData, false);
+    assert.equal(result.score, 'good');
+    assert.equal(result.hasData, true);
   });
 
   it('returns no_data when there are no sensor samples', () => {

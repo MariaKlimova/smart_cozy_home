@@ -12,6 +12,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useConnectionStore } from '@/store/connectionStore';
+import { useSleepScheduleStore } from '@/store/sleepScheduleStore';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -25,7 +26,12 @@ export default function RootLayout() {
   const hasConnectionHydrated = useConnectionStore((s) => s.hasHydrated);
   const hasSensorMappingHydrated = useBedroomSensorStore((s) => s.hasHydrated);
   const hasDeviceMappingHydrated = useBedroomDeviceStore((s) => s.hasHydrated);
-  const hasHydrated = hasConnectionHydrated && hasSensorMappingHydrated && hasDeviceMappingHydrated;
+  const hasSleepScheduleHydrated = useSleepScheduleStore((s) => s.hasHydrated);
+  const hasHydrated =
+    hasConnectionHydrated &&
+    hasSensorMappingHydrated &&
+    hasDeviceMappingHydrated &&
+    hasSleepScheduleHydrated;
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,

@@ -132,7 +132,7 @@ export function scoreSleepNight(
 ): ISleepNightSummary {
   const nightSamples = sliceNightSamples(samples, window);
   const sensorData = hasSensorData(nightSamples);
-  const hasData = window.hasScenarioData && sensorData;
+  const hasData = sensorData;
 
   if (!hasData) {
     return {

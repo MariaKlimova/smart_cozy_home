@@ -3,8 +3,10 @@ import { useEffect } from 'react';
 
 import { copy } from '@/copy/ru';
 import { maskUrl } from '@/lib/maskSensitive';
+import { NightScheduleSection } from '@/features/settings/ui/NightScheduleSection';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
+import { useSleepScheduleStore } from '@/store/sleepScheduleStore';
 import { DataSyncStatus } from '@/features/settings/ui/DataSyncStatus';
 import { CalmButton } from '@/ui/CalmButton';
 import { ScreenLayout } from '@/ui/ScreenLayout';
@@ -16,6 +18,8 @@ export default function SettingsScreen() {
   const syncDebug = useHomeStore((s) => s.syncDebug);
   const isRefreshing = useHomeStore((s) => s.isRefreshing);
   const refresh = useHomeStore((s) => s.refresh);
+  const schedule = useSleepScheduleStore((s) => s.schedule);
+  const setSchedule = useSleepScheduleStore((s) => s.setSchedule);
 
   useEffect(() => {
     if (isConnected) void refresh();
@@ -28,6 +32,12 @@ export default function SettingsScreen() {
 
   return (
     <ScreenLayout title={copy.settings.screenTitle}>
+      <NightScheduleSection
+        bedtime={schedule.bedtime}
+        wakeTime={schedule.wakeTime}
+        onBedtimeChange={(bedtime) => void setSchedule({ ...schedule, bedtime })}
+        onWakeTimeChange={(wakeTime) => void setSchedule({ ...schedule, wakeTime })}
+      />
       <DataSyncStatus
         isConnected={isConnected}
         baseUrl={baseUrl ? maskUrl(baseUrl) : null}
