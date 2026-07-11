@@ -91,4 +91,24 @@ describe('resolveNowSuggestion', () => {
       assert.equal(suggestion.actionId, 'bedroom:humidifier:on');
     }
   });
+
+  it('skips sleep scenario when coming home is prepared', () => {
+    const suggestion = resolveNowSuggestion({
+      ...baseInput,
+      activeScenarioId: 'none',
+      preparedScenarioId: 'coming_home',
+    });
+
+    assert.equal(suggestion.kind, 'none');
+  });
+
+  it('skips scenario suggestion when it is already prepared', () => {
+    const suggestion = resolveNowSuggestion({
+      ...baseInput,
+      activeScenarioId: 'none',
+      preparedScenarioId: 'sleep',
+    });
+
+    assert.equal(suggestion.kind, 'none');
+  });
 });

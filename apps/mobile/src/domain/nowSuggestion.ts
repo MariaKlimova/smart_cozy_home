@@ -6,6 +6,7 @@ import {
 import {
   SLEEP_CO2_NORM_MAX_PPM,
   SLEEP_HUMIDITY_NORM_MIN_PCT,
+  isBedroomCo2Elevated,
 } from '@/domain/sleepMetricNorms';
 
 import type {
@@ -41,13 +42,6 @@ function isHumidifierOff(device: INowSuggestionBedroomDevice | undefined): boole
   return device.isOn === false;
 }
 
-function isCo2Elevated(co2Ppm: number | undefined): boolean {
-  if (co2Ppm === undefined) {
-    return false;
-  }
-  return co2Ppm >= 800;
-}
-
 function resolveDeviceSuggestion(input: INowSuggestionInput): INowDeviceSuggestionRaw | null {
   const { bedroomReadings, bedroomDevices, gentleNotifications, dismissedGentleNotificationIds, now, nightSchedule } =
     input;
@@ -56,7 +50,7 @@ function resolveDeviceSuggestion(input: INowSuggestionInput): INowDeviceSuggesti
   const humidityPct = bedroomReadings.humidityPct;
 
   const windowDevice = findBedroomDevice(bedroomDevices, 'window');
-  if (isCo2Elevated(co2Ppm) && isWindowClosed(windowDevice)) {
+  if (isBedroomCo2Elevated(co2Ppm) && isWindowClosed(windowDevice)) {
     const messageKey =
       isNight && co2Ppm !== undefined && co2Ppm > SLEEP_CO2_NORM_MAX_PPM
         ? 'stuffyForSleepVentilate'
@@ -105,18 +99,31 @@ function mapGentleToDeviceSuggestion(
 }
 
 function resolveScenarioSuggestion(input: INowSuggestionInput): INowScenarioSuggestion | null {
-  const { activeScenarioId, now, nightSchedule } = input;
+  const { activeScenarioId, preparedScenarioId, now, nightSchedule } = input;
   const active = activeScenarioId ?? 'none';
 
+  if (preparedScenarioId === 'coming_home') {
+    return null;
+  }
+
   if (isNightTime(now, nightSchedule) && active !== 'sleep') {
+    if (preparedScenarioId === 'sleep') {
+      return null;
+    }
     return { kind: 'scenario', scenarioId: 'sleep' };
   }
 
   if (isMorningTime(now, nightSchedule) && active !== 'morning') {
+    if (preparedScenarioId === 'morning') {
+      return null;
+    }
     return { kind: 'scenario', scenarioId: 'morning' };
   }
 
   if (isEveningTime(now, nightSchedule) && active !== 'evening') {
+    if (preparedScenarioId === 'evening') {
+      return null;
+    }
     return { kind: 'scenario', scenarioId: 'evening' };
   }
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getWeekEndForOffset, resolveNightWindows } from '@/domain/sleepNightWindows';
+import { resolveNightWindows } from '@/domain/sleepNightWindows';
 
 describe('sleepNightWindows', () => {
   it('builds seven nights ending on weekEnd', () => {

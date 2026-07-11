@@ -1,9 +1,12 @@
 import { copy } from '@/copy/ru';
 import {
+  BEDROOM_CO2_ELEVATED_PPM,
+  BEDROOM_CO2_STUFFY_PPM,
   SLEEP_CO2_NORM_MAX_PPM,
   SLEEP_HUMIDITY_NORM_MIN_PCT,
   SLEEP_TEMP_NORM_MAX_C,
   SLEEP_TEMP_NORM_MIN_C,
+  isBedroomCo2Elevated,
 } from '@/domain/sleepMetricNorms';
 
 import type { IBedroomReadings } from './bedroomReadings.typings';
@@ -16,6 +19,9 @@ export interface IBedroomInterpretContext {
 
 /** Визуальный тон карточки по доминирующему отклонению */
 export type TBedroomStateTone = 'neutral' | 'comfort' | 'air' | 'warm' | 'cool' | 'dry';
+
+/** Доминирующее отклонение показаний спальни ночью */
+type TBedroomNightDeviation = 'stuffy' | 'slightlyStuffy' | 'warm' | 'cool' | 'dry' | 'comfort';
 
 /** Есть хотя бы одно числовое показание датчиков спальни */
 export function hasAnyBedroomReading(readings: IBedroomReadings): boolean {
@@ -57,6 +63,47 @@ export type IOutdoorMetricView = IMetricChipView & {
   id: 'outdoorTemperature' | 'sunEvent';
 };
 
+function resolveBedroomNightDeviation(readings: IBedroomReadings): TBedroomNightDeviation {
+  const { co2Ppm, temperatureC, humidityPct } = readings;
+
+  if (co2Ppm !== undefined) {
+    if (co2Ppm > SLEEP_CO2_NORM_MAX_PPM) return 'stuffy';
+    if (co2Ppm >= BEDROOM_CO2_ELEVATED_PPM) return 'slightlyStuffy';
+  }
+
+  if (temperatureC !== undefined) {
+    if (temperatureC > SLEEP_TEMP_NORM_MAX_C) return 'warm';
+    if (temperatureC < SLEEP_TEMP_NORM_MIN_C) return 'cool';
+  }
+
+  if (humidityPct !== undefined && humidityPct < SLEEP_HUMIDITY_NORM_MIN_PCT) {
+    return 'dry';
+  }
+
+  return 'comfort';
+}
+
+function nightDeviationToPhrase(deviation: TBedroomNightDeviation): string {
+  const phrases = copy.now.phrases;
+
+  if (deviation === 'stuffy') return phrases.stuffyForSleep;
+  if (deviation === 'slightlyStuffy') return phrases.slightlyStuffyForSleep;
+  if (deviation === 'warm') return phrases.warmForSleep;
+  if (deviation === 'cool') return phrases.coolForSleep;
+  if (deviation === 'dry') return phrases.dryForSleep;
+
+  return phrases.comfortableForSleep;
+}
+
+function nightDeviationToTone(deviation: TBedroomNightDeviation): TBedroomStateTone {
+  if (deviation === 'stuffy' || deviation === 'slightlyStuffy') return 'air';
+  if (deviation === 'warm') return 'warm';
+  if (deviation === 'cool') return 'cool';
+  if (deviation === 'dry') return 'dry';
+
+  return 'comfort';
+}
+
 /** Интерпретация показаний спальни одной фразой (приоритет: CO₂ → температура → влажность) */
 export function interpretBedroomState(
   readings: IBedroomReadings,
@@ -70,34 +117,20 @@ export function interpretBedroomState(
   }
 
   if (context.isNight) {
-    if (co2Ppm !== undefined) {
-      if (co2Ppm > SLEEP_CO2_NORM_MAX_PPM) return phrases.stuffyForSleep;
-      if (co2Ppm >= 800) return phrases.slightlyStuffyForSleep;
-    }
-
-    if (temperatureC !== undefined) {
-      if (temperatureC > SLEEP_TEMP_NORM_MAX_C) return phrases.warmForSleep;
-      if (temperatureC < SLEEP_TEMP_NORM_MIN_C) return phrases.coolForSleep;
-    }
-
-    if (humidityPct !== undefined && humidityPct < SLEEP_HUMIDITY_NORM_MIN_PCT) {
-      return phrases.dryForSleep;
-    }
-
-    return phrases.comfortableForSleep;
+    return nightDeviationToPhrase(resolveBedroomNightDeviation(readings));
   }
 
   if (co2Ppm !== undefined) {
-    if (co2Ppm > 1200) return phrases.stuffyVentilate;
-    if (co2Ppm >= 800) return phrases.slightlyStuffy;
+    if (co2Ppm > BEDROOM_CO2_STUFFY_PPM) return phrases.stuffyVentilate;
+    if (isBedroomCo2Elevated(co2Ppm)) return phrases.slightlyStuffy;
   }
 
   if (temperatureC !== undefined) {
-    if (temperatureC > 22) return phrases.warmForSleep;
+    if (temperatureC > SLEEP_TEMP_NORM_MAX_C) return phrases.warmForSleep;
     if (temperatureC < 17) return phrases.coolBedroom;
   }
 
-  if (humidityPct !== undefined && humidityPct < 30) {
+  if (humidityPct !== undefined && humidityPct < SLEEP_HUMIDITY_NORM_MIN_PCT) {
     return phrases.dryHumidifier;
   }
 
@@ -114,17 +147,13 @@ export function getBedroomStateTone(
   if (!hasAnyBedroomReading(readings)) return 'neutral';
 
   if (context.isNight) {
-    if (co2Ppm !== undefined && co2Ppm >= 800) return 'air';
-    if (temperatureC !== undefined && temperatureC > SLEEP_TEMP_NORM_MAX_C) return 'warm';
-    if (temperatureC !== undefined && temperatureC < SLEEP_TEMP_NORM_MIN_C) return 'cool';
-    if (humidityPct !== undefined && humidityPct < SLEEP_HUMIDITY_NORM_MIN_PCT) return 'dry';
-    return 'comfort';
+    return nightDeviationToTone(resolveBedroomNightDeviation(readings));
   }
 
-  if (co2Ppm !== undefined && co2Ppm >= 800) return 'air';
-  if (temperatureC !== undefined && temperatureC > 22) return 'warm';
+  if (isBedroomCo2Elevated(co2Ppm)) return 'air';
+  if (temperatureC !== undefined && temperatureC > SLEEP_TEMP_NORM_MAX_C) return 'warm';
   if (temperatureC !== undefined && temperatureC < 17) return 'cool';
-  if (humidityPct !== undefined && humidityPct < 30) return 'dry';
+  if (humidityPct !== undefined && humidityPct < SLEEP_HUMIDITY_NORM_MIN_PCT) return 'dry';
 
   return 'comfort';
 }

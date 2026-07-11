@@ -100,6 +100,25 @@ export function SleepNightDetail({ night, weekOffset }: ISleepNightDetailProps) 
     setIsSummaryOpen(false);
   }, [night.window.nightDate]);
 
+  let loadingContent = (
+    <View style={styles.roomSection}>
+      <Text style={[typography.subtitle, { color: c.text }]}>
+        {copy.sleep.roomConditionsTitle}
+      </Text>
+      <View style={[styles.roomCard, { backgroundColor: c.surface }]}>
+        <SleepNightDetailSkeleton />
+      </View>
+    </View>
+  );
+
+  if (isWearableSupported) {
+    loadingContent = (
+      <View style={[styles.nightCard, { backgroundColor: c.surface }]}>
+        <SleepNightDetailSkeleton />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container} testID={SLEEP_NIGHT_DETAIL}>
       <View style={styles.nightHeader}>
@@ -108,30 +127,28 @@ export function SleepNightDetail({ night, weekOffset }: ISleepNightDetailProps) 
       </View>
 
       {showSkeleton ? (
-        <View style={[styles.nightCard, { backgroundColor: c.surface }]}>
-          <SleepNightDetailSkeleton />
-        </View>
+        loadingContent
       ) : (
         <>
-          <View style={[styles.nightCard, { backgroundColor: c.surface }]}>
-            {showScoreBadge ? (
-              <View style={[styles.scoreBadge, { backgroundColor: c.accentMuted }]}>
-                <Text
-                  style={[
-                    typography.caption,
-                    styles.scoreBadgeText,
-                    { color: sleepScoreTextColor(night.score, c) },
-                  ]}
-                >
-                  {scoreSummary}
-                </Text>
-              </View>
-            ) : null}
+          {isWearableSupported ? (
+            <View style={[styles.nightCard, { backgroundColor: c.surface }]}>
+              {showScoreBadge ? (
+                <View style={[styles.scoreBadge, { backgroundColor: c.accentMuted }]}>
+                  <Text
+                    style={[
+                      typography.caption,
+                      styles.scoreBadgeText,
+                      { color: sleepScoreTextColor(night.score, c) },
+                    ]}
+                  >
+                    {scoreSummary}
+                  </Text>
+                </View>
+              ) : null}
 
-            {isWearableSupported ? (
               <SleepNightDetailWearable wearable={wearable} isLoading={isWearableLoading} />
-            ) : null}
-          </View>
+            </View>
+          ) : null}
 
           <View style={styles.roomSection}>
             <Text style={[typography.subtitle, { color: c.text }]}>

@@ -12,7 +12,6 @@ export const styles = StyleSheet.create({
   },
   scoreSummary: {
     fontStyle: 'italic',
-    lineHeight: ISSUE_LINE_HEIGHT,
   },
   section: {
     gap: spacing.sm,

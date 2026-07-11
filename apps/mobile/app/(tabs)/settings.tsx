@@ -35,8 +35,8 @@ export default function SettingsScreen() {
       <NightScheduleSection
         bedtime={schedule.bedtime}
         wakeTime={schedule.wakeTime}
-        onBedtimeChange={(bedtime) => void setSchedule({ ...schedule, bedtime })}
-        onWakeTimeChange={(wakeTime) => void setSchedule({ ...schedule, wakeTime })}
+        onBedtimeChange={(bedtime: string) => void setSchedule((prev) => ({ ...prev, bedtime }))}
+        onWakeTimeChange={(wakeTime: string) => void setSchedule((prev) => ({ ...prev, wakeTime }))}
       />
       <DataSyncStatus
         isConnected={isConnected}
