@@ -92,10 +92,6 @@ export default function NowScreen() {
       onRefresh={haReady ? refresh : undefined}
       isRefreshing={isRefreshing}
     >
-      {!haReady && (
-        <Text style={[typography.caption, { color: c.warning }]}>{copy.connection.offline}</Text>
-      )}
-
       <BedroomStateCard
         phrase={phrase}
         bedroomMetrics={bedroomMetrics}

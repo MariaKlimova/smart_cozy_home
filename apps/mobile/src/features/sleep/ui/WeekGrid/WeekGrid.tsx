@@ -2,14 +2,14 @@ import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
 import { formatSleepWeekRangeFromEnd } from '@/features/sleep/lib/formatSleepWeekRange';
-import { SleepNightCell } from '@/features/sleep/ui/SleepNightCell';
 import { useSleepHistory } from '@/features/sleep/lib/useSleepHistory';
+import { SleepNightCell } from '@/features/sleep/ui/SleepNightCell';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { typography } from '@/theme/tokens';
 
 import { WeekGridSkeleton } from './-Skeleton';
 import { WEEK_GRID } from './WeekGrid.const';
-import type { IWeekGridPageProps, ISleepWeekPageProps } from './WeekGrid.typings';
+import type { ISleepWeekPageProps, IWeekGridPageProps } from './WeekGrid.typings';
 import { styles } from './WeekGrid.styles';
 
 function WeekGridPage({
@@ -19,12 +19,24 @@ function WeekGridPage({
   onSelectNight,
   selectedNightDate,
   isLoading,
+  isError = false,
 }: IWeekGridPageProps) {
   const c = useThemeColors();
   const pageStyle = pageWidth > 0 ? { width: pageWidth } : undefined;
 
   if (isLoading) {
     return <WeekGridSkeleton pageWidth={pageWidth} weekRangeLabel={weekRangeLabel} />;
+  }
+
+  if (isError) {
+    return (
+      <View style={[styles.page, styles.loading, pageStyle]} testID={WEEK_GRID}>
+        <Text style={[typography.caption, styles.weekLabel, { color: c.textMuted }]}>
+          {weekRangeLabel}
+        </Text>
+        <Text style={[typography.caption, { color: c.textMuted }]}>{copy.sleep.loadError}</Text>
+      </View>
+    );
   }
 
   if (nights.length === 0) {
@@ -63,9 +75,10 @@ export function SleepWeekPage({
   onSelectNight,
   selectedNightDate,
 }: ISleepWeekPageProps) {
-  const { nights, weekEnd, isLoading, isFetching } = useSleepHistory({ weekOffset });
+  const { nights, weekEnd, isLoading, isFetching, isError } = useSleepHistory({ weekOffset });
   const weekRangeLabel = formatSleepWeekRangeFromEnd(weekEnd);
   const showSkeleton = isLoading || (isFetching && nights.length === 0);
+  const showError = !showSkeleton && nights.length === 0 && isError;
 
   return (
     <WeekGridPage
@@ -75,6 +88,7 @@ export function SleepWeekPage({
       onSelectNight={onSelectNight}
       selectedNightDate={selectedNightDate}
       isLoading={showSkeleton}
+      isError={showError}
     />
   );
 }

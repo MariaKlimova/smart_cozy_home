@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { spacing, typography } from '@/theme/tokens';
+import { ConnectionBanner } from '@/ui/ConnectionBanner';
 
 import { SCREEN_LAYOUT_KEYBOARD_PADDING_MULTIPLIER } from './ScreenLayout.const';
 import type { IScreenLayoutWithRefreshProps } from './ScreenLayout.typings';
@@ -18,7 +19,7 @@ import { styles } from './ScreenLayout.styles';
 
 export const ScreenLayout = forwardRef<ScrollViewType, IScreenLayoutWithRefreshProps>(
   function ScreenLayout(
-    { title, variant = 'tab', children, onRefresh, isRefreshing, keyboardAware = false },
+    { title, variant = 'tab', children, onRefresh, isRefreshing, keyboardAware = false, showConnectionBanner = true },
     forwardedRef,
   ) {
     const c = useThemeColors();
@@ -71,6 +72,7 @@ export const ScreenLayout = forwardRef<ScrollViewType, IScreenLayoutWithRefreshP
           {title && !isStack ? (
             <Text style={[typography.title, styles.title, { color: c.text }]}>{title}</Text>
           ) : null}
+          {showConnectionBanner ? <ConnectionBanner /> : null}
           {children}
         </ScrollView>
       </KeyboardAvoidingView>

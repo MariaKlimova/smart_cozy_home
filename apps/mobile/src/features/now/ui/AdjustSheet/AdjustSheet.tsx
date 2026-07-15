@@ -7,6 +7,7 @@ import { useBedroomControls } from '@/features/bedroom/lib/useBedroomControls';
 import { BedroomDeviceControls } from '@/features/bedroom/ui/BedroomDeviceControls';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useHaBackend } from '@/hooks/useHaBackend';
+import { useConnectionStatus } from '@/hooks/useConnectionStatus';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { CalmSheet } from '@/ui/CalmSheet';
 import { typography } from '@/theme/tokens';
@@ -18,6 +19,7 @@ import { styles } from './AdjustSheet.styles';
 export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustSheetProps) {
   const c = useThemeColors();
   const { haReady } = useHaBackend();
+  const { message: connectionMessage } = useConnectionStatus();
   const deviceConfig = useBedroomDeviceStore((s) => s.config);
   const hasActiveDevices =
     getActiveBedroomDeviceEntityIds(resolveBedroomDevices(deviceConfig)).length > 0;
@@ -67,7 +69,9 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
 
   if (!haReady) {
     panelContent = (
-      <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
+      <Text style={[typography.body, { color: c.textMuted }]}>
+        {connectionMessage ?? copy.connection.haUnavailable}
+      </Text>
     );
   } else if (!hasActiveDevices) {
     panelContent = (
@@ -81,7 +85,7 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
     );
   } else if (isError && !devices) {
     panelContent = (
-      <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
+      <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.haUnavailable}</Text>
     );
   } else if (devices) {
     panelContent = (

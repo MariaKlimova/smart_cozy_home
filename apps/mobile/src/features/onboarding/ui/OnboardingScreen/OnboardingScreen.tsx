@@ -4,6 +4,7 @@ import { Text, type ScrollView, type TextInput } from 'react-native';
 
 import { copy } from '@/copy/ru';
 import type { IConnectionProfile } from '@/domain/connection.typings';
+import { connectionFailureMessageKey } from '@/domain/connectionStatus';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useConnectionStore } from '@/store/connectionStore';
 import { CalmButton } from '@/ui/CalmButton';
@@ -31,7 +32,8 @@ function resolvePreferred(
 export function OnboardingScreen(_props: IOnboardingScreenProps) {
   const c = useThemeColors();
   const connect = useConnectionStore((s) => s.connect);
-  const error = useConnectionStore((s) => s.error);
+  const failureReason = useConnectionStore((s) => s.failureReason);
+  const isLoading = useConnectionStore((s) => s.isLoading);
 
   const scrollRef = useRef<ScrollView>(null);
   const tokenInputRef = useRef<TextInput>(null);
@@ -47,6 +49,9 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
       scrollRef.current?.scrollToEnd({ animated: true });
     });
   }
+
+  const connectErrorKey = failureReason ? connectionFailureMessageKey(failureReason) : null;
+  const connectError = connectErrorKey ? copy.connection[connectErrorKey] : null;
 
   async function handleSave() {
     const trimmedLocal = localUrl.trim();
@@ -78,7 +83,7 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
   }
 
   return (
-    <ScreenLayout ref={scrollRef} title={copy.onboarding.title} keyboardAware>
+    <ScreenLayout ref={scrollRef} title={copy.onboarding.title} keyboardAware showConnectionBanner={false}>
       <Text style={[typography.body, { color: c.textMuted }]}>{copy.onboarding.subtitle}</Text>
       <Text style={[typography.caption, { color: c.textMuted }]}>
         {copy.onboarding.remoteOnlyHint}
@@ -122,12 +127,12 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
         autoCapitalize="none"
       />
 
-      {error ? <Text style={{ color: c.warning }}>{error}</Text> : null}
+      {connectError ? <Text style={{ color: c.warning }}>{connectError}</Text> : null}
 
       <CalmButton
         label={copy.onboarding.save}
         onPress={handleSave}
-        isLoading={isSaving}
+        isLoading={isSaving || isLoading}
         disabled={!token.trim() || (!localUrl.trim() && !remoteUrl.trim())}
       />
     </ScreenLayout>

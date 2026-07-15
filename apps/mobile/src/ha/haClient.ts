@@ -6,9 +6,61 @@ import {
   updateMockEntityState,
 } from '@/ha/haMockStore';
 import { runMockScript } from '@/ha/mockScriptRunner';
+import {
+  ensureNetworkAvailable,
+  isLikelyOfflineFetchError,
+  reportNetworkLost,
+  reportNetworkRestored,
+} from '@/ha/networkReachability';
 import type { IHaEntityState } from '@/ha/types';
 
 const FETCH_TIMEOUT_MS = 30_000;
+
+/**
+ * Перед любым реальным HA fetch: кеш + живой NetInfo.
+ * Если сеть недоступна — бросает NetworkUnavailableError сразу, без ожидания таймаута.
+ */
+async function assertNetworkBeforeHaRequest(): Promise<void> {
+  try {
+    await ensureNetworkAvailable();
+  } catch (error) {
+    reportNetworkLost();
+    throw error;
+  }
+}
+
+/** fetch с проверкой сети и таймаутом AbortController */
+async function haFetch(url: string, init?: RequestInit): Promise<Response> {
+  await assertNetworkBeforeHaRequest();
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+  try {
+    const parentSignal = init?.signal;
+    if (parentSignal) {
+      if (parentSignal.aborted) {
+        controller.abort();
+      } else {
+        parentSignal.addEventListener('abort', () => controller.abort(), { once: true });
+      }
+    }
+
+    const res = await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    });
+    reportNetworkRestored();
+    return res;
+  } catch (error) {
+    if (isLikelyOfflineFetchError(error)) {
+      reportNetworkLost();
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 /**
  * Мок-режим HA: данные из scenarioMocks.ts, без сетевых запросов.
@@ -65,22 +117,14 @@ export async function fetchAllEntityStates(
     return getAllMockEntityStates();
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
-  try {
-    const res = await fetch(`${baseUrl}/api/states`, {
-      headers: authHeaders(token),
-      signal: controller.signal,
-    });
-    if (!res.ok) {
-      throw new Error(`HA states failed: ${res.status}`);
-    }
-    const all = (await res.json()) as TRawHaState[];
-    return all.map(mapRawState);
-  } finally {
-    clearTimeout(timer);
+  const res = await haFetch(`${baseUrl}/api/states`, {
+    headers: authHeaders(token),
+  });
+  if (!res.ok) {
+    throw new Error(`HA states failed: ${res.status}`);
   }
+  const all = (await res.json()) as TRawHaState[];
+  return all.map(mapRawState);
 }
 
 export async function fetchEntityStates(
@@ -112,21 +156,13 @@ export async function callHaService(
     return;
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
-  try {
-    const res = await fetch(`${baseUrl}/api/services/${domain}/${service}`, {
-      method: 'POST',
-      headers: authHeaders(token),
-      body: JSON.stringify(data ?? {}),
-      signal: controller.signal,
-    });
-    if (!res.ok) {
-      throw new Error(`HA service failed: ${res.status}`);
-    }
-  } finally {
-    clearTimeout(timer);
+  const res = await haFetch(`${baseUrl}/api/services/${domain}/${service}`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: JSON.stringify(data ?? {}),
+  });
+  if (!res.ok) {
+    throw new Error(`HA service failed: ${res.status}`);
   }
 }
 
@@ -341,7 +377,7 @@ export async function fetchLogbookRange(
     params.append('entity', id);
   }
 
-  const res = await fetch(`${baseUrl}/api/logbook?${params.toString()}`, {
+  const res = await haFetch(`${baseUrl}/api/logbook?${params.toString()}`, {
     headers: authHeaders(token),
   });
   if (!res.ok) {
@@ -361,31 +397,23 @@ export async function fetchHistoryPeriod(
     return [];
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
-  try {
-    const params = new URLSearchParams({
-      end_time: end.toISOString(),
-    });
-    for (const id of entityIds) {
-      params.append('filter_entity_id', id);
-    }
-
-    const res = await fetch(
-      `${baseUrl}/api/history/period/${encodeURIComponent(start.toISOString())}?${params.toString()}`,
-      {
-        headers: authHeaders(token),
-        signal: controller.signal,
-      },
-    );
-
-    if (!res.ok) {
-      throw new Error(`HA history failed: ${res.status}`);
-    }
-
-    return res.json();
-  } finally {
-    clearTimeout(timeoutId);
+  const params = new URLSearchParams({
+    end_time: end.toISOString(),
+  });
+  for (const id of entityIds) {
+    params.append('filter_entity_id', id);
   }
+
+  const res = await haFetch(
+    `${baseUrl}/api/history/period/${encodeURIComponent(start.toISOString())}?${params.toString()}`,
+    {
+      headers: authHeaders(token),
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(`HA history failed: ${res.status}`);
+  }
+
+  return res.json();
 }

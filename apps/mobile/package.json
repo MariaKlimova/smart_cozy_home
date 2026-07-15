@@ -10,12 +10,13 @@
     "web": "expo start --web",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "NODE_ENV=test node --import tsx --test src/ha/mappers/mapBedroomDevices.test.ts src/ha/mappers/mapScenarioSettings.test.ts src/domain/scenarioWeeklySchedule.test.ts src/domain/sleepNightWindows.test.ts src/domain/nightSchedule.test.ts src/domain/nowSuggestion.test.ts src/domain/bedroomDeviceControl.test.ts src/domain/mockRoomPhysics.test.ts src/ha/mockScriptRunner.test.ts src/ha/mockSleepMaintainer.test.ts src/features/now/lib/parseSunEvent.test.ts src/features/now/lib/interpretState.test.ts src/features/settings/lib/devicePickerFilters.test.ts src/features/scenarios/lib/scenarioFieldLabels.test.ts src/features/scenarios/lib/scenarioSettingsSchedule.test.ts src/features/sleep/lib/scoreSleepNight.test.ts src/features/sleep/lib/computeMetricNormPercent.test.ts src/features/sleep/lib/buildSleepMetricChartData.test.ts src/features/sleep/lib/formatSleepWeekRange.test.ts src/features/sleep/lib/formatSleepNightTitle.test.ts src/health/dedupeSleepSegments.test.ts src/health/aggregateWearableNight.test.ts src/health/buildWearableQueryWindow.test.ts src/health/extractTrackerSleepScore.test.ts src/health/scoreWearableSleepQuality.test.ts"
+    "test": "NODE_ENV=test node --import tsx --test src/ha/mappers/mapBedroomDevices.test.ts src/ha/mappers/mapScenarioSettings.test.ts src/domain/scenarioWeeklySchedule.test.ts src/domain/sleepNightWindows.test.ts src/domain/nightSchedule.test.ts src/domain/nowSuggestion.test.ts src/domain/bedroomDeviceControl.test.ts src/domain/mockRoomPhysics.test.ts src/domain/connectionStatus.test.ts src/ha/mockScriptRunner.test.ts src/ha/mockSleepMaintainer.test.ts src/features/now/lib/parseSunEvent.test.ts src/features/now/lib/interpretState.test.ts src/features/settings/lib/devicePickerFilters.test.ts src/features/scenarios/lib/scenarioFieldLabels.test.ts src/features/scenarios/lib/scenarioSettingsSchedule.test.ts src/features/sleep/lib/scoreSleepNight.test.ts src/features/sleep/lib/computeMetricNormPercent.test.ts src/features/sleep/lib/buildSleepMetricChartData.test.ts src/features/sleep/lib/formatSleepWeekRange.test.ts src/features/sleep/lib/formatSleepNightTitle.test.ts src/health/dedupeSleepSegments.test.ts src/health/aggregateWearableNight.test.ts src/health/buildWearableQueryWindow.test.ts src/health/extractTrackerSleepScore.test.ts src/health/scoreWearableSleepQuality.test.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@kingstinct/react-native-healthkit": "^14.0.2",
     "@react-native-community/datetimepicker": "8.4.4",
+    "@react-native-community/netinfo": "11.4.1",
     "@react-native-community/slider": "5.0.1",
     "@react-navigation/native": "^7.1.8",
     "@tanstack/react-query": "^5.100.10",

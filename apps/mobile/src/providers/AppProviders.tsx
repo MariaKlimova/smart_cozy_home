@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useState } from 'react';
 
 import { MockHaRuntime } from '@/ha/MockHaRuntime';
+import { ConnectionLifecycle } from './ConnectionLifecycle';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,6 +16,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={client}>
       <MockHaRuntime />
+      <ConnectionLifecycle />
       {children}
     </QueryClientProvider>
   );

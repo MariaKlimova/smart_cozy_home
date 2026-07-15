@@ -65,7 +65,7 @@ export function useSleepNightSamples(
 
   return {
     samples: query.data ?? [],
-    isLoading: query.isPending,
+    isLoading: query.isLoading,
     isFetching: query.isFetching,
     isError: query.isError,
   };
