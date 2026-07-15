@@ -1,16 +1,19 @@
 import type { IBedroomDeviceUserConfig } from '@/config/bedroomDeviceSlotMapping.typings';
 import { isBedroomClimateSliderId } from '@/config/bedroomClimateDevices';
+import { getHumidifierEntityCandidates } from '@/config/humidifierEntity';
 import { resolveBedroomDevices } from '@/config/resolveBedroomDevices';
 import type { IBedroomDeviceMapping } from '@/config/homeConfig.typings';
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
 import {
   callHaService,
+  fetchEntityStates,
   setClimateTemperature,
   setCoverPosition,
   setEntityPower,
   setLightBrightness,
 } from '@/ha/haClient';
 import { parseEntityDomain } from '@/ha/entityList';
+import type { IHaEntityState } from '@/ha/types';
 
 /** Параметры вызова HA-сервиса для устройства спальни */
 export interface IBedroomDeviceServiceCall {
@@ -22,11 +25,21 @@ export interface IBedroomDeviceServiceCall {
   data: Record<string, unknown>;
 }
 
+/** Опции резолва команды устройству */
+export interface IResolveBedroomDeviceServiceCallOptions {
+  /**
+   * Состояния HA для автофолбека увлажнителя.
+   * Если не переданы — выбирается primary / override.
+   */
+  states?: IHaEntityState[] | null;
+}
+
 function findDeviceMapping(
   deviceId: string,
   config: IBedroomDeviceUserConfig | null,
+  states: IHaEntityState[] | null,
 ): IBedroomDeviceMapping {
-  const mapping = resolveBedroomDevices(config).find((d) => d.id === deviceId);
+  const mapping = resolveBedroomDevices(config, { states }).find((d) => d.id === deviceId);
   if (!mapping) {
     throw new Error(`Unknown bedroom device: ${deviceId}`);
   }
@@ -110,8 +123,9 @@ export function resolveBedroomDeviceServiceCall(
   deviceId: string,
   action: TBedroomDeviceAction,
   config: IBedroomDeviceUserConfig | null = null,
+  options?: IResolveBedroomDeviceServiceCallOptions,
 ): IBedroomDeviceServiceCall {
-  const mapping = findDeviceMapping(deviceId, config);
+  const mapping = findDeviceMapping(deviceId, config, options?.states ?? null);
 
   if (action.kind === 'slider') {
     return resolveSliderAction(mapping, action.value);
@@ -122,6 +136,31 @@ export function resolveBedroomDeviceServiceCall(
   return resolveSegmentAction(mapping, action.optionId);
 }
 
+async function loadHumidifierResolveStates(
+  baseUrl: string,
+  token: string,
+  config: IBedroomDeviceUserConfig | null,
+  knownStates: IHaEntityState[] | null,
+): Promise<IHaEntityState[] | null> {
+  if (knownStates && knownStates.length > 0) {
+    return knownStates;
+  }
+  const candidates = getHumidifierEntityCandidates(config);
+  if (candidates.length <= 1) {
+    return null;
+  }
+  return fetchEntityStates(baseUrl, token, candidates);
+}
+
+/** Опции setBedroomDevice */
+export interface ISetBedroomDeviceOptions {
+  /**
+   * Уже известные states (из последнего query) для фолбека увлажнителя.
+   * Без этого — один точечный fetch кандидатов (не весь /api/states).
+   */
+  knownStates?: IHaEntityState[] | null;
+}
+
 /** Отправляет команду устройству спальни в Home Assistant */
 export async function setBedroomDevice(
   deviceId: string,
@@ -129,9 +168,22 @@ export async function setBedroomDevice(
   baseUrl: string,
   token: string,
   config: IBedroomDeviceUserConfig | null = null,
+  options?: ISetBedroomDeviceOptions,
 ): Promise<void> {
-  const mapping = findDeviceMapping(deviceId, config);
-  const { domain, service, data } = resolveBedroomDeviceServiceCall(deviceId, action, config);
+  let states: IHaEntityState[] | null = null;
+  if (deviceId === 'humidifier') {
+    states = await loadHumidifierResolveStates(
+      baseUrl,
+      token,
+      config,
+      options?.knownStates ?? null,
+    );
+  }
+
+  const mapping = findDeviceMapping(deviceId, config, states);
+  const { domain, service, data } = resolveBedroomDeviceServiceCall(deviceId, action, config, {
+    states,
+  });
 
   if (action.kind === 'slider' && mapping.id === 'light') {
     await setLightBrightness(baseUrl, token, mapping.entity, action.value);

@@ -4,8 +4,8 @@ import { copy } from '@/copy/ru';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { typography } from '@/theme/tokens';
 
-import type { IBedroomStateCardMetricsProps } from './BedroomStateCard-Metrics.typings';
 import { styles } from './BedroomStateCard-Metrics.styles';
+import type { IBedroomStateCardMetricsProps } from './BedroomStateCard-Metrics.typings';
 
 function MetricValue({ metric }: { metric: IBedroomStateCardMetricsProps['metrics'][number] }) {
   const c = useThemeColors();

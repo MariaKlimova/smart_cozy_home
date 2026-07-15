@@ -1,11 +1,15 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { bedroomDeviceMappingQueryKey, getActiveBedroomDeviceEntityIds, resolveBedroomDevices } from '@/config/resolveBedroomDevices';
+import {
+  bedroomDeviceMappingQueryKey,
+  getActiveBedroomDeviceEntityIds,
+} from '@/config/resolveBedroomDevices';
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
 import type { IBedroomDeviceState } from '@/domain/bedroomDevice.typings';
 import { setBedroomDevice } from '@/domain/bedroomDeviceControl';
 import { fetchEntityStates } from '@/ha/haClient';
+import type { IHaEntityState } from '@/ha/types';
 import { useHaBackend } from '@/ha/useHaBackend';
 import { mapBedroomDevices } from '@/ha/mappers/domainMapper';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
@@ -39,6 +43,18 @@ export interface IUseBedroomControlsResult {
   refresh: () => Promise<void>;
 }
 
+function patchToggleInCache(
+  devices: IBedroomDeviceState[] | undefined,
+  deviceId: string,
+  isOn: boolean,
+): IBedroomDeviceState[] | undefined {
+  if (!devices) return devices;
+  return devices.map((device) => {
+    if (device.id !== deviceId) return device;
+    return { ...device, value: { isOn } };
+  });
+}
+
 /** Загрузка и управление устройствами спальни через HA */
 export function useBedroomControls(
   options?: IUseBedroomControlsOptions,
@@ -48,16 +64,14 @@ export function useBedroomControls(
   const baseUrl = useConnectionStore((s) => s.baseUrl);
   const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const config = useBedroomDeviceStore((s) => s.config);
-  const entityIds = useMemo(
-    () => getActiveBedroomDeviceEntityIds(resolveBedroomDevices(config)),
-    [config],
-  );
+  const entityIds = useMemo(() => getActiveBedroomDeviceEntityIds(config), [config]);
   const mappingKey = bedroomDeviceMappingQueryKey(config);
   const devicesQueryKey = useMemo(
     () => ['bedroom-devices', baseUrl, mappingKey] as const,
     [baseUrl, mappingKey],
   );
   const [pendingDeviceId, setPendingDeviceId] = useState<string>();
+  const lastHaStatesRef = useRef<IHaEntityState[]>([]);
 
   const query = useQuery({
     queryKey: devicesQueryKey,
@@ -68,6 +82,7 @@ export function useBedroomControls(
     refetchInterval: pollingEnabled ? BEDROOM_DEVICES_STALE_MS : false,
     queryFn: async () => {
       const states = await fetchEntityStates(haBaseUrl, haToken, entityIds);
+      lastHaStatesRef.current = states;
       return mapBedroomDevices(states, config);
     },
   });
@@ -76,14 +91,50 @@ export function useBedroomControls(
     async (deviceId: string, action: TBedroomDeviceAction): Promise<boolean> => {
       if (!haReady) return false;
       setPendingDeviceId(deviceId);
+
+      const previousDevices = queryClient.getQueryData<IBedroomDeviceState[]>(devicesQueryKey);
+      if (action.kind === 'toggle') {
+        queryClient.setQueryData(
+          devicesQueryKey,
+          patchToggleInCache(previousDevices, deviceId, action.isOn),
+        );
+      }
+
       try {
-        await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config);
+        await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config, {
+          knownStates: lastHaStatesRef.current,
+        });
+        // REST /api/states часто отстаёт от call_service — не ждём refetch и
+        // сразу возвращаем optimistic; soft-refresh не должен затирать UI.
+        if (action.kind === 'toggle') {
+          queryClient.setQueryData(
+            devicesQueryKey,
+            patchToggleInCache(
+              queryClient.getQueryData<IBedroomDeviceState[]>(devicesQueryKey) ?? previousDevices,
+              deviceId,
+              action.isOn,
+            ),
+          );
+          void queryClient.invalidateQueries({ queryKey: devicesQueryKey }).then(() => {
+            queryClient.setQueryData(
+              devicesQueryKey,
+              (current: IBedroomDeviceState[] | undefined) => {
+                const patched = patchToggleInCache(current, deviceId, action.isOn);
+                return patched ?? current;
+              },
+            );
+          });
+          return true;
+        }
+
         await queryClient.invalidateQueries({
           queryKey: devicesQueryKey,
         });
         return true;
       } catch {
-        // entity может отсутствовать в HA
+        if (previousDevices) {
+          queryClient.setQueryData(devicesQueryKey, previousDevices);
+        }
         return false;
       } finally {
         setPendingDeviceId(undefined);

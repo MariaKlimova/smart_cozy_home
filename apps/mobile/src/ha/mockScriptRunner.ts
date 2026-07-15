@@ -6,10 +6,10 @@ import {
   readMockNumberParam,
   setMockClimateTemperature,
   setMockCoverPosition,
-  setMockEntityPower,
   setMockLightBrightnessPercent,
   updateMockEntityState,
 } from '@/ha/haMockStore';
+import { setMockHumidifierPower } from '@/ha/mockHumidifier';
 import { resetSleepMaintainer, startSleepMaintainer } from '@/ha/mockSleepMaintainer';
 
 const { devices, system, scenarioParams } = HA_ENTITIES;
@@ -59,7 +59,7 @@ function runEveningScript(): void {
   );
 
   if (readMockBooleanParam(params.humidifier, true)) {
-    setMockEntityPower(devices.humidifier, true);
+    setMockHumidifierPower(true);
   }
 
   setHomeMode('evening');
@@ -109,7 +109,7 @@ function runAwayScript(): void {
     CLIMATE_ENTITIES,
     readMockNumberParam(params.temperature, 16),
   );
-  setMockEntityPower(devices.humidifier, false);
+  setMockHumidifierPower(false);
   setPrepared(false);
   setAllPersonsAway();
   setHomeMode('away');
@@ -117,7 +117,7 @@ function runAwayScript(): void {
 
 function runComingHomeScript(): void {
   const params = scenarioParams.comingHome;
-  setMockEntityPower(devices.humidifier, true);
+  setMockHumidifierPower(true);
   setMockClimateTemperature(
     CLIMATE_ENTITIES,
     readMockNumberParam(params.temperature, 21),
@@ -146,7 +146,7 @@ function runCozyScript(): void {
     CLIMATE_ENTITIES,
     readMockNumberParam(params.temperature, 21),
   );
-  setMockEntityPower(devices.humidifier, true);
+  setMockHumidifierPower(true);
   setHomeMode('cozy');
 }
 

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Text, View } from 'react-native';
 
-import { getActiveBedroomDeviceEntityIds, resolveBedroomDevices } from '@/config/resolveBedroomDevices';
+import { getActiveBedroomDeviceEntityIds } from '@/config/resolveBedroomDevices';
 import { copy } from '@/copy/ru';
 import { useBedroomControls } from '@/features/bedroom/lib/useBedroomControls';
 import { BedroomDeviceControls } from '@/features/bedroom/ui/BedroomDeviceControls';
@@ -21,8 +21,7 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
   const { haReady } = useHaBackend();
   const { message: connectionMessage } = useConnectionStatus();
   const deviceConfig = useBedroomDeviceStore((s) => s.config);
-  const hasActiveDevices =
-    getActiveBedroomDeviceEntityIds(resolveBedroomDevices(deviceConfig)).length > 0;
+  const hasActiveDevices = getActiveBedroomDeviceEntityIds(deviceConfig).length > 0;
 
   const {
     devices,
@@ -51,6 +50,7 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
       if (!applied) {
         onManualControlError();
       }
+      return applied;
     },
     [setToggle, onManualControlError],
   );
@@ -94,7 +94,7 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
         pendingDeviceId={pendingDeviceId}
         showConfigure={false}
         onSliderComplete={handleSliderComplete}
-        onToggle={(deviceId, isOn) => void handleToggle(deviceId, isOn)}
+        onToggle={handleToggle}
         onSegmentSelect={(deviceId, optionId) => void handleSegmentSelect(deviceId, optionId)}
       />
     );

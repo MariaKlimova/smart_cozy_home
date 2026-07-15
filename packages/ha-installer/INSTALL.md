@@ -65,6 +65,7 @@ homeassistant:
 1. Назначьте **Areas** (спальня → `bedroom`, гостиная → `living_room`)
 2. Переименуйте entities или используйте Entity Registry
 3. Убедитесь, что climate-устройства спальни доступны как минимум через `climate.bedroom_ac`
+4. Увлажнитель: смаппьте либо `humidifier.bedroom` (умный), либо `switch.bedroom_humidifier` (розетка) — см. [`DEVICES.md`](./DEVICES.md)
 
 ---
 

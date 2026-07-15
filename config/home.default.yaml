@@ -111,6 +111,7 @@ bedroom_devices:
         - id: closed
           label: Закрыты
           value: 0
+    # Увлажнитель: основной humidifier.bedroom; фолбек switch.bedroom_humidifier (SH-37)
     - id: humidifier
       label: Увлажнитель
       control: toggle

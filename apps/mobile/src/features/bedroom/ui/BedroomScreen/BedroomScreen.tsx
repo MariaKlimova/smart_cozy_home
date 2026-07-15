@@ -5,7 +5,7 @@ import { Text, View } from 'react-native';
 
 import type { TBedroomDeviceSlot } from '@/config/bedroomDeviceSlotMapping.typings';
 import type { TBedroomSensorSlot } from '@/config/bedroomSensorMapping.typings';
-import { getActiveBedroomDeviceEntityIds, resolveBedroomDevices } from '@/config/resolveBedroomDevices';
+import { getActiveBedroomDeviceEntityIds } from '@/config/resolveBedroomDevices';
 import { copy } from '@/copy/ru';
 import { useBedroomControls } from '@/features/bedroom/lib/useBedroomControls';
 import { BedroomDeviceControls } from '@/features/bedroom/ui/BedroomDeviceControls';
@@ -54,8 +54,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
   const { haReady } = useHaBackend();
   const deviceConfig = useBedroomDeviceStore((s) => s.config);
   const sensorOverrides = useBedroomSensorStore((s) => s.overrides);
-  const hasActiveDevices =
-    getActiveBedroomDeviceEntityIds(resolveBedroomDevices(deviceConfig)).length > 0;
+  const hasActiveDevices = getActiveBedroomDeviceEntityIds(deviceConfig).length > 0;
 
   const [activeTab, setActiveTab] = useState<TBedroomTabId>(
     initialTab && isBedroomTabId(initialTab) ? initialTab : 'devices',
@@ -149,7 +148,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
               devices={devices}
               pendingDeviceId={pendingDeviceId}
               onSliderComplete={(deviceId, value) => setSlider(deviceId, value)}
-              onToggle={(deviceId, isOn) => void setToggle(deviceId, isOn)}
+              onToggle={(deviceId, isOn) => setToggle(deviceId, isOn)}
               onSegmentSelect={(deviceId, optionId) => void setSegment(deviceId, optionId)}
               onConfigureDevice={(deviceId) => {
                 if (!isBedroomDeviceSlot(deviceId)) return;

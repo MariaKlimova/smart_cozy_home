@@ -28,12 +28,15 @@
 | `climate.bedroom_ac` | Кондиционер |
 | `climate.bedroom_radiator` | Радиатор |
 | `climate.bedroom_ventilation` | Приточная вентиляция |
-| `humidifier.bedroom` | Увлажнитель |
+| `humidifier.bedroom` | Увлажнитель (умный, основной) |
+| `switch.bedroom_humidifier` | Увлажнитель через розетку (фолбек) |
 | `sensor.bedroom_co2` | Датчик CO₂ |
 | `sensor.bedroom_temperature` | Датчик температуры |
 | `sensor.bedroom_humidity` | Датчик влажности |
 
 Сценарии отправляют `climate.set_temperature` на все три climate-entity спальни. HA применяет команду только к доступным устройствам; отсутствующие entity игнорируются без ошибки.
+
+Увлажнитель: scripts выбирают `humidifier.bedroom`, иначе `switch.bedroom_humidifier` (`homeassistant.turn_on` / `turn_off`). Подробности — [`DEVICES.md`](./DEVICES.md) § «Увлажнитель».
 
 ---
 
@@ -45,7 +48,7 @@
 1. Плавно снижает яркость света до `input_number.evening_brightness` за 5 минут (`light.turn_on` с `transition: 300`)
 2. Закрывает шторы если `input_boolean.evening_curtains = true` (`cover.close_cover`)
 3. Устанавливает целевую температуру `input_number.evening_temperature` (`climate.set_temperature`)
-4. Включает увлажнитель если `input_boolean.evening_humidifier = true` (`humidifier.turn_on`)
+4. Включает увлажнитель если `input_boolean.evening_humidifier = true` (`humidifier.bedroom` или фолбек `switch.bedroom_humidifier`)
 5. Записывает `input_select.home_mode = evening`
 
 **Helpers — параметры:**
@@ -146,7 +149,7 @@
 2. Закрывает шторы если `input_boolean.away_curtains = true` (`cover.close_cover`)
 3. Закрывает окно (`cover.close_cover` на `cover.bedroom_window`)
 4. Снижает температуру до `input_number.away_temperature` (`climate.set_temperature`)
-5. Выключает увлажнитель (`humidifier.turn_off`)
+5. Выключает увлажнитель (`humidifier.bedroom` или фолбек `switch.bedroom_humidifier`)
 6. Сбрасывает `input_boolean.home_ready_for_arrival = false`
 7. Записывает `input_select.home_mode = away`
 
@@ -164,7 +167,7 @@
 **Что делает:** готовит дом к прибытию. Нажимается заранее, дом начинает прогреваться. Только ручной запуск.
 
 **Действия по порядку:**
-1. Включает увлажнитель (`humidifier.turn_on`)
+1. Включает увлажнитель (`humidifier.bedroom` или фолбек `switch.bedroom_humidifier`)
 2. Устанавливает целевую температуру `input_number.coming_home_temperature` (`climate.set_temperature`)
 3. Включает свет на яркость `input_number.coming_home_brightness` с тёплой цветовой температурой (`light.turn_on`)
 4. Открывает шторы если на улице день (условие по `sun.sun`: `state = above_horizon`)
@@ -191,7 +194,7 @@
 1. Включает свет на `input_number.cozy_brightness` с максимально тёплой цветовой температурой (`light.turn_on` с `color_temp: 500` mireds)
 2. Закрывает шторы (`cover.close_cover`)
 3. Устанавливает температуру `input_number.cozy_temperature` (`climate.set_temperature`)
-4. Включает увлажнитель (`humidifier.turn_on`)
+4. Включает увлажнитель (`humidifier.bedroom` или фолбек `switch.bedroom_humidifier`)
 5. Записывает `input_select.home_mode = cozy`
 
 **Helpers — параметры:**

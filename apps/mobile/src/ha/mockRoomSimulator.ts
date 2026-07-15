@@ -10,6 +10,7 @@ import {
   getMockEntitySnapshot,
   updateMockEntityState,
 } from '@/ha/haMockStore';
+import { isMockHumidifierOn } from '@/ha/mockHumidifier';
 import { tickSleepMaintainer } from '@/ha/mockSleepMaintainer';
 
 const { devices } = HA_ENTITIES;
@@ -80,7 +81,7 @@ function buildRoomPhysicsInput(): IRoomPhysicsInput {
     ventilationSnapshot.state !== 'unavailable';
 
   return {
-    humidifierOn: getMockEntitySnapshot(devices.humidifier)?.state === 'on',
+    humidifierOn: isMockHumidifierOn(),
     windowPosition: readCoverPosition(devices.window),
     occupancyOn: getMockEntitySnapshot(devices.occupancy)?.state === 'on',
     ventilationActive,

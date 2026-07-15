@@ -9,8 +9,8 @@ export interface IBedroomDeviceControlsCardProps {
   showConfigure?: boolean;
   /** Slider отпущен; false — откатить локальное значение */
   onSliderComplete: (value: number) => Promise<boolean>;
-  /** Toggle переключён */
-  onToggle: (isOn: boolean) => void;
+  /** Toggle переключён; false — откатить локальное значение */
+  onToggle: (isOn: boolean) => Promise<boolean>;
   /** Сегмент выбран */
   onSegmentSelect: (optionId: string) => void;
   /** Открыть выбор устройства в HA */

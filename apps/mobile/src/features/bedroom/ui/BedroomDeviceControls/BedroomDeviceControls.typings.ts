@@ -9,8 +9,8 @@ export interface IBedroomDeviceControlsProps {
   showConfigure?: boolean;
   /** Slider отпущен — отправить в HA; false, если команда не применилась */
   onSliderComplete: (deviceId: string, value: number) => Promise<boolean>;
-  /** Toggle переключён */
-  onToggle: (deviceId: string, isOn: boolean) => void;
+  /** Toggle переключён; false, если команда не применилась */
+  onToggle: (deviceId: string, isOn: boolean) => Promise<boolean>;
   /** Сегмент выбран */
   onSegmentSelect: (deviceId: string, optionId: string) => void;
   /** Настроить привязку устройства к HA */

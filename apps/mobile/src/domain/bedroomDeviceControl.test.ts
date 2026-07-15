@@ -73,6 +73,24 @@ describe('resolveBedroomDeviceServiceCall', () => {
     assert.equal(call.data.entity_id, 'switch.bedroom_humidifier');
   });
 
+  it('falls back to switch humidifier when smart humidifier unavailable', () => {
+    const call = resolveBedroomDeviceServiceCall(
+      'humidifier',
+      { kind: 'toggle', isOn: false },
+      null,
+      {
+        states: [
+          { entityId: 'humidifier.bedroom', state: 'unavailable', attributes: {} },
+          { entityId: 'switch.bedroom_humidifier', state: 'on', attributes: {} },
+        ],
+      },
+    );
+
+    assert.equal(call.domain, 'switch');
+    assert.equal(call.service, 'turn_off');
+    assert.equal(call.data.entity_id, 'switch.bedroom_humidifier');
+  });
+
   it('throws for unknown device', () => {
     assert.throws(
       () => resolveBedroomDeviceServiceCall('unknown', { kind: 'toggle', isOn: true }),

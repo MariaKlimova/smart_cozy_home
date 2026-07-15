@@ -115,6 +115,23 @@ describe('mapBedroomDevices', () => {
     }
   });
 
+  it('falls back to switch humidifier when smart humidifier unavailable', () => {
+    const states = [
+      haState('humidifier.bedroom', 'unavailable'),
+      haState('switch.bedroom_humidifier', 'on'),
+    ];
+    const devices = mapBedroomDevices(states);
+    const humidifier = devices.find((d) => d.id === 'humidifier');
+
+    assert.ok(humidifier);
+    assert.equal(humidifier.isAvailable, true);
+    if (humidifier.value && 'isOn' in humidifier.value) {
+      assert.equal(humidifier.value.isOn, true);
+    } else {
+      assert.fail('expected toggle value');
+    }
+  });
+
   it('marks unavailable entities', () => {
     const states = [haState('light.bedroom', 'unavailable')];
     const devices = mapBedroomDevices(states);
@@ -142,7 +159,7 @@ describe('mapBedroomDevices', () => {
 });
 
 describe('collectBedroomDeviceEntityIds', () => {
-  it('returns configured bedroom device entities', () => {
+  it('returns configured bedroom device entities including humidifier fallback', () => {
     const ids = collectBedroomDeviceEntityIds();
     assert.deepEqual(ids, [
       'light.bedroom',
@@ -151,6 +168,7 @@ describe('collectBedroomDeviceEntityIds', () => {
       'climate.bedroom_radiator',
       'cover.bedroom_curtains',
       'humidifier.bedroom',
+      'switch.bedroom_humidifier',
       'cover.bedroom_window',
     ]);
   });

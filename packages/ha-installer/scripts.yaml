@@ -39,9 +39,23 @@ script:
             entity_id: input_boolean.evening_humidifier
             state: "on"
         then:
-          - service: humidifier.turn_on
-            target:
-              entity_id: humidifier.bedroom
+          # prefer humidifier.bedroom, fallback switch.bedroom_humidifier (SH-37)
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ states('humidifier.bedroom') not in ['unknown', 'unavailable', ''] }}"
+                sequence:
+                  - service: homeassistant.turn_on
+                    target:
+                      entity_id: humidifier.bedroom
+              - conditions:
+                  - condition: template
+                    value_template: "{{ states('switch.bedroom_humidifier') not in ['unknown', 'unavailable', ''] }}"
+                sequence:
+                  - service: homeassistant.turn_on
+                    target:
+                      entity_id: switch.bedroom_humidifier
+            default: []
 
       - alias: Фиксируем режим
         service: input_select.select_option
@@ -166,9 +180,22 @@ script:
           temperature: "{{ states('input_number.away_temperature') | float }}"
 
       - alias: Выключаем увлажнитель
-        service: humidifier.turn_off
-        target:
-          entity_id: humidifier.bedroom
+        choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ states('humidifier.bedroom') not in ['unknown', 'unavailable', ''] }}"
+            sequence:
+              - service: homeassistant.turn_off
+                target:
+                  entity_id: humidifier.bedroom
+          - conditions:
+              - condition: template
+                value_template: "{{ states('switch.bedroom_humidifier') not in ['unknown', 'unavailable', ''] }}"
+            sequence:
+              - service: homeassistant.turn_off
+                target:
+                  entity_id: switch.bedroom_humidifier
+        default: []
 
       - alias: Сбрасываем подготовку к прибытию
         service: input_boolean.turn_off
@@ -188,9 +215,22 @@ script:
     icon: mdi:car
     sequence:
       - alias: Включаем увлажнитель
-        service: humidifier.turn_on
-        target:
-          entity_id: humidifier.bedroom
+        choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ states('humidifier.bedroom') not in ['unknown', 'unavailable', ''] }}"
+            sequence:
+              - service: homeassistant.turn_on
+                target:
+                  entity_id: humidifier.bedroom
+          - conditions:
+              - condition: template
+                value_template: "{{ states('switch.bedroom_humidifier') not in ['unknown', 'unavailable', ''] }}"
+            sequence:
+              - service: homeassistant.turn_on
+                target:
+                  entity_id: switch.bedroom_humidifier
+        default: []
 
       - alias: Прогреваем до нужной температуры
         service: climate.set_temperature
@@ -261,9 +301,22 @@ script:
           temperature: "{{ states('input_number.cozy_temperature') | float }}"
 
       - alias: Включаем увлажнитель
-        service: humidifier.turn_on
-        target:
-          entity_id: humidifier.bedroom
+        choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ states('humidifier.bedroom') not in ['unknown', 'unavailable', ''] }}"
+            sequence:
+              - service: homeassistant.turn_on
+                target:
+                  entity_id: humidifier.bedroom
+          - conditions:
+              - condition: template
+                value_template: "{{ states('switch.bedroom_humidifier') not in ['unknown', 'unavailable', ''] }}"
+            sequence:
+              - service: homeassistant.turn_on
+                target:
+                  entity_id: switch.bedroom_humidifier
+        default: []
 
       - alias: Фиксируем режим
         service: input_select.select_option

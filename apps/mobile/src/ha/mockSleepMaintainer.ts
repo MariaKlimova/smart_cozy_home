@@ -12,6 +12,7 @@ import {
   setMockEntityPower,
   updateMockEntityState,
 } from '@/ha/haMockStore';
+import { setMockHumidifierPower } from '@/ha/mockHumidifier';
 
 const { devices, system, scenarioParams } = HA_ENTITIES;
 
@@ -44,7 +45,7 @@ function isSleepMaintainerEligible(): boolean {
 function applyVentilatingPhase(): void {
   const sleepTemp = readMockNumberParam(scenarioParams.sleep.temperature, 17);
   setMockCoverPosition(devices.window, 100);
-  setMockEntityPower(devices.humidifier, false);
+  setMockHumidifierPower(false);
   setMockEntityPower(devices.airConditioner, false);
   setMockClimateTemperature([devices.ventilation, devices.radiator], sleepTemp);
   setMockClimateTemperature([devices.airConditioner], sleepTemp);
@@ -53,7 +54,7 @@ function applyVentilatingPhase(): void {
 function applyMaintainingPhase(): void {
   const sleepTemp = readMockNumberParam(scenarioParams.sleep.temperature, 17);
   setMockCoverPosition(devices.window, 0);
-  setMockEntityPower(devices.humidifier, true);
+  setMockHumidifierPower(true);
   setMockClimateTemperature(CLIMATE_ENTITIES, sleepTemp);
   const acSnapshot = getMockEntitySnapshot(devices.airConditioner);
   updateMockEntityState(devices.airConditioner, 'heat', {

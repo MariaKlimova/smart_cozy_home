@@ -17,8 +17,13 @@ export interface IHaBedroomDeviceEntities {
   ventilation: string;
   /** Радиатор */
   radiator: string;
-  /** Увлажнитель */
+  /** Увлажнитель — умный (`humidifier.bedroom`), основной */
   humidifier: string;
+  /**
+   * Фолбек увлажнителя через умную розетку (`switch.bedroom_humidifier`),
+   * если {@link IHaBedroomDeviceEntities.humidifier} unavailable / unknown
+   */
+  humidifierFallback: string;
   /** Датчик CO₂ */
   co2: string;
   /** Датчик температуры */
@@ -112,6 +117,7 @@ export const HA_ENTITIES: IHaEntities = {
     ventilation: 'climate.bedroom_ventilation',
     radiator: 'climate.bedroom_radiator',
     humidifier: 'humidifier.bedroom',
+    humidifierFallback: 'switch.bedroom_humidifier',
     co2: 'sensor.bedroom_co2',
     temperature: 'sensor.bedroom_temperature',
     humidity: 'sensor.bedroom_humidity',
