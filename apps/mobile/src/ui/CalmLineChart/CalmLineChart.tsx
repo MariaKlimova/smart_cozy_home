@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Text, View, type LayoutChangeEvent } from 'react-native';
 import Svg, {
-  Circle,
   ClipPath,
   Defs,
   G,
@@ -11,12 +10,12 @@ import Svg, {
 } from 'react-native-svg';
 
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { typography, spacing } from '@/theme/tokens';
+import { spacing, typography } from '@/theme/tokens';
 
 import {
   CALM_LINE_CHART,
+  CALM_LINE_CHART_AXIS_LABEL_FONT_SIZE,
   CALM_LINE_CHART_DEFAULT_HEIGHT,
-  CALM_LINE_CHART_DOT_RADIUS,
   CALM_LINE_CHART_LINE_WIDTH,
   CALM_LINE_CHART_MIN_POINTS,
   CALM_LINE_CHART_NORM_OPACITY,
@@ -25,13 +24,14 @@ import {
   CALM_LINE_CHART_PLOT_BG_OPACITY,
   CALM_LINE_CHART_PLOT_CLIP_ID,
   CALM_LINE_CHART_PLOT_RADIUS,
-  CALM_LINE_CHART_AXIS_LABEL_FONT_SIZE,
   CALM_LINE_CHART_X_LABEL_BOTTOM_OFFSET,
+  CALM_LINE_CHART_Y_TICK_COUNT,
 } from './CalmLineChart.const';
-import type { ICalmLineChartProps } from './CalmLineChart.typings';
 import { styles } from './CalmLineChart.styles';
+import type { ICalmLineChartProps } from './CalmLineChart.typings';
 import {
   buildLinePath,
+  buildYTicks,
   formatYLabel,
   getXLabelAnchor,
   mapX,
@@ -138,7 +138,11 @@ export function CalmLineChart({
     belowNormHeight = Math.max(0, plotBottom - (normBandY + normBandHeight));
   }
 
-  const yTicks = [yDomain.max, yDomain.min];
+  const yTicks = buildYTicks({
+    min: yDomain.min,
+    max: yDomain.max,
+    count: CALM_LINE_CHART_Y_TICK_COUNT,
+  });
 
   return (
     <View
@@ -211,34 +215,11 @@ export function CalmLineChart({
             strokeLinejoin="round"
             fill="none"
           />
-
-          {points.map((point, index) => {
-            const x = mapX({ normalizedX: point.x, plotLeft, chartWidth });
-            const y = mapY({
-              value: point.y,
-              yDomainMin: yDomain.min,
-              yDomainMax: yDomain.max,
-              plotTop,
-              chartHeight,
-            });
-
-            return (
-              <Circle
-                key={`dot-${index}`}
-                cx={x}
-                cy={y}
-                r={CALM_LINE_CHART_DOT_RADIUS}
-                fill={c.accent}
-                stroke={c.surface}
-                strokeWidth={2}
-              />
-            );
-          })}
         </G>
 
-        {yTicks.map((tick) => (
+        {yTicks.map((tick, index) => (
           <SvgText
-            key={tick}
+            key={`y-tick-${index}`}
             x={plotLeft - spacing.sm}
             y={
               mapY({
