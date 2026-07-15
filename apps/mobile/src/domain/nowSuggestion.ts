@@ -127,6 +127,18 @@ function resolveScenarioSuggestion(input: INowSuggestionInput): INowScenarioSugg
     return { kind: 'scenario', scenarioId: 'evening' };
   }
 
+  const isDay =
+    !isNightTime(now, nightSchedule) &&
+    !isMorningTime(now, nightSchedule) &&
+    !isEveningTime(now, nightSchedule);
+
+  if (isDay && active !== 'focus') {
+    if (preparedScenarioId === 'focus') {
+      return null;
+    }
+    return { kind: 'scenario', scenarioId: 'focus' };
+  }
+
   return null;
 }
 
