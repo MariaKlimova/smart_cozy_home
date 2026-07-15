@@ -29,7 +29,7 @@ export function formatSensorSlotValue(
 
   if (slot === 'co2') {
     if (readings?.co2Ppm !== undefined) {
-      return `${Math.round(readings.co2Ppm)} ppm`;
+      return `${Math.round(readings.co2Ppm)} ${copy.now.metrics.ppmUnit}`;
     }
     return uiState === 'unset' ? copy.bedroom.sensors.notConfigured : copy.bedroom.unavailable;
   }

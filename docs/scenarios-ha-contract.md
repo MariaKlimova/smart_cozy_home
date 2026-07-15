@@ -99,9 +99,9 @@ Scripts читают эти значения в runtime, не hardcode.
 
 Файл `DEVICES.md` в пакете — **не создаёт** устройства в HA. Инсталлятор переименовывает / маппит реальные entities под ожидаемые id (см. `homeConfig.ts`):
 
-**Спальня:** `light.bedroom`, `cover.bedroom_curtains`, `cover.bedroom_window`, `climate.bedroom_ac`, `climate.bedroom_ventilation`, `climate.bedroom_radiator`, `humidifier.bedroom` (основной увлажнитель) / `switch.bedroom_humidifier` (фолбек через розетку), `sensor.bedroom_co2`, `sensor.bedroom_temperature`, `sensor.bedroom_humidity`, `sensor.bedroom_pressure`, `binary_sensor.bedroom_occupancy`
+**Спальня:** `light.bedroom`, `cover.bedroom_curtains`, `cover.bedroom_window`, `climate.bedroom_ac`, `climate.bedroom_ventilation`, `climate.bedroom_radiator`, `humidifier.bedroom` (основной увлажнитель) / `switch.bedroom_humidifier` (фолбек через розетку), `sensor.bedroom_co2`, `sensor.bedroom_temperature`, `sensor.bedroom_humidity`, `sensor.bedroom_pressure` (значение в **mmHg / мм рт. ст.**, не hPa — приложение показывает число как есть), `binary_sensor.bedroom_occupancy`
 
-**Увлажнитель (SH-37):** на объекте достаточно одного entity. Scripts/automations и приложение предпочитают `humidifier.bedroom`; если он `unknown` / `unavailable` — используют `switch.bedroom_humidifier`. Пользовательский override слота в настройках устройств сильнее автофолбека.
+**Увлажнитель (SH-37):** на объекте достаточно одного entity. HA scripts вызывают `script.bedroom_humidifier_on` / `script.bedroom_humidifier_off` (предпочитают `humidifier.bedroom`; если `unknown` / `unavailable` — `switch.bedroom_humidifier`). Приложение делает тот же автофолбек при командах. Пользовательский override слота в настройках устройств сильнее автофолбека.
 
 **Дом:** `light.living_room`, `climate.living_room`, `sensor.living_room_temperature`, `weather.forecast_home_assistant`, `sun.sun`, `alarm_control_panel.home`
 

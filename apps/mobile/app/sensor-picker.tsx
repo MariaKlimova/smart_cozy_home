@@ -4,14 +4,13 @@ import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
 import type { TBedroomSensorSlot } from '@/config/bedroomSensorMapping.typings';
+import { BEDROOM_SENSOR_SLOTS } from '@/config/bedroomSensorSlots';
 import { SensorPickerScreen } from '@/features/settings/ui/SensorPickerScreen';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { typography } from '@/theme/tokens';
 
-const SLOTS: TBedroomSensorSlot[] = ['temperature', 'humidity', 'co2', 'pressure'];
-
 function isBedroomSensorSlot(value: string): value is TBedroomSensorSlot {
-  return SLOTS.includes(value as TBedroomSensorSlot);
+  return BEDROOM_SENSOR_SLOTS.includes(value as TBedroomSensorSlot);
 }
 
 export default function SensorPickerRoute() {

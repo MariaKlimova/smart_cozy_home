@@ -29,7 +29,8 @@ export function hasAnyBedroomReading(readings: IBedroomReadings): boolean {
   return (
     readings.co2Ppm !== undefined ||
     readings.temperatureC !== undefined ||
-    readings.humidityPct !== undefined
+    readings.humidityPct !== undefined ||
+    readings.pressureMmhg !== undefined
   );
 }
 
@@ -54,7 +55,7 @@ export interface IMetricChipView {
   value: string;
   /** Показать « ppm » рядом со значением */
   showPpmUnit?: boolean;
-  /** Показать « мм рт. ст. » рядом со значением */
+  /** Показать « mmHg » рядом со значением */
   showMmhgUnit?: boolean;
 }
 

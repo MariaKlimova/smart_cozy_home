@@ -23,20 +23,18 @@ function MetricValue({ metric }: { metric: IBedroomStateCardMetricsProps['metric
     return <Text style={[styles.value, { color: c.textMuted }]}>{metric.value}</Text>;
   }
 
+  let unitLabel: string | undefined;
   if (metric.showPpmUnit) {
-    return (
-      <View style={styles.valueRow}>
-        <Text style={[styles.value, { color: c.text }]}>{metric.value}</Text>
-        <Text style={[styles.unit, { color: c.textMuted }]}>{copy.now.metrics.ppmUnit}</Text>
-      </View>
-    );
+    unitLabel = copy.now.metrics.ppmUnit;
+  } else if (metric.showMmhgUnit) {
+    unitLabel = copy.now.metrics.mmhgUnit;
   }
 
-  if (metric.showMmhgUnit) {
+  if (unitLabel) {
     return (
       <View style={styles.valueRow}>
         <Text style={[styles.value, { color: c.text }]}>{metric.value}</Text>
-        <Text style={[styles.unit, { color: c.textMuted }]}>{copy.now.metrics.mmhgUnit}</Text>
+        <Text style={[styles.unit, { color: c.textMuted }]}>{unitLabel}</Text>
       </View>
     );
   }

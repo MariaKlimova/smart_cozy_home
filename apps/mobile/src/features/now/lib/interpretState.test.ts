@@ -6,10 +6,27 @@ import { copy } from '@/copy/ru';
 import {
   formatBedroomMetrics,
   getBedroomStateTone,
+  hasAnyBedroomReading,
   interpretBedroomState,
 } from '@/features/now/lib/interpretState';
 
+describe('hasAnyBedroomReading', () => {
+  it('treats pressure-only readings as available', () => {
+    assert.equal(hasAnyBedroomReading({ pressureMmhg: 748 }), true);
+  });
+
+  it('is false when all bedroom metrics are missing', () => {
+    assert.equal(hasAnyBedroomReading({}), false);
+  });
+});
+
 describe('interpretBedroomState', () => {
+  it('does not report noData when only pressure is present', () => {
+    const phrase = interpretBedroomState({ pressureMmhg: 748 });
+    assert.notEqual(phrase, copy.now.phrases.noData);
+    assert.equal(phrase, copy.now.phrases.comfortable);
+  });
+
   it('uses day thresholds by default', () => {
     const phrase = interpretBedroomState({ co2Ppm: 900 });
     assert.equal(phrase, copy.now.phrases.slightlyStuffy);

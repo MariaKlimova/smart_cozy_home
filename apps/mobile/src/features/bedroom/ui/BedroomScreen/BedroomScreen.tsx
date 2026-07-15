@@ -5,6 +5,7 @@ import { Text, View } from 'react-native';
 
 import type { TBedroomDeviceSlot } from '@/config/bedroomDeviceSlotMapping.typings';
 import type { TBedroomSensorSlot } from '@/config/bedroomSensorMapping.typings';
+import { BEDROOM_SENSOR_SLOTS } from '@/config/bedroomSensorSlots';
 import { getActiveBedroomDeviceEntityIds } from '@/config/resolveBedroomDevices';
 import { copy } from '@/copy/ru';
 import { useBedroomControls } from '@/features/bedroom/lib/useBedroomControls';
@@ -32,13 +33,6 @@ const BEDROOM_DEVICE_SLOTS: TBedroomDeviceSlot[] = [
   'curtains',
   'humidifier',
   'window',
-];
-
-const BEDROOM_SENSOR_SLOTS: TBedroomSensorSlot[] = [
-  'temperature',
-  'humidity',
-  'co2',
-  'pressure',
 ];
 
 function isBedroomTabId(value: string): value is TBedroomTabId {

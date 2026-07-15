@@ -136,29 +136,20 @@ export function resolveBedroomDeviceServiceCall(
   return resolveSegmentAction(mapping, action.optionId);
 }
 
+/**
+ * Актуальные states кандидатов увлажнителя (не кэш опроса устройств —
+ * primary мог стать unavailable с момента последнего poll).
+ */
 async function loadHumidifierResolveStates(
   baseUrl: string,
   token: string,
   config: IBedroomDeviceUserConfig | null,
-  knownStates: IHaEntityState[] | null,
 ): Promise<IHaEntityState[] | null> {
-  if (knownStates && knownStates.length > 0) {
-    return knownStates;
-  }
   const candidates = getHumidifierEntityCandidates(config);
   if (candidates.length <= 1) {
     return null;
   }
   return fetchEntityStates(baseUrl, token, candidates);
-}
-
-/** Опции setBedroomDevice */
-export interface ISetBedroomDeviceOptions {
-  /**
-   * Уже известные states (из последнего query) для фолбека увлажнителя.
-   * Без этого — один точечный fetch кандидатов (не весь /api/states).
-   */
-  knownStates?: IHaEntityState[] | null;
 }
 
 /** Отправляет команду устройству спальни в Home Assistant */
@@ -168,16 +159,10 @@ export async function setBedroomDevice(
   baseUrl: string,
   token: string,
   config: IBedroomDeviceUserConfig | null = null,
-  options?: ISetBedroomDeviceOptions,
 ): Promise<void> {
   let states: IHaEntityState[] | null = null;
   if (deviceId === 'humidifier') {
-    states = await loadHumidifierResolveStates(
-      baseUrl,
-      token,
-      config,
-      options?.knownStates ?? null,
-    );
+    states = await loadHumidifierResolveStates(baseUrl, token, config);
   }
 
   const mapping = findDeviceMapping(deviceId, config, states);

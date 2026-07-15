@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import {
   bedroomDeviceMappingQueryKey,
@@ -9,7 +9,6 @@ import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings'
 import type { IBedroomDeviceState } from '@/domain/bedroomDevice.typings';
 import { setBedroomDevice } from '@/domain/bedroomDeviceControl';
 import { fetchEntityStates } from '@/ha/haClient';
-import type { IHaEntityState } from '@/ha/types';
 import { useHaBackend } from '@/ha/useHaBackend';
 import { mapBedroomDevices } from '@/ha/mappers/domainMapper';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
@@ -71,7 +70,6 @@ export function useBedroomControls(
     [baseUrl, mappingKey],
   );
   const [pendingDeviceId, setPendingDeviceId] = useState<string>();
-  const lastHaStatesRef = useRef<IHaEntityState[]>([]);
 
   const query = useQuery({
     queryKey: devicesQueryKey,
@@ -82,7 +80,6 @@ export function useBedroomControls(
     refetchInterval: pollingEnabled ? BEDROOM_DEVICES_STALE_MS : false,
     queryFn: async () => {
       const states = await fetchEntityStates(haBaseUrl, haToken, entityIds);
-      lastHaStatesRef.current = states;
       return mapBedroomDevices(states, config);
     },
   });
@@ -101,9 +98,7 @@ export function useBedroomControls(
       }
 
       try {
-        await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config, {
-          knownStates: lastHaStatesRef.current,
-        });
+        await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config);
         // REST /api/states часто отстаёт от call_service — не ждём refetch и
         // сразу возвращаем optimistic; soft-refresh не должен затирать UI.
         if (action.kind === 'toggle') {

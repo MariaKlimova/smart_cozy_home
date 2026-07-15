@@ -9,6 +9,28 @@ import { typography } from '@/theme/tokens';
 import type { IBedroomSensorControlsCardProps } from './BedroomSensorControls-Card.typings';
 import { styles } from './BedroomSensorControls-Card.styles';
 
+/** Число и единица для слотов с отдельным unit (как на карточке «Сейчас») */
+function splitMetricUnit(
+  slot: IBedroomSensorControlsCardProps['slot'],
+  valueLabel: string,
+): { number: string; unit: string } | null {
+  let unit: string | undefined;
+  if (slot === 'co2') {
+    unit = copy.now.metrics.ppmUnit;
+  } else if (slot === 'pressure') {
+    unit = copy.now.metrics.mmhgUnit;
+  }
+  if (!unit) return null;
+
+  const suffix = ` ${unit}`;
+  if (!valueLabel.endsWith(suffix)) return null;
+
+  return {
+    number: valueLabel.slice(0, -suffix.length),
+    unit,
+  };
+}
+
 export function BedroomSensorControlsCard({
   slot,
   label,
@@ -23,8 +45,7 @@ export function BedroomSensorControlsCard({
     valueLabel === copy.bedroom.sensors.notUsed ||
     valueLabel === copy.bedroom.unavailable;
   const valueColor = isMuted ? c.textMuted : c.accent;
-  const isCo2Value = slot === 'co2' && valueLabel.endsWith(' ppm');
-  const co2Number = isCo2Value ? valueLabel.slice(0, -4) : null;
+  const metricWithUnit = splitMetricUnit(slot, valueLabel);
 
   return (
     <CalmCard padding="md" style={styles.card}>
@@ -41,10 +62,12 @@ export function BedroomSensorControlsCard({
         </Pressable>
       </View>
       <View style={styles.valueSection}>
-        {isCo2Value && co2Number ? (
+        {metricWithUnit ? (
           <View style={styles.valueRow}>
-            <Text style={[typography.title, { color: valueColor }]}>{co2Number}</Text>
-            <Text style={[typography.caption, styles.unit, { color: c.textMuted }]}>ppm</Text>
+            <Text style={[typography.title, { color: valueColor }]}>{metricWithUnit.number}</Text>
+            <Text style={[typography.caption, styles.unit, { color: c.textMuted }]}>
+              {metricWithUnit.unit}
+            </Text>
           </View>
         ) : (
           <Text style={[typography.title, { color: valueColor }]}>{valueLabel}</Text>

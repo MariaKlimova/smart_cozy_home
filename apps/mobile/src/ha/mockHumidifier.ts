@@ -5,7 +5,7 @@ import {
 import { getMockEntitySnapshot, setMockEntityPower } from '@/ha/haMockStore';
 
 /** Увлажнитель в mock: humidifier.bedroom, иначе switch.bedroom_humidifier (SH-37) */
-export function resolveMockHumidifierEntityId(): string {
+function resolveMockHumidifierEntityId(): string {
   return pickHumidifierEntityId(getHumidifierEntityCandidates(null), (entityId) => {
     return getMockEntitySnapshot(entityId)?.state;
   });

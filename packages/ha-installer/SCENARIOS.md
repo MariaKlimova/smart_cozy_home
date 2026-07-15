@@ -33,11 +33,11 @@
 | `sensor.bedroom_co2` | Датчик CO₂ |
 | `sensor.bedroom_temperature` | Датчик температуры |
 | `sensor.bedroom_humidity` | Датчик влажности |
-| `sensor.bedroom_pressure` | Датчик атмосферного давления |
+| `sensor.bedroom_pressure` | Датчик атмосферного давления (mmHg / мм рт. ст.) |
 
 Сценарии отправляют `climate.set_temperature` на все три climate-entity спальни. HA применяет команду только к доступным устройствам; отсутствующие entity игнорируются без ошибки.
 
-Увлажнитель: scripts выбирают `humidifier.bedroom`, иначе `switch.bedroom_humidifier` (`homeassistant.turn_on` / `turn_off`). Подробности — [`DEVICES.md`](./DEVICES.md) § «Увлажнитель».
+Увлажнитель: сценарии вызывают `script.bedroom_humidifier_on` / `script.bedroom_humidifier_off` (`humidifier.bedroom`, иначе `switch.bedroom_humidifier`). Подробности — [`DEVICES.md`](./DEVICES.md) § «Увлажнитель».
 
 ---
 

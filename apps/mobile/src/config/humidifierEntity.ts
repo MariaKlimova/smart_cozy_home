@@ -3,7 +3,7 @@ import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import type { IHaEntityState } from '@/ha/types';
 
 /** State entity считается недоступным для автофолбека */
-export function isHaEntityUnavailable(state: string | undefined): boolean {
+function isHaEntityUnavailable(state: string | undefined): boolean {
   if (state === undefined) return true;
   return state === 'unavailable' || state === 'unknown' || state === '';
 }

@@ -15,11 +15,9 @@ import { CalmSlider } from '@/ui/CalmSlider';
 import { CalmToggle } from '@/ui/CalmToggle';
 import { typography } from '@/theme/tokens';
 
+import { TOGGLE_STALE_REMOTE_IGNORE_MS } from './BedroomDeviceControls-Card.const';
 import type { IBedroomDeviceControlsCardProps } from './BedroomDeviceControls-Card.typings';
 import { styles } from './BedroomDeviceControls-Card.styles';
-
-/** Пока HA не подтвердил state, не синкаем remote (REST часто отстаёт от call_service) */
-const TOGGLE_STALE_REMOTE_IGNORE_MS = 8_000;
 
 function isSliderValue(value: unknown): value is IBedroomSliderValue {
   return typeof value === 'object' && value !== null && 'current' in value;

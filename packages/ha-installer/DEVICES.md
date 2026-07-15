@@ -21,7 +21,7 @@
 | `sensor.bedroom_co2` | Датчик CO₂ | bedroom sensors UI |
 | `sensor.bedroom_temperature` | Датчик температуры | bedroom sensors UI |
 | `sensor.bedroom_humidity` | Датчик влажности | bedroom sensors UI |
-| `sensor.bedroom_pressure` | Датчик атмосферного давления | bedroom sensors UI / Now card |
+| `sensor.bedroom_pressure` | Датчик атмосферного давления (**мм рт. ст. / mmHg**, не hPa) | bedroom sensors UI / Now card |
 | `binary_sensor.bedroom_occupancy` | Присутствие в спальне | automation sleep_air_quality |
 | `weather.forecast_home_assistant` | Температура на улице (`attributes.temperature`) | блок «Снаружи», физика mock |
 | `sun.sun` | Следующий восход / закат (`next_rising`, `next_setting`) | блок «Снаружи»: «Восход в …» / «Закат в …» |
@@ -43,7 +43,7 @@ HA применяет команду только к существующим и
 1. **`humidifier.bedroom`** — штатный умный увлажнитель (предпочтительный)
 2. **`switch.bedroom_humidifier`** — простой увлажнитель на умной розетке
 
-Scripts и automation `sleep_air_quality` сначала пробуют `humidifier.bedroom`; если entity `unknown` / `unavailable`, работают с `switch.bedroom_humidifier`. Если нет ни одного — шаг увлажнителя пропускается без ошибки.
+Scripts и automation `sleep_air_quality` вызывают `script.bedroom_humidifier_on` / `script.bedroom_humidifier_off`: сначала `humidifier.bedroom`, если entity `unknown` / `unavailable` — `switch.bedroom_humidifier`. Если нет ни одного — шаг пропускается без ошибки.
 
 Инсталлятор мапит реальное устройство на один из этих id. Оба сразу не нужны; если оба живы — приоритет у `humidifier.bedroom`.
 

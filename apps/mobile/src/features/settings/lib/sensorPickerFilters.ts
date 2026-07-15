@@ -78,5 +78,5 @@ export function formatSensorPreviewValue(slot: TBedroomSensorSlot, state: string
   if (slot === 'temperature') return `${Math.round(num)}°`;
   if (slot === 'humidity') return `${Math.round(num)}%`;
   if (slot === 'pressure') return `${Math.round(num)} ${copy.now.metrics.mmhgUnit}`;
-  return `${Math.round(num)} ppm`;
+  return `${Math.round(num)} ${copy.now.metrics.ppmUnit}`;
 }
