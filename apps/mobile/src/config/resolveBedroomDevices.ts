@@ -21,6 +21,7 @@ const MOCK_BEDROOM_ENTITY_IDS = new Set<string>([
   HA_ENTITIES.devices.radiator,
   HA_ENTITIES.devices.humidifier,
   HA_ENTITIES.devices.humidifierFallback,
+  HA_ENTITIES.devices.nightlight,
   HA_ENTITIES.devices.co2,
   HA_ENTITIES.devices.temperature,
   HA_ENTITIES.devices.humidity,

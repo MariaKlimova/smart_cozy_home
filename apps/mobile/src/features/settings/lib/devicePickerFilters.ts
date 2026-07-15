@@ -94,6 +94,25 @@ function classifyStrictDomainSlot(
   return 'other';
 }
 
+function classifyNightlightSlot(item: IHaEntityListItem): TPickerTier {
+  if (item.domain !== 'light') return 'skip';
+
+  const text = haystack(item);
+  let score = bedroomScore(text);
+
+  if (
+    text.includes('night') ||
+    text.includes('ночник') ||
+    text.includes('nightlight') ||
+    text.includes('lamp')
+  ) {
+    score += 2;
+  }
+
+  if (score >= 2) return 'recommended';
+  return 'other';
+}
+
 function classifyForSlot(item: IHaEntityListItem, slot: TBedroomDeviceSlot): TPickerTier {
   if (slot === 'humidifier') {
     return classifyHumidifierSlot(item);
@@ -103,6 +122,9 @@ function classifyForSlot(item: IHaEntityListItem, slot: TBedroomDeviceSlot): TPi
   }
   if (slot === 'light') {
     return classifyStrictDomainSlot(item, 'light');
+  }
+  if (slot === 'nightlight') {
+    return classifyNightlightSlot(item);
   }
   if (slot === 'curtains' || slot === 'window') {
     return classifyStrictDomainSlot(item, 'cover');

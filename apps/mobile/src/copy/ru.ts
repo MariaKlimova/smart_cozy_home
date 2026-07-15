@@ -136,6 +136,8 @@ export const copy = {
       curtains: 'Закрывать шторы',
       humidifier: 'Включать увлажнитель',
       window: 'Открывать окно',
+      nightlight: 'Ночник',
+      nightlightBrightness: 'Яркость ночника',
       warmupMinutes: 'Плавное пробуждение',
       awayTemperature: 'Температура ожидания',
       minutes: 'За сколько минут',
@@ -282,6 +284,7 @@ export const copy = {
     unavailable: 'Сейчас недоступен',
     setupDevicesButton: 'Состав устройств',
     configureDeviceA11y: 'Настроить устройство',
+    colorPresetA11y: 'Цвет {index}',
     emptyDevicesHint: 'Включи устройства в составе — тогда ими можно управлять здесь.',
     tabs: {
       devices: 'Устройства',

@@ -12,6 +12,7 @@ import {
   reportNetworkLost,
   reportNetworkRestored,
 } from '@/ha/networkReachability';
+import type { THaLightColorPayload } from '@/ha/entityRegistry';
 import type { IHaEntityState } from '@/ha/types';
 
 const FETCH_TIMEOUT_MS = 30_000;
@@ -296,6 +297,27 @@ export async function setLightBrightness(
   await callHaService(baseUrl, token, 'light', 'turn_on', {
     entity_id: entityId,
     brightness,
+  });
+}
+
+/** Установить цвет и яркость света; 0 % выключает свет. */
+export async function setLightColorBrightness(
+  baseUrl: string,
+  token: string,
+  entityId: string,
+  percent: number,
+  color: THaLightColorPayload,
+): Promise<void> {
+  if (percent <= 0) {
+    await callHaService(baseUrl, token, 'light', 'turn_off', { entity_id: entityId });
+    return;
+  }
+
+  const brightness = Math.round((Math.min(100, percent) / 100) * 255);
+  await callHaService(baseUrl, token, 'light', 'turn_on', {
+    entity_id: entityId,
+    brightness,
+    ...color,
   });
 }
 

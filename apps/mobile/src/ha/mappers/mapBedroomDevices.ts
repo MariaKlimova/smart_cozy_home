@@ -11,7 +11,13 @@ import type {
   IBedroomSegmentedValue,
   IBedroomSliderValue,
   IBedroomToggleValue,
+  INightlightColorPreset,
 } from '@/domain/bedroomDevice.typings';
+import {
+  extractDisplayRgbFromLightAttributes,
+  findNearestNightlightPresetId,
+  lightSupportsColorModes,
+} from '@/domain/nightlightColorPresets';
 import type { IHaEntityState } from '@/ha/types';
 
 function stateMap(states: IHaEntityState[]): Map<string, IHaEntityState> {
@@ -146,9 +152,33 @@ function toSegmentOptions(
   return segments.map((s) => ({ id: s.id, label: s.label }));
 }
 
+function mapColorLightValue(
+  mapping: IBedroomDeviceMapping,
+  state: IHaEntityState | undefined,
+  colorPresets: INightlightColorPreset[],
+) {
+  if (!state || isUnavailable(state) || !mapping.slider) {
+    return undefined;
+  }
+
+  const brightness = mapLightBrightness(state, mapping.slider);
+  const supportsColor = lightSupportsColorModes(state.attributes);
+  const presets = supportsColor ? colorPresets : [];
+  const currentRgb = extractDisplayRgbFromLightAttributes(state.attributes);
+  const colorPresetId =
+    brightness > 0 ? findNearestNightlightPresetId(currentRgb, presets) : undefined;
+
+  return {
+    brightness,
+    colorPresetId,
+    colorPresets: presets,
+  };
+}
+
 function mapSingleDevice(
   mapping: IBedroomDeviceMapping,
   states: Map<string, IHaEntityState>,
+  colorPresetsByDeviceId: Record<string, INightlightColorPreset[]>,
 ): IBedroomDeviceState {
   const state = states.get(mapping.entity);
   const available = !isUnavailable(state);
@@ -182,6 +212,18 @@ function mapSingleDevice(
     return base;
   }
 
+  if (mapping.control === 'color_light') {
+    const value = mapColorLightValue(
+      mapping,
+      state,
+      colorPresetsByDeviceId[mapping.id] ?? [],
+    );
+    if (value) {
+      return { ...base, value };
+    }
+    return base;
+  }
+
   const value = mapSegmentedValue(mapping, state);
   if (value) {
     return { ...base, value };
@@ -194,10 +236,11 @@ function mapSingleDevice(
 export function mapBedroomDevices(
   states: IHaEntityState[],
   config: IBedroomDeviceUserConfig | null = null,
+  colorPresetsByDeviceId: Record<string, INightlightColorPreset[]> = {},
 ): IBedroomDeviceState[] {
   const devices = resolveBedroomDevices(config, { states });
   const map = stateMap(states);
-  return devices.map((device) => mapSingleDevice(device, map));
+  return devices.map((device) => mapSingleDevice(device, map, colorPresetsByDeviceId));
 }
 
 /** entity_id устройств спальни для запроса в HA (увлажнитель: primary + fallback) */

@@ -4,10 +4,13 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   bedroomDeviceMappingQueryKey,
   getActiveBedroomDeviceEntityIds,
+  resolveBedroomDevices,
 } from '@/config/resolveBedroomDevices';
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
 import type { IBedroomDeviceState } from '@/domain/bedroomDevice.typings';
 import { setBedroomDevice } from '@/domain/bedroomDeviceControl';
+import { toNightlightColorPresets } from '@/domain/nightlightColorPresets';
+import { fetchHaLightFavoriteColors } from '@/ha/entityRegistry';
 import { fetchEntityStates } from '@/ha/haClient';
 import { useHaBackend } from '@/ha/useHaBackend';
 import { mapBedroomDevices } from '@/ha/mappers/domainMapper';
@@ -38,6 +41,12 @@ export interface IUseBedroomControlsResult {
   setToggle: (deviceId: string, isOn: boolean) => Promise<boolean>;
   /** Выбрать сегмент; false — команда не применилась */
   setSegment: (deviceId: string, optionId: string) => Promise<boolean>;
+  /** Установить яркость и цвет ночника; false — команда не применилась */
+  setColorLight: (
+    deviceId: string,
+    brightness: number,
+    colorPresetId: string,
+  ) => Promise<boolean>;
   /** Обновить состояния */
   refresh: () => Promise<void>;
 }
@@ -63,7 +72,15 @@ export function useBedroomControls(
   const baseUrl = useConnectionStore((s) => s.baseUrl);
   const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const config = useBedroomDeviceStore((s) => s.config);
+  const resolvedDevices = useMemo(() => resolveBedroomDevices(config), [config]);
   const entityIds = useMemo(() => getActiveBedroomDeviceEntityIds(config), [config]);
+  const nightlightEntity = useMemo(
+    () =>
+      resolvedDevices.find(
+        (device) => device.id === 'nightlight' && device.control === 'color_light',
+      ),
+    [resolvedDevices],
+  );
   const mappingKey = bedroomDeviceMappingQueryKey(config);
   const devicesQueryKey = useMemo(
     () => ['bedroom-devices', baseUrl, mappingKey] as const,
@@ -73,14 +90,23 @@ export function useBedroomControls(
 
   const query = useQuery({
     queryKey: devicesQueryKey,
-    enabled: Boolean(
-      pollingEnabled && haReady && entityIds.length > 0,
-    ),
+    enabled: Boolean(pollingEnabled && haReady && entityIds.length > 0),
     staleTime: BEDROOM_DEVICES_STALE_MS,
     refetchInterval: pollingEnabled ? BEDROOM_DEVICES_STALE_MS : false,
     queryFn: async () => {
       const states = await fetchEntityStates(haBaseUrl, haToken, entityIds);
-      return mapBedroomDevices(states, config);
+      const presetsMap: Record<string, ReturnType<typeof toNightlightColorPresets>> = {};
+
+      if (nightlightEntity) {
+        const haPresets = await fetchHaLightFavoriteColors(
+          haBaseUrl,
+          haToken,
+          nightlightEntity.entity,
+        );
+        presetsMap.nightlight = toNightlightColorPresets(haPresets);
+      }
+
+      return mapBedroomDevices(states, config, presetsMap);
     },
   });
 
@@ -159,6 +185,25 @@ export function useBedroomControls(
     [runAction],
   );
 
+  const setColorLight = useCallback(
+    async (deviceId: string, brightness: number, colorPresetId: string) => {
+      const device = query.data?.find((item) => item.id === deviceId);
+      const value =
+        device?.value && 'colorPresets' in device.value ? device.value : undefined;
+      const preset = value?.colorPresets.find((item) => item.id === colorPresetId);
+      if (!preset) {
+        return false;
+      }
+      return runAction(deviceId, {
+        kind: 'color_light',
+        brightness,
+        colorPresetId,
+        haColor: preset.haColor,
+      });
+    },
+    [query.data, runAction],
+  );
+
   const refresh = useCallback(async () => {
     await queryClient.invalidateQueries({
       queryKey: devicesQueryKey,
@@ -174,6 +219,7 @@ export function useBedroomControls(
     setSlider,
     setToggle,
     setSegment,
+    setColorLight,
     refresh,
   };
 }

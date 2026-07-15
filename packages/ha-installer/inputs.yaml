@@ -34,6 +34,11 @@ input_boolean:
     initial: false
     icon: mdi:window-open
 
+  sleep_nightlight:
+    name: Включать ночник во время сна
+    initial: true
+    icon: mdi:lightbulb-night
+
   away_curtains:
     name: Закрывать шторы при отъезде
     initial: true
@@ -104,6 +109,15 @@ input_number:
     step: 0.5
     unit_of_measurement: "°C"
     icon: mdi:thermometer-minus
+
+  sleep_nightlight_brightness:
+    name: Яркость ночника во время сна (%)
+    initial: 8
+    min: 1
+    max: 30
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:brightness-4
 
   # Утро
   morning_brightness:

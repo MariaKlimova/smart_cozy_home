@@ -91,6 +91,34 @@ describe('resolveBedroomDeviceServiceCall', () => {
     assert.equal(call.data.entity_id, 'switch.bedroom_humidifier');
   });
 
+  it('maps nightlight color_light to turn_on with rgb', () => {
+    const call = resolveBedroomDeviceServiceCall('nightlight', {
+      kind: 'color_light',
+      brightness: 40,
+      colorPresetId: 'color-0',
+      haColor: { rgb_color: [242, 145, 61] },
+    });
+
+    assert.equal(call.domain, 'light');
+    assert.equal(call.service, 'turn_on');
+    assert.equal(call.data.entity_id, 'light.bedroom_nightlight');
+    assert.equal(call.data.brightness, 102);
+    assert.deepEqual(call.data.rgb_color, [242, 145, 61]);
+  });
+
+  it('maps nightlight 0% to turn_off', () => {
+    const call = resolveBedroomDeviceServiceCall('nightlight', {
+      kind: 'color_light',
+      brightness: 0,
+      colorPresetId: 'color-0',
+      haColor: { rgb_color: [242, 145, 61] },
+    });
+
+    assert.equal(call.domain, 'light');
+    assert.equal(call.service, 'turn_off');
+    assert.equal(call.data.entity_id, 'light.bedroom_nightlight');
+  });
+
   it('throws for unknown device', () => {
     assert.throws(
       () => resolveBedroomDeviceServiceCall('unknown', { kind: 'toggle', isOn: true }),

@@ -27,6 +27,7 @@ import { styles } from './BedroomScreen.styles';
 
 const BEDROOM_DEVICE_SLOTS: TBedroomDeviceSlot[] = [
   'light',
+  'nightlight',
   'air_conditioner',
   'ventilation',
   'radiator',
@@ -86,6 +87,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
     setSlider,
     setToggle,
     setSegment,
+    setColorLight,
     refresh: refreshDevices,
   } = useBedroomControls({ enabled: devicesTabActive });
 
@@ -149,6 +151,9 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
               onSliderComplete={(deviceId, value) => setSlider(deviceId, value)}
               onToggle={(deviceId, isOn) => setToggle(deviceId, isOn)}
               onSegmentSelect={(deviceId, optionId) => void setSegment(deviceId, optionId)}
+              onColorLightChange={(deviceId, brightness, colorPresetId) =>
+                setColorLight(deviceId, brightness, colorPresetId)
+              }
               onConfigureDevice={(deviceId) => {
                 if (!isBedroomDeviceSlot(deviceId)) return;
                 router.push({ pathname: '/device-picker', params: { slot: deviceId } });

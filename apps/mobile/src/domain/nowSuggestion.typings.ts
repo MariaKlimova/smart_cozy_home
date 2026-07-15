@@ -83,7 +83,7 @@ export interface INowSuggestionBedroomDevice {
   /** Доступно в HA */
   isAvailable: boolean;
   /** Тип контрола */
-  control: 'slider' | 'toggle' | 'segmented';
+  control: 'slider' | 'toggle' | 'segmented' | 'color_light';
   /** Включён toggle */
   isOn?: boolean;
   /** Активная опция segmented */

@@ -11,6 +11,7 @@ import {
   setCoverPosition,
   setEntityPower,
   setLightBrightness,
+  setLightColorBrightness,
 } from '@/ha/haClient';
 import { parseEntityDomain } from '@/ha/entityList';
 import type { IHaEntityState } from '@/ha/types';
@@ -118,6 +119,31 @@ function resolveSegmentAction(
   };
 }
 
+function resolveColorLightAction(
+  mapping: IBedroomDeviceMapping,
+  brightness: number,
+  haColor: Record<string, unknown>,
+): IBedroomDeviceServiceCall {
+  if (mapping.control !== 'color_light') {
+    throw new Error(`Device ${mapping.id} is not a color light`);
+  }
+
+  if (brightness <= 0) {
+    return {
+      domain: 'light',
+      service: 'turn_off',
+      data: { entity_id: mapping.entity },
+    };
+  }
+
+  const brightnessByte = Math.round((brightness / 100) * 255);
+  return {
+    domain: 'light',
+    service: 'turn_on',
+    data: { entity_id: mapping.entity, brightness: brightnessByte, ...haColor },
+  };
+}
+
 /** Собирает domain/service/data для управления устройством (для тестов и runtime) */
 export function resolveBedroomDeviceServiceCall(
   deviceId: string,
@@ -133,7 +159,10 @@ export function resolveBedroomDeviceServiceCall(
   if (action.kind === 'toggle') {
     return resolveToggleAction(mapping, action.isOn);
   }
-  return resolveSegmentAction(mapping, action.optionId);
+  if (action.kind === 'segment') {
+    return resolveSegmentAction(mapping, action.optionId);
+  }
+  return resolveColorLightAction(mapping, action.brightness, action.haColor);
 }
 
 /**
@@ -166,9 +195,6 @@ export async function setBedroomDevice(
   }
 
   const mapping = findDeviceMapping(deviceId, config, states);
-  const { domain, service, data } = resolveBedroomDeviceServiceCall(deviceId, action, config, {
-    states,
-  });
 
   if (action.kind === 'slider' && mapping.id === 'light') {
     await setLightBrightness(baseUrl, token, mapping.entity, action.value);
@@ -190,6 +216,19 @@ export async function setBedroomDevice(
     await setCoverPosition(baseUrl, token, mapping.entity, segment.value);
     return;
   }
+  if (action.kind === 'color_light') {
+    await setLightColorBrightness(
+      baseUrl,
+      token,
+      mapping.entity,
+      action.brightness,
+      action.haColor,
+    );
+    return;
+  }
 
+  const { domain, service, data } = resolveBedroomDeviceServiceCall(deviceId, action, config, {
+    states,
+  });
   await callHaService(baseUrl, token, domain, service, data);
 }

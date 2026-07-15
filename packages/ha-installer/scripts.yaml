@@ -48,6 +48,11 @@ script:
     description: Подготовка ко сну — плавно гасит свет, закрывает шторы, снижает температуру
     icon: mdi:weather-night
     sequence:
+      - alias: Выключаем ночник
+        service: light.turn_off
+        target:
+          entity_id: light.bedroom_nightlight
+
       - alias: Плавно гасим свет
         service: light.turn_on
         target:
@@ -96,13 +101,30 @@ script:
 
   sleep:
     alias: Сон
-    description: Финальное выключение — гасит свет, опционально открывает окно
+    description: Финальное выключение — гасит основной свет, опционально ночник и окно
     icon: mdi:bed
     sequence:
-      - alias: Выключаем свет
+      - alias: Выключаем основной свет
         service: light.turn_off
         target:
           entity_id: light.bedroom
+
+      - alias: Ночник — включить или выключить
+        if:
+          - condition: state
+            entity_id: input_boolean.sleep_nightlight
+            state: "on"
+        then:
+          - alias: Включаем ночник без смены цвета
+            service: light.turn_on
+            target:
+              entity_id: light.bedroom_nightlight
+            data_template:
+              brightness_pct: "{{ states('input_number.sleep_nightlight_brightness') | int }}"
+        else:
+          - service: light.turn_off
+            target:
+              entity_id: light.bedroom_nightlight
 
       - alias: Открываем окно если нужно
         if:
@@ -136,6 +158,11 @@ script:
     description: Мягкое пробуждение — плавно поднимает яркость и открывает шторы
     icon: mdi:weather-sunny
     sequence:
+      - alias: Выключаем ночник
+        service: light.turn_off
+        target:
+          entity_id: light.bedroom_nightlight
+
       - alias: Закрываем окно
         service: cover.close_cover
         target:
@@ -183,6 +210,7 @@ script:
           entity_id:
             - light.bedroom
             - light.living_room
+            - light.bedroom_nightlight
 
       - alias: Закрываем шторы если нужно
         if:
@@ -231,6 +259,11 @@ script:
     description: Готовит дом к прибытию — прогревает и включает свет
     icon: mdi:car
     sequence:
+      - alias: Выключаем ночник
+        service: light.turn_off
+        target:
+          entity_id: light.bedroom_nightlight
+
       - alias: Включаем увлажнитель
         service: script.turn_on
         target:
@@ -281,6 +314,11 @@ script:
     description: Расслабленный вечер — тёплый мягкий свет, комфортная температура
     icon: mdi:sofa
     sequence:
+      - alias: Выключаем ночник
+        service: light.turn_off
+        target:
+          entity_id: light.bedroom_nightlight
+
       - alias: Включаем тёплый мягкий свет
         service: light.turn_on
         target:
@@ -321,6 +359,11 @@ script:
     description: Режим работы — яркий холодный свет, бодрящая температура
     icon: mdi:laptop
     sequence:
+      - alias: Выключаем ночник
+        service: light.turn_off
+        target:
+          entity_id: light.bedroom_nightlight
+
       - alias: Включаем яркий холодный свет
         service: light.turn_on
         target:

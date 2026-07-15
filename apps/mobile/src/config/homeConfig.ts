@@ -38,6 +38,13 @@ export const HOME_CONFIG: IHomeConfig = {
         slider: { min: 0, max: 100, step: 1 },
       },
       {
+        id: 'nightlight',
+        label: 'Ночник',
+        control: 'color_light',
+        entity: HA_ENTITIES.devices.nightlight,
+        slider: { min: 0, max: 100, step: 1 },
+      },
+      {
         id: 'air_conditioner',
         label: 'Кондиционер',
         control: 'slider',

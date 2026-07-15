@@ -1,6 +1,7 @@
 /** Слот устройства спальни */
 export type TBedroomDeviceSlot =
   | 'light'
+  | 'nightlight'
   | 'air_conditioner'
   | 'ventilation'
   | 'radiator'

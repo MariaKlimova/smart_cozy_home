@@ -1,5 +1,7 @@
+import type { THaLightColorPayload } from '@/ha/entityRegistry';
+
 /** Тип контрола устройства в domain (без привязки к config) */
-export type TBedroomDeviceControlKind = 'slider' | 'toggle' | 'segmented';
+export type TBedroomDeviceControlKind = 'slider' | 'toggle' | 'segmented' | 'color_light';
 
 /** Значение slider-устройства */
 export interface IBedroomSliderValue {
@@ -19,6 +21,26 @@ export interface IBedroomToggleValue {
 export interface IBedroomSegmentedValue {
   /** id активной опции */
   activeOptionId: string;
+}
+
+/** Нормализованный избранный цвет ночника для UI */
+export interface INightlightColorPreset {
+  /** Стабильный id в рамках текущего списка */
+  id: string;
+  /** RGB для swatch в UI */
+  displayRgb: [number, number, number];
+  /** Payload для light.turn_on */
+  haColor: THaLightColorPayload;
+}
+
+/** Значение color_light (ночник) */
+export interface IBedroomColorLightValue {
+  /** Яркость 0–100; 0 = выкл */
+  brightness: number;
+  /** id активного пресета; undefined если не матчится */
+  colorPresetId?: string;
+  /** Список пресетов из HA favorites (или fallback) */
+  colorPresets: INightlightColorPreset[];
 }
 
 /** Границы slider для UI */
@@ -50,7 +72,11 @@ export interface IBedroomDeviceState {
   /** Доступно в HA */
   isAvailable: boolean;
   /** Текущее значение */
-  value?: IBedroomSliderValue | IBedroomToggleValue | IBedroomSegmentedValue;
+  value?:
+    | IBedroomSliderValue
+    | IBedroomToggleValue
+    | IBedroomSegmentedValue
+    | IBedroomColorLightValue;
   /** Варианты segmented */
   segmentOptions?: IBedroomDeviceSegmentOption[];
   /** Границы slider */

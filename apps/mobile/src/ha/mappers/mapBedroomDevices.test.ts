@@ -144,8 +144,43 @@ describe('mapBedroomDevices', () => {
 
   it('returns all devices unavailable when states are empty', () => {
     const devices = mapBedroomDevices([]);
-    assert.equal(devices.length, 7);
+    assert.equal(devices.length, 8);
     assert.ok(devices.every((d) => d.isAvailable === false));
+  });
+
+  it('maps nightlight color_light with presets and nearest color', () => {
+    const states = [
+      haState('light.bedroom_nightlight', 'on', {
+        brightness: 51,
+        rgb_color: [242, 145, 61],
+        supported_color_modes: ['rgb', 'brightness'],
+      }),
+    ];
+    const devices = mapBedroomDevices(states, null, {
+      nightlight: [
+        {
+          id: 'color-0',
+          displayRgb: [242, 145, 61],
+          haColor: { rgb_color: [242, 145, 61] },
+        },
+        {
+          id: 'color-1',
+          displayRgb: [134, 168, 249],
+          haColor: { rgb_color: [134, 168, 249] },
+        },
+      ],
+    });
+    const nightlight = devices.find((d) => d.id === 'nightlight');
+
+    assert.ok(nightlight);
+    assert.equal(nightlight.control, 'color_light');
+    if (nightlight.value && 'brightness' in nightlight.value) {
+      assert.equal(nightlight.value.brightness, 20);
+      assert.equal(nightlight.value.colorPresetId, 'color-0');
+      assert.equal(nightlight.value.colorPresets.length, 2);
+    } else {
+      assert.fail('expected color_light value');
+    }
   });
 
   it('does not expose entity_id in output', () => {
@@ -163,6 +198,7 @@ describe('collectBedroomDeviceEntityIds', () => {
     const ids = collectBedroomDeviceEntityIds();
     assert.deepEqual(ids, [
       'light.bedroom',
+      'light.bedroom_nightlight',
       'climate.bedroom_ac',
       'climate.bedroom_ventilation',
       'climate.bedroom_radiator',

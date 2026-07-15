@@ -91,7 +91,7 @@ export interface IGentleNotificationMapping {
 }
 
 /** Тип контрола устройства в UI */
-export type TDeviceControlKind = 'slider' | 'toggle' | 'segmented';
+export type TDeviceControlKind = 'slider' | 'toggle' | 'segmented' | 'color_light';
 
 /** Границы slider-контрола */
 export interface IDeviceSliderBounds {
