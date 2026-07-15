@@ -20,8 +20,8 @@ export const CALM_LINE_CHART_MIN_POINTS = 1;
 /** Толщина линии данных, px */
 export const CALM_LINE_CHART_LINE_WIDTH = 2.5;
 
-/** Радиус маркера точки, px */
-export const CALM_LINE_CHART_DOT_RADIUS = 3.5;
+/** Число подписей оси Y (min, промежуточные, max) */
+export const CALM_LINE_CHART_Y_TICK_COUNT = 5;
 
 /** Прозрачность базового фона области построения */
 export const CALM_LINE_CHART_PLOT_BG_OPACITY = 0.55;

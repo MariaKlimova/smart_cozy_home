@@ -369,13 +369,12 @@ export async function fetchLogbookRange(
     return [];
   }
 
+  // HA: query.get('entity') + cv.entity_ids — один param, id через запятую
   const params = new URLSearchParams({
     end_time: end.toISOString(),
     start_time: start.toISOString(),
+    entity: entityIds.join(','),
   });
-  for (const id of entityIds) {
-    params.append('entity', id);
-  }
 
   const res = await haFetch(`${baseUrl}/api/logbook?${params.toString()}`, {
     headers: authHeaders(token),
@@ -397,12 +396,12 @@ export async function fetchHistoryPeriod(
     return [];
   }
 
+  // HA: query.get('filter_entity_id') берёт только первое значение;
+  // несколько id нужно передавать через запятую, иначе уходит только CO₂
   const params = new URLSearchParams({
     end_time: end.toISOString(),
+    filter_entity_id: entityIds.join(','),
   });
-  for (const id of entityIds) {
-    params.append('filter_entity_id', id);
-  }
 
   const res = await haFetch(
     `${baseUrl}/api/history/period/${encodeURIComponent(start.toISOString())}?${params.toString()}`,
