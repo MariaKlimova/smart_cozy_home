@@ -9,6 +9,8 @@ export interface IBedroomReadings {
   humidityPct?: number;
   /** CO₂ в ppm */
   co2Ppm?: number;
+  /** Атмосферное давление в мм рт. ст. */
+  pressureMmhg?: number;
   /** Температура на улице в °C */
   outdoorTemperatureC?: number;
   /** Условие погоды с улицы (sunny, rainy, …) */

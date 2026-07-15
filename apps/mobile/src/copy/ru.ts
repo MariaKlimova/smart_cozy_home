@@ -21,6 +21,7 @@ export const copy = {
       stuffyVentilate: 'Душно — стоит проветрить',
       slightlyStuffy: 'Немного душновато',
       warmForSleep: 'Жарковато для сна',
+      warmBedroom: 'Жарковато в спальне',
       coolBedroom: 'Прохладно в спальне',
       dryHumidifier: 'Суховато — увлажнитель поможет',
       comfortable: 'В спальне комфортно',
@@ -36,7 +37,9 @@ export const copy = {
       temperature: 'Температура',
       humidity: 'Влажность',
       co2: 'CO₂',
+      pressure: 'Давление',
       ppmUnit: 'ppm',
+      mmhgUnit: 'mmHg',
     },
     outdoorSectionTitle: 'Снаружи',
     outdoorMetrics: {

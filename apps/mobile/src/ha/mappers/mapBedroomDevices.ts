@@ -1,6 +1,9 @@
 import { isBedroomClimateSliderId } from '@/config/bedroomClimateDevices';
 import type { IBedroomDeviceUserConfig } from '@/config/bedroomDeviceSlotMapping.typings';
-import { resolveBedroomDevices } from '@/config/resolveBedroomDevices';
+import {
+  getActiveBedroomDeviceEntityIds,
+  resolveBedroomDevices,
+} from '@/config/resolveBedroomDevices';
 import type { IBedroomDeviceMapping } from '@/config/homeConfig.typings';
 import type {
   IBedroomDeviceSegmentOption,
@@ -192,15 +195,14 @@ export function mapBedroomDevices(
   states: IHaEntityState[],
   config: IBedroomDeviceUserConfig | null = null,
 ): IBedroomDeviceState[] {
-  const devices = resolveBedroomDevices(config);
+  const devices = resolveBedroomDevices(config, { states });
   const map = stateMap(states);
   return devices.map((device) => mapSingleDevice(device, map));
 }
 
-/** entity_id устройств спальни для запроса в HA */
+/** entity_id устройств спальни для запроса в HA (увлажнитель: primary + fallback) */
 export function collectBedroomDeviceEntityIds(
   config: IBedroomDeviceUserConfig | null = null,
 ): string[] {
-  const devices = resolveBedroomDevices(config);
-  return devices.map((d) => d.entity);
+  return getActiveBedroomDeviceEntityIds(config);
 }

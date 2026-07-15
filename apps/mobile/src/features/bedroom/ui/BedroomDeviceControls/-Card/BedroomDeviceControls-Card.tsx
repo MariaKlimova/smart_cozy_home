@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
@@ -15,6 +15,7 @@ import { CalmSlider } from '@/ui/CalmSlider';
 import { CalmToggle } from '@/ui/CalmToggle';
 import { typography } from '@/theme/tokens';
 
+import { TOGGLE_STALE_REMOTE_IGNORE_MS } from './BedroomDeviceControls-Card.const';
 import type { IBedroomDeviceControlsCardProps } from './BedroomDeviceControls-Card.typings';
 import { styles } from './BedroomDeviceControls-Card.styles';
 
@@ -47,18 +48,67 @@ export function BedroomDeviceControlsCard({
   onConfigure,
 }: IBedroomDeviceControlsCardProps) {
   const c = useThemeColors();
-  const disabled = !device.isAvailable || isPending;
+  const controlsDisabled = !device.isAvailable || isPending;
+  const toggleDisabled = !device.isAvailable;
   const sliderValue = isSliderValue(device.value) ? device.value : undefined;
   const sliderCurrent = sliderValue?.current;
+  const remoteToggleOn = isToggleValue(device.value) ? device.value.isOn : false;
   const [localSliderValue, setLocalSliderValue] = useState(
     sliderCurrent ?? device.slider?.min ?? 0,
   );
+  const [localToggleOn, setLocalToggleOn] = useState(remoteToggleOn);
+  const toggleInFlightRef = useRef(false);
+  /** Ждём, пока remote станет равен этому значению после нашей команды */
+  const expectedToggleRef = useRef<boolean | null>(null);
+  const ignoreStaleUntilRef = useRef(0);
+
+  useEffect(() => {
+    expectedToggleRef.current = null;
+    ignoreStaleUntilRef.current = 0;
+    setLocalToggleOn(isToggleValue(device.value) ? device.value.isOn : false);
+    // Сброс только при смене устройства в списке
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- device.id gate
+  }, [device.id]);
 
   useEffect(() => {
     if (sliderCurrent !== undefined) {
       setLocalSliderValue(sliderCurrent);
     }
   }, [sliderCurrent, device.id]);
+
+  useEffect(() => {
+    const expected = expectedToggleRef.current;
+    if (expected !== null) {
+      if (remoteToggleOn === expected) {
+        // HA (или optimistic cache) совпал — больше не ждём expected,
+        // но ещё TOGGLE_STALE_REMOTE_IGNORE_MS игнорируем откат на stale refetch
+        expectedToggleRef.current = null;
+      }
+      return;
+    }
+
+    if (Date.now() < ignoreStaleUntilRef.current) {
+      return;
+    }
+
+    setLocalToggleOn(remoteToggleOn);
+  }, [remoteToggleOn]);
+
+  useEffect(() => {
+    if (expectedToggleRef.current === null && Date.now() >= ignoreStaleUntilRef.current) {
+      return;
+    }
+
+    const remaining = ignoreStaleUntilRef.current - Date.now();
+    const delay = remaining > 0 ? remaining : TOGGLE_STALE_REMOTE_IGNORE_MS;
+    const timer = setTimeout(() => {
+      expectedToggleRef.current = null;
+      ignoreStaleUntilRef.current = 0;
+      setLocalToggleOn(remoteToggleOn);
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [localToggleOn, remoteToggleOn]);
 
   let valueCaption: string | undefined;
   if (sliderValue) {
@@ -69,6 +119,25 @@ export function BedroomDeviceControlsCard({
     const applied = await onSliderComplete(value);
     if (!applied && sliderCurrent !== undefined) {
       setLocalSliderValue(sliderCurrent);
+    }
+  }
+
+  async function handleToggle(next: boolean) {
+    if (toggleInFlightRef.current || toggleDisabled) return;
+    toggleInFlightRef.current = true;
+    const previous = localToggleOn;
+    expectedToggleRef.current = next;
+    ignoreStaleUntilRef.current = Date.now() + TOGGLE_STALE_REMOTE_IGNORE_MS;
+    setLocalToggleOn(next);
+    try {
+      const applied = await onToggle(next);
+      if (!applied) {
+        expectedToggleRef.current = null;
+        ignoreStaleUntilRef.current = 0;
+        setLocalToggleOn(previous);
+      }
+    } finally {
+      toggleInFlightRef.current = false;
     }
   }
 
@@ -100,9 +169,9 @@ export function BedroomDeviceControlsCard({
         {device.control === 'toggle' ? (
           <View style={styles.controlRow}>
             <CalmToggle
-              value={isToggleValue(device.value) ? device.value.isOn : false}
-              onValueChange={onToggle}
-              disabled={disabled}
+              value={localToggleOn}
+              onValueChange={(value) => void handleToggle(value)}
+              disabled={toggleDisabled}
               accessibilityLabel={device.label}
             />
           </View>
@@ -116,7 +185,7 @@ export function BedroomDeviceControlsCard({
             minimumValue={device.slider.min}
             maximumValue={device.slider.max}
             step={device.slider.step}
-            disabled={disabled}
+            disabled={controlsDisabled}
             accessibilityLabel={device.label}
           />
         ) : null}
@@ -130,7 +199,7 @@ export function BedroomDeviceControlsCard({
                 : device.segmentOptions[0].id
             }
             onValueChange={onSegmentSelect}
-            disabled={disabled}
+            disabled={controlsDisabled}
           />
         ) : null}
       </View>

@@ -16,10 +16,12 @@
 | `climate.bedroom_ac` | Кондиционер | scripts, bedroom devices UI |
 | `climate.bedroom_ventilation` | Приточная вентиляция | scripts, bedroom devices UI |
 | `climate.bedroom_radiator` | Радиатор | scripts, bedroom devices UI |
-| `humidifier.bedroom` | Увлажнитель | scripts, bedroom devices UI |
+| `humidifier.bedroom` | Увлажнитель (умный) — **основной** | scripts, bedroom devices UI |
+| `switch.bedroom_humidifier` | Увлажнитель через умную розетку — **фолбек**, если нет `humidifier.bedroom` | scripts, bedroom devices UI |
 | `sensor.bedroom_co2` | Датчик CO₂ | bedroom sensors UI |
 | `sensor.bedroom_temperature` | Датчик температуры | bedroom sensors UI |
 | `sensor.bedroom_humidity` | Датчик влажности | bedroom sensors UI |
+| `sensor.bedroom_pressure` | Датчик атмосферного давления (**мм рт. ст. / mmHg**, не hPa) | bedroom sensors UI / Now card |
 | `binary_sensor.bedroom_occupancy` | Присутствие в спальне | automation sleep_air_quality |
 | `weather.forecast_home_assistant` | Температура на улице (`attributes.temperature`) | блок «Снаружи», физика mock |
 | `sun.sun` | Следующий восход / закат (`next_rising`, `next_setting`) | блок «Снаружи»: «Восход в …» / «Закат в …» |
@@ -33,6 +35,17 @@ Scripts отправляют `climate.set_temperature` на все три entity
 - `climate.bedroom_ventilation`
 
 HA применяет команду только к существующим и доступным устройствам. Если у клиента нет приточки или радиатора — соответствующий entity можно не создавать.
+
+### Увлажнитель — два варианта (SH-37)
+
+На объекте достаточно **одного** из двух entity:
+
+1. **`humidifier.bedroom`** — штатный умный увлажнитель (предпочтительный)
+2. **`switch.bedroom_humidifier`** — простой увлажнитель на умной розетке
+
+Scripts и automation `sleep_air_quality` вызывают `script.bedroom_humidifier_on` / `script.bedroom_humidifier_off`: сначала `humidifier.bedroom`, если entity `unknown` / `unavailable` — `switch.bedroom_humidifier`. Если нет ни одного — шаг пропускается без ошибки.
+
+Инсталлятор мапит реальное устройство на один из этих id. Оба сразу не нужны; если оба живы — приоритет у `humidifier.bedroom`.
 
 ---
 

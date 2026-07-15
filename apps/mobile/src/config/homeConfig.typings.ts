@@ -32,6 +32,8 @@ export interface IBedroomSensorsMapping {
   temperature: IHaEntityRef;
   /** Влажность, % */
   humidity: IHaEntityRef;
+  /** Атмосферное давление, мм рт. ст. */
+  pressure: IHaEntityRef;
 }
 
 /** Маппинг сущностей для карточки состояния дома */

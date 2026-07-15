@@ -1,4 +1,5 @@
 import type { TBedroomSensorSlot } from '@/config/bedroomSensorMapping.typings';
+import { copy } from '@/copy/ru';
 import type { IHaEntityListItem } from '@/ha/entityList';
 
 function haystack(item: IHaEntityListItem): string {
@@ -13,6 +14,18 @@ function scoreSensorForSlot(item: IHaEntityListItem, slot: TBedroomSensorSlot): 
   }
   if (slot === 'humidity') {
     if (text.includes('humidity') || text.includes('moisture')) return 2;
+    return 0;
+  }
+  if (slot === 'pressure') {
+    if (
+      text.includes('pressure') ||
+      text.includes('mmhg') ||
+      text.includes('mm_hg') ||
+      text.includes('торр') ||
+      text.includes('ртут')
+    ) {
+      return 2;
+    }
     return 0;
   }
   if (text.includes('co2') || text.includes('carbon_dioxide') || text.includes('air_quality')) {
@@ -64,5 +77,6 @@ export function formatSensorPreviewValue(slot: TBedroomSensorSlot, state: string
 
   if (slot === 'temperature') return `${Math.round(num)}°`;
   if (slot === 'humidity') return `${Math.round(num)}%`;
-  return `${Math.round(num)} ppm`;
+  if (slot === 'pressure') return `${Math.round(num)} ${copy.now.metrics.mmhgUnit}`;
+  return `${Math.round(num)} ${copy.now.metrics.ppmUnit}`;
 }

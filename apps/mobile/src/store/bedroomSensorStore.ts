@@ -64,7 +64,10 @@ export const useBedroomSensorStore = create<IBedroomSensorStore>((set, get) => (
     const overrides = get().overrides;
     if (!overrides) return false;
     return (
-      'temperature' in overrides || 'humidity' in overrides || 'co2' in overrides
+      'temperature' in overrides ||
+      'humidity' in overrides ||
+      'co2' in overrides ||
+      'pressure' in overrides
     );
   },
 

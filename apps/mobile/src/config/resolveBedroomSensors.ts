@@ -31,6 +31,9 @@ export function resolveBedroomSensors(
     co2: {
       entity: resolveSlot(effectiveOverrides?.co2, defaults.co2.entity) ?? '',
     },
+    pressure: {
+      entity: resolveSlot(effectiveOverrides?.pressure, defaults.pressure.entity) ?? '',
+    },
   };
 }
 
@@ -40,6 +43,7 @@ export function getActiveBedroomSensorEntityIds(mapping: IBedroomSensorsMapping)
     mapping.temperature.entity,
     mapping.humidity.entity,
     mapping.co2.entity,
+    mapping.pressure.entity,
   ].filter((id) => id.length > 0);
 
   return [...new Set(ids)];

@@ -44,12 +44,14 @@ export function mapBedroomReadings(
   const co2Entity = sensors.co2.entity;
   const tempEntity = sensors.temperature.entity;
   const humidityEntity = sensors.humidity.entity;
+  const pressureEntity = sensors.pressure.entity;
   const outdoorWeather = byId.get(HA_ENTITIES.devices.outdoorTemperature);
 
   return {
     co2Ppm: co2Entity ? parseNumericState(byId.get(co2Entity)) : undefined,
     temperatureC: tempEntity ? parseNumericState(byId.get(tempEntity)) : undefined,
     humidityPct: humidityEntity ? parseNumericState(byId.get(humidityEntity)) : undefined,
+    pressureMmhg: pressureEntity ? parseNumericState(byId.get(pressureEntity)) : undefined,
     outdoorTemperatureC: parseNumericAttribute(outdoorWeather, 'temperature'),
     outdoorWeatherCondition: parseWeatherConditionFromHaState(outdoorWeather),
     sunEvent: parseSunEventFromHaState(byId.get(HA_ENTITIES.system.sun)),

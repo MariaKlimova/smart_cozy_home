@@ -26,6 +26,7 @@ export const HOME_CONFIG: IHomeConfig = {
     co2: { entity: HA_ENTITIES.devices.co2 },
     temperature: { entity: HA_ENTITIES.devices.temperature },
     humidity: { entity: HA_ENTITIES.devices.humidity },
+    pressure: { entity: HA_ENTITIES.devices.pressure },
   },
   bedroom_devices: {
     devices: [

@@ -95,7 +95,7 @@ export const useBedroomDeviceStore = create<IBedroomDeviceStore>((set, get) => (
 
   getResolvedDevices: () => resolveBedroomDevices(get().config),
 
-  getActiveEntityIds: () => getActiveBedroomDeviceEntityIds(get().getResolvedDevices()),
+  getActiveEntityIds: () => getActiveBedroomDeviceEntityIds(get().config),
 }));
 
 void useBedroomDeviceStore.getState().hydrate();

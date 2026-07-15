@@ -224,9 +224,9 @@ automation:
               - service: cover.open_cover
                 target:
                   entity_id: cover.bedroom_window
-              - service: humidifier.turn_off
+              - service: script.turn_on
                 target:
-                  entity_id: humidifier.bedroom
+                  entity_id: script.bedroom_humidifier_off
               - service: climate.turn_off
                 target:
                   entity_id: climate.bedroom_ac
@@ -238,9 +238,9 @@ automation:
               - service: cover.close_cover
                 target:
                   entity_id: cover.bedroom_window
-              - service: humidifier.turn_on
+              - service: script.turn_on
                 target:
-                  entity_id: humidifier.bedroom
+                  entity_id: script.bedroom_humidifier_on
               - service: climate.set_temperature
                 target:
                   entity_id:

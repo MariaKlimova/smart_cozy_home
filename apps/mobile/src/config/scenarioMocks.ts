@@ -80,6 +80,10 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
       state: 'on',
       attributes: { humidity: 42, mode: 'auto' },
     },
+    [HA_ENTITIES.devices.humidifierFallback]: {
+      state: 'unavailable',
+      attributes: { friendly_name: 'Увлажнитель (розетка)' },
+    },
     [HA_ENTITIES.devices.co2]: {
       state: '920',
       attributes: { unit_of_measurement: 'ppm', friendly_name: 'CO₂ спальня' },
@@ -91,6 +95,10 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
     [HA_ENTITIES.devices.humidity]: {
       state: '38',
       attributes: { unit_of_measurement: '%', friendly_name: 'Влажность спальня' },
+    },
+    [HA_ENTITIES.devices.pressure]: {
+      state: '760',
+      attributes: { unit_of_measurement: 'mmHg', friendly_name: 'Давление спальня' },
     },
     [HA_ENTITIES.devices.outdoorTemperature]: {
       state: 'cloudy',
@@ -171,4 +179,5 @@ export const MOCK_BEDROOM_SENSOR_MAPPING: IBedroomSensorMapping = {
   temperature: HA_ENTITIES.devices.temperature,
   humidity: HA_ENTITIES.devices.humidity,
   co2: HA_ENTITIES.devices.co2,
+  pressure: HA_ENTITIES.devices.pressure,
 };
