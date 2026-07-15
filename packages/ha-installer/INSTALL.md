@@ -23,7 +23,6 @@
   inputs.yaml
   scripts.yaml
   automations.yaml
-  templates.yaml
   DEVICES.md
   SCENARIOS.md
   INSTALL.md
@@ -53,8 +52,9 @@ homeassistant:
 
 - Helpers: `input_select.home_mode`, `input_number.evening_brightness`, …
 - Scripts: `script.evening`, `script.sleep`, … (7 штук)
-- Template sensor: `sensor.outdoor_temperature` (из `weather.home`)
 - Automations: `automation.evening_schedule`, `automation.sleep_schedule`, `automation.morning_schedule`, `automation.away_schedule`, `automation.coming_home_schedule`, `automation.cozy_schedule`, `automation.focus_schedule`, `automation.sleep_air_quality`, `automation.ac_off_when_window_open`
+
+Уличная температура читается из `weather.forecast_home_assistant` (`attributes.temperature`) — отдельный template sensor не нужен.
 
 ---
 

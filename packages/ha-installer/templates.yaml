@@ -1,6 +1,0 @@
-template:
-  - sensor:
-      - name: outdoor_temperature
-        unique_id: smart_cozy_outdoor_temperature
-        unit_of_measurement: "°C"
-        state: "{{ state_attr('weather.home', 'temperature') }}"

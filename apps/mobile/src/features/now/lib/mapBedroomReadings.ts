@@ -14,6 +14,25 @@ function parseNumericState(state: IHaEntityState | undefined): number | undefine
   return value;
 }
 
+function parseNumericAttribute(
+  state: IHaEntityState | undefined,
+  attributeKey: string,
+): number | undefined {
+  if (!state || state.state === 'unavailable' || state.state === 'unknown') {
+    return undefined;
+  }
+  const raw = state.attributes?.[attributeKey];
+  if (typeof raw === 'number' && !Number.isNaN(raw)) {
+    return raw;
+  }
+  if (typeof raw === 'string') {
+    const value = Number.parseFloat(raw);
+    if (Number.isNaN(value)) return undefined;
+    return value;
+  }
+  return undefined;
+}
+
 /** Собирает показания спальни из стейтов HA по резолвленному маппингу */
 export function mapBedroomReadings(
   states: IHaEntityState[],
@@ -29,8 +48,9 @@ export function mapBedroomReadings(
     co2Ppm: co2Entity ? parseNumericState(byId.get(co2Entity)) : undefined,
     temperatureC: tempEntity ? parseNumericState(byId.get(tempEntity)) : undefined,
     humidityPct: humidityEntity ? parseNumericState(byId.get(humidityEntity)) : undefined,
-    outdoorTemperatureC: parseNumericState(
+    outdoorTemperatureC: parseNumericAttribute(
       byId.get(HA_ENTITIES.devices.outdoorTemperature),
+      'temperature',
     ),
     sunEvent: parseSunEventFromHaState(byId.get(HA_ENTITIES.system.sun)),
   };

@@ -101,7 +101,7 @@ Scripts читают эти значения в runtime, не hardcode.
 
 **Спальня:** `light.bedroom`, `cover.bedroom_curtains`, `cover.bedroom_window`, `climate.bedroom_ac`, `climate.bedroom_ventilation`, `climate.bedroom_radiator`, `humidifier.bedroom`, `sensor.bedroom_co2`, `sensor.bedroom_temperature`, `sensor.bedroom_humidity`, `binary_sensor.bedroom_occupancy`
 
-**Дом:** `light.living_room`, `climate.living_room`, `sensor.living_room_temperature`, `sensor.outdoor_temperature` (template из `weather.home`), `sun.sun`, `alarm_control_panel.home`
+**Дом:** `light.living_room`, `climate.living_room`, `sensor.living_room_temperature`, `weather.forecast_home_assistant`, `sun.sun`, `alarm_control_panel.home`
 
 ## Внешние условия (таб «Сейчас»)
 
@@ -109,7 +109,7 @@ Scripts читают эти значения в runtime, не hardcode.
 
 | Entity | Что читает приложение | UI |
 |--------|------------------------|-----|
-| `sensor.outdoor_temperature` | `state` — температура, °C | Чип «Температура» |
+| `weather.forecast_home_assistant` | `attributes.temperature` — температура, °C (`state` — условие погоды) | Чип «Температура» |
 | `sun.sun` | `attributes.next_rising`, `attributes.next_setting` (ISO datetime) | Время + подпись «Закат» / «Восход» |
 
 **`sun.sun`** — встроенная entity Home Assistant (маппинг не нужен). Атрибуты `next_rising` / `next_setting` всегда указывают на **следующие** восход и закат.
@@ -120,8 +120,6 @@ Scripts читают эти значения в runtime, не hardcode.
 2. Выбирается ближайший: если это `next_setting` → время + подпись «Закат», если `next_rising` → «Восход».
 
 Реализация: `apps/mobile/src/features/now/lib/parseSunEvent.ts`.
-
-**`sensor.outdoor_temperature`** создаётся пакетом (`templates.yaml`, атрибут `temperature` из `weather.home`).
 
 В scripts пакета `sun.sun` используется отдельно: `state = above_horizon` в `script.coming_home` (шторы днём).
 
