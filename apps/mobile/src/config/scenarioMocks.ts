@@ -93,8 +93,12 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
       attributes: { unit_of_measurement: '%', friendly_name: 'Влажность спальня' },
     },
     [HA_ENTITIES.devices.outdoorTemperature]: {
-      state: '5',
-      attributes: { unit_of_measurement: '°C', friendly_name: 'На улице' },
+      state: 'cloudy',
+      attributes: {
+        temperature: 5,
+        unit_of_measurement: '°C',
+        friendly_name: 'На улице',
+      },
     },
   },
 

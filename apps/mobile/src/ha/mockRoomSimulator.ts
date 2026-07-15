@@ -32,6 +32,20 @@ function parseNumericState(entityId: string, fallback: number): number {
   return value;
 }
 
+function readOutdoorTemperatureC(): number {
+  const snapshot = getMockEntitySnapshot(devices.outdoorTemperature);
+  if (!snapshot) return MOCK_OUTDOOR_TEMPERATURE_FALLBACK;
+  const raw = snapshot.attributes?.temperature;
+  if (typeof raw === 'number' && !Number.isNaN(raw)) {
+    return raw;
+  }
+  if (typeof raw === 'string') {
+    const value = Number.parseFloat(raw);
+    if (!Number.isNaN(value)) return value;
+  }
+  return MOCK_OUTDOOR_TEMPERATURE_FALLBACK;
+}
+
 function readCoverPosition(entityId: string): number {
   const snapshot = getMockEntitySnapshot(entityId);
   if (!snapshot) return 0;
@@ -75,10 +89,7 @@ function buildRoomPhysicsInput(): IRoomPhysicsInput {
     ),
     humidityPct: parseNumericState(devices.humidity, 40),
     co2Ppm: parseNumericState(devices.co2, 650),
-    outdoorTemperatureC: parseNumericState(
-      devices.outdoorTemperature,
-      MOCK_OUTDOOR_TEMPERATURE_FALLBACK,
-    ),
+    outdoorTemperatureC: readOutdoorTemperatureC(),
   };
 }
 

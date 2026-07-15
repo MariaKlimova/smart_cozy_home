@@ -1,4 +1,5 @@
 import type { ISunEventReading } from './parseSunEvent';
+import type { TOutdoorWeatherCondition } from './parseWeatherCondition';
 
 /** Показания датчиков спальни (числа или отсутствуют при недоступном датчике) */
 export interface IBedroomReadings {
@@ -10,6 +11,8 @@ export interface IBedroomReadings {
   co2Ppm?: number;
   /** Температура на улице в °C */
   outdoorTemperatureC?: number;
+  /** Условие погоды с улицы (sunny, rainy, …) */
+  outdoorWeatherCondition?: TOutdoorWeatherCondition;
   /** Ближайший закат или восход */
   sunEvent?: ISunEventReading;
 }

@@ -105,7 +105,7 @@
 
 `automation.ac_off_when_window_open` — AC выключается при любом открытии окна.
 
-**Уличная температура:** `sensor.outdoor_temperature` (template из `weather.home`) — для UI и физики mock; создаётся `templates.yaml` пакета.
+**Уличная температура:** `weather.forecast_home_assistant` (`attributes.temperature`) — для UI и физики mock.
 
 ---
 
