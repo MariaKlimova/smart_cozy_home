@@ -9,6 +9,8 @@ export interface IScreenLayoutProps {
   children: ReactNode;
   /** Поднимать контент над клавиатурой (формы, onboarding) */
   keyboardAware?: boolean;
+  /** Показывать баннер статуса подключения */
+  showConnectionBanner?: boolean;
 }
 
 export interface IScreenLayoutWithRefreshProps extends IScreenLayoutProps {

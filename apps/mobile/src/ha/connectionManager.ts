@@ -1,3 +1,5 @@
+import type { TConnectionFailureReason } from '@/domain/connection.typings';
+import { classifyHttpStatus, mergeFailureReasons } from '@/domain/connectionFailure';
 import type { IConnectionHealth, IConnectionProfile } from '@/ha/types';
 
 function normalizeUrl(url: string): string {
@@ -23,7 +25,7 @@ function buildTryOrder(profile: IConnectionProfile): string[] {
 async function pingHa(
   baseUrl: string,
   token: string,
-): Promise<{ ok: boolean; detail?: string }> {
+): Promise<{ ok: boolean; failureReason?: TConnectionFailureReason; detail?: string }> {
   const normalized = normalizeUrl(baseUrl);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
@@ -43,6 +45,7 @@ async function pingHa(
       }
       return {
         ok: false,
+        failureReason: classifyHttpStatus(res.status),
         detail: `HTTP ${res.status}${bodyPreview ? `: ${bodyPreview}` : ''}`,
       };
     }
@@ -53,6 +56,7 @@ async function pingHa(
     const isAbort = error.name === 'AbortError';
     return {
       ok: false,
+      failureReason: 'ha_unavailable',
       detail: isAbort
         ? `Таймаут ${PING_TIMEOUT_MS / 1000} с`
         : `${error.name}: ${error.message}`,
@@ -72,9 +76,8 @@ export async function checkEndpoint(
   return {
     ok: result.ok,
     baseUrl: normalized,
-    error: result.ok
-      ? undefined
-      : result.detail ?? 'Не удалось подключиться. Проверь URL и токен.',
+    failureReason: result.failureReason,
+    error: result.ok ? undefined : result.detail,
   };
 }
 
@@ -87,25 +90,33 @@ export async function resolveActiveBaseUrl(
     return {
       ok: false,
       baseUrl: '',
-      error: 'Не указан URL Home Assistant',
+      failureReason: 'no_url',
+      error: 'missing_url',
     };
   }
 
-  const failures: { url: string; error: string }[] = [];
+  const failures: { url: string; failureReason: TConnectionFailureReason; error: string }[] = [];
 
   for (const url of tryOrder) {
     const health = await checkEndpoint(url, profile.accessToken);
     if (health.ok) return health;
-    failures.push({ url, error: health.error ?? 'unknown' });
+    failures.push({
+      url,
+      failureReason: health.failureReason ?? 'unknown',
+      error: health.error ?? 'unknown',
+    });
   }
 
   const fallback = tryOrder[0] ?? '';
+  const mergedReason = mergeFailureReasons(failures.map((failure) => failure.failureReason));
+
   return {
     ok: false,
     baseUrl: fallback ? normalizeUrl(fallback) : '',
+    failureReason: mergedReason,
     error:
       failures.length === 1
         ? failures[0].error
-        : `Дом недоступен. ${failures.map((f) => `${f.url}: ${f.error}`).join('; ')}`,
+        : failures.map((failure) => `${failure.url}: ${failure.error}`).join('; '),
   };
 }

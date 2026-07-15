@@ -13,6 +13,8 @@ export interface IWeekGridPageProps {
   selectedNightDate?: string;
   /** Идёт загрузка */
   isLoading: boolean;
+  /** Ошибка загрузки */
+  isError?: boolean;
 }
 
 export interface ISleepWeekPageProps {

@@ -247,9 +247,7 @@ export function SleepScreen() {
   }, [refetch]);
 
   let hint = '';
-  if (!haReady) {
-    hint = copy.sleep.offlineHint;
-  } else if (!hasSensors) {
+  if (haReady && !hasSensors) {
     hint = copy.sleep.noSensorsHint;
   }
 

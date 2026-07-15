@@ -61,7 +61,7 @@ export function ScenarioSettingsScreen({
       ) : null}
 
       {isError ? (
-        <Text style={[typography.body, { color: c.warning }]}>{copy.connection.offline}</Text>
+        <Text style={[typography.body, { color: c.warning }]}>{copy.connection.haUnavailable}</Text>
       ) : null}
 
       {settings ? (

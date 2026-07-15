@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import type { IConnectionProfile } from '@/domain/connection.typings';
+import type { IConnectionProfile, TConnectionFailureReason } from '@/domain/connection.typings';
 import {
   clearConnectionProfile,
   loadConnectionProfile,
@@ -12,6 +12,7 @@ import {
   MOCK_HA_BASE_URL,
 } from '@/ha/haBackend';
 import { USE_HA_MOCKS } from '@/ha/haClient';
+import { setCachedNetworkAvailable } from '@/ha/networkReachability';
 
 interface IConnectionStore {
   /** Профиль из secure storage */
@@ -24,12 +25,18 @@ interface IConnectionStore {
   isLoading: boolean;
   /** Первичная загрузка профиля из storage завершена */
   hasHydrated: boolean;
-  /** Ошибка подключения */
-  error: string | null;
+  /** Причина последней неудачи */
+  failureReason: TConnectionFailureReason | null;
+  /** Доступность интернета (null = ещё неизвестно) */
+  isNetworkAvailable: boolean | null;
   /** Загрузить профиль и подключиться */
   hydrate: () => Promise<void>;
   /** Сохранить и подключиться */
   connect: (profile: IConnectionProfile) => Promise<void>;
+  /** Повторная проверка подключения */
+  retry: () => Promise<void>;
+  /** Обновить доступность сети */
+  setNetworkAvailable: (available: boolean | null) => void;
   /** Очистить профиль и сбросить состояние подключения */
   disconnect: () => Promise<void>;
 }
@@ -41,8 +48,10 @@ interface IMockConnectionState {
   baseUrl: string;
   /** Подключение считается активным */
   isConnected: boolean;
-  /** Ошибок нет */
-  error: null;
+  /** Причина неудачи отсутствует */
+  failureReason: null;
+  /** Сеть доступна */
+  isNetworkAvailable: true;
 }
 
 function resolveMockConnection(profile: IConnectionProfile | null): IMockConnectionState {
@@ -50,25 +59,37 @@ function resolveMockConnection(profile: IConnectionProfile | null): IMockConnect
     profile: profile ?? MOCK_CONNECTION_PROFILE,
     baseUrl: MOCK_HA_BASE_URL,
     isConnected: true,
-    error: null,
+    failureReason: null,
+    isNetworkAvailable: true,
+  };
+}
+
+function applyHealthResult(
+  health: Awaited<ReturnType<typeof resolveActiveBaseUrl>>,
+): Pick<IConnectionStore, 'baseUrl' | 'isConnected' | 'failureReason'> {
+  return {
+    baseUrl: health.ok ? health.baseUrl : null,
+    isConnected: health.ok,
+    failureReason: health.ok ? null : health.failureReason ?? 'unknown',
   };
 }
 
 let hydratePromise: Promise<void> | null = null;
 
-export const useConnectionStore = create<IConnectionStore>((set) => ({
+export const useConnectionStore = create<IConnectionStore>((set, get) => ({
   profile: null,
   baseUrl: null,
   isConnected: false,
   isLoading: true,
   hasHydrated: false,
-  error: null,
+  failureReason: null,
+  isNetworkAvailable: null,
 
   hydrate: () => {
     if (hydratePromise) return hydratePromise;
 
     hydratePromise = (async () => {
-      set({ isLoading: true, error: null });
+      set({ isLoading: true, failureReason: null });
       try {
         const profile = await loadConnectionProfile();
 
@@ -89,7 +110,7 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
             isConnected: false,
             isLoading: false,
             hasHydrated: true,
-            error: null,
+            failureReason: null,
           });
           return;
         }
@@ -97,11 +118,9 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
         const health = await resolveActiveBaseUrl(profile);
         set({
           profile,
-          baseUrl: health.ok ? health.baseUrl : null,
-          isConnected: health.ok,
+          ...applyHealthResult(health),
           isLoading: false,
           hasHydrated: true,
-          error: health.ok ? null : health.error ?? 'Ошибка подключения',
         });
       } catch {
         set({
@@ -110,7 +129,7 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
           isConnected: false,
           isLoading: false,
           hasHydrated: true,
-          error: 'Не удалось загрузить настройки',
+          failureReason: 'unknown',
         });
       }
     })();
@@ -119,7 +138,7 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
   },
 
   connect: async (profile) => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, failureReason: null });
     try {
       if (USE_HA_MOCKS) {
         const mockState = resolveMockConnection(profile);
@@ -135,19 +154,57 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
       const health = await resolveActiveBaseUrl(profile);
       set({
         profile,
-        baseUrl: health.ok ? health.baseUrl : null,
-        isConnected: health.ok,
-        error: health.ok ? null : health.error ?? 'Ошибка подключения',
+        ...applyHealthResult(health),
       });
     } catch {
       set({
         profile,
         baseUrl: null,
         isConnected: false,
-        error: 'Не удалось сохранить подключение',
+        failureReason: 'unknown',
       });
     } finally {
       set({ isLoading: false, hasHydrated: true });
+    }
+  },
+
+  retry: async () => {
+    const { profile, isLoading, isNetworkAvailable } = get();
+    if (!profile || isLoading || USE_HA_MOCKS) {
+      return;
+    }
+
+    if (isNetworkAvailable === false) {
+      return;
+    }
+
+    set({ isLoading: true });
+    try {
+      const health = await resolveActiveBaseUrl(profile);
+      set({
+        ...applyHealthResult(health),
+        isLoading: false,
+      });
+    } catch {
+      set({
+        baseUrl: null,
+        isConnected: false,
+        failureReason: 'unknown',
+        isLoading: false,
+      });
+    }
+  },
+
+  setNetworkAvailable: (available) => {
+    const prev = get().isNetworkAvailable;
+    setCachedNetworkAvailable(available);
+    set({ isNetworkAvailable: available });
+
+    if (available === true && prev === false) {
+      const { profile, isConnected, isLoading } = get();
+      if (profile && !isConnected && !isLoading) {
+        void get().retry();
+      }
     }
   },
 
@@ -160,8 +217,9 @@ export const useConnectionStore = create<IConnectionStore>((set) => ({
       profile: null,
       baseUrl: null,
       isConnected: false,
-      error: null,
+      failureReason: null,
       isLoading: false,
+      isNetworkAvailable: get().isNetworkAvailable,
     });
     if (USE_HA_MOCKS) {
       void useConnectionStore.getState().hydrate();

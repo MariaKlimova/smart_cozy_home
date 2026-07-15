@@ -1,4 +1,6 @@
-export type { IConnectionProfile } from '@/domain/connection.typings';
+import type { TConnectionFailureReason } from '@/domain/connection.typings';
+
+export type { IConnectionProfile, TConnectionFailureReason } from '@/domain/connection.typings';
 
 /** Результат health-check */
 export interface IConnectionHealth {
@@ -6,7 +8,9 @@ export interface IConnectionHealth {
   ok: boolean;
   /** Использованный base URL */
   baseUrl: string;
-  /** Сообщение об ошибке */
+  /** Причина неудачи для UI-слоя */
+  failureReason?: TConnectionFailureReason;
+  /** Техническое сообщение (debug, не для пользователя) */
   error?: string;
 }
 

@@ -40,6 +40,7 @@ export function useSleepHistory(options?: IUseSleepHistoryOptions): IUseSleepHis
   const weekOffset = options?.weekOffset ?? 0;
   const pollingEnabled = options?.enabled ?? true;
   const baseUrl = useConnectionStore((s) => s.baseUrl);
+  const isNetworkAvailable = useConnectionStore((s) => s.isNetworkAvailable);
   const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const overrides = useBedroomSensorStore((s) => s.overrides);
   const getResolvedMapping = useBedroomSensorStore((s) => s.getResolvedMapping);
@@ -53,10 +54,11 @@ export function useSleepHistory(options?: IUseSleepHistoryOptions): IUseSleepHis
     humidity: sensors.humidity.entity,
   };
   const activeSensorIds = getActiveBedroomSensorEntityIds(sensors);
+  const networkOk = isNetworkAvailable !== false;
 
   const query = useQuery({
     queryKey: ['sleep-history', baseUrl, weekOffset, mappingKey, nightSchedule.bedtime, nightSchedule.wakeTime],
-    enabled: Boolean(pollingEnabled && haReady && activeSensorIds.length > 0),
+    enabled: Boolean(pollingEnabled && haReady && networkOk && activeSensorIds.length > 0),
     staleTime: SLEEP_HISTORY_STALE_MS,
     queryFn: async () =>
       loadSleepWeekData({
@@ -71,7 +73,7 @@ export function useSleepHistory(options?: IUseSleepHistoryOptions): IUseSleepHis
   return {
     nights: query.data?.nights ?? [],
     weekEnd: query.data?.weekEnd ?? getWeekEndForOffset(weekOffset),
-    isLoading: query.isPending,
+    isLoading: query.isLoading,
     isFetching: query.isFetching,
     isError: query.isError,
     isRefreshing: query.isFetching && !query.isPending,

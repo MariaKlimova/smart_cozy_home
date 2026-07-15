@@ -126,10 +126,6 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
         }}
       />
 
-      {!haReady ? (
-        <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
-      ) : null}
-
       {haReady && activeTab === 'devices' ? (
         <View style={styles.panel}>
           <CalmButton
@@ -141,7 +137,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
             <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.checking}</Text>
           ) : null}
           {isDevicesError && hasActiveDevices ? (
-            <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
+            <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.haUnavailable}</Text>
           ) : null}
           {!hasActiveDevices ? (
             <Text style={[typography.body, { color: c.textMuted }]}>
@@ -170,7 +166,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
             <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.checking}</Text>
           ) : null}
           {isSensorsError ? (
-            <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.offline}</Text>
+            <Text style={[typography.body, { color: c.textMuted }]}>{copy.connection.haUnavailable}</Text>
           ) : null}
           <BedroomSensorControls
             readings={readings}
