@@ -34,6 +34,16 @@ export const SCENARIO_FIELD_DEFINITIONS: Record<string, IScenarioFieldDefinition
   sleep: [
     { key: 'temperature', kind: 'number', copyKey: 'nightTemperature', min: 15, max: 22, step: 0.5, unit: '°C' },
     { key: 'window', kind: 'boolean', copyKey: 'window' },
+    { key: 'nightlight', kind: 'boolean', copyKey: 'nightlight' },
+    {
+      key: 'nightlightBrightness',
+      kind: 'number',
+      copyKey: 'nightlightBrightness',
+      min: 1,
+      max: 30,
+      step: 1,
+      unit: '%',
+    },
   ],
   morning: [
     { key: 'brightness', kind: 'number', copyKey: 'brightness', min: 1, max: 100, step: 1, unit: '%' },

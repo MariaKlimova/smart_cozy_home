@@ -4,6 +4,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { copy } from '@/copy/ru';
 import type {
+  IBedroomColorLightValue,
   IBedroomSegmentedValue,
   IBedroomSliderValue,
   IBedroomToggleValue,
@@ -15,7 +16,8 @@ import { CalmSlider } from '@/ui/CalmSlider';
 import { CalmToggle } from '@/ui/CalmToggle';
 import { typography } from '@/theme/tokens';
 
-import { TOGGLE_STALE_REMOTE_IGNORE_MS } from './BedroomDeviceControls-Card.const';
+import { BedroomDeviceControlsColorPresets } from '../-ColorPresets';
+import { STALE_REMOTE_IGNORE_MS } from './BedroomDeviceControls-Card.const';
 import type { IBedroomDeviceControlsCardProps } from './BedroomDeviceControls-Card.typings';
 import { styles } from './BedroomDeviceControls-Card.styles';
 
@@ -31,11 +33,23 @@ function isSegmentedValue(value: unknown): value is IBedroomSegmentedValue {
   return typeof value === 'object' && value !== null && 'activeOptionId' in value;
 }
 
+function isColorLightValue(value: unknown): value is IBedroomColorLightValue {
+  return typeof value === 'object' && value !== null && 'brightness' in value && 'colorPresets' in value;
+}
+
 function formatSliderValue(value: IBedroomSliderValue): string {
   if (value.unit) {
     return `${value.current} ${value.unit}`;
   }
   return String(value.current);
+}
+
+function resolveRemoteBrightness(
+  sliderCurrent: number | undefined,
+  colorBrightness: number | undefined,
+): number | undefined {
+  if (sliderCurrent !== undefined) return sliderCurrent;
+  return colorBrightness;
 }
 
 export function BedroomDeviceControlsCard({
@@ -45,49 +59,103 @@ export function BedroomDeviceControlsCard({
   onSliderComplete,
   onToggle,
   onSegmentSelect,
+  onColorLightChange,
   onConfigure,
 }: IBedroomDeviceControlsCardProps) {
   const c = useThemeColors();
   const controlsDisabled = !device.isAvailable || isPending;
   const toggleDisabled = !device.isAvailable;
   const sliderValue = isSliderValue(device.value) ? device.value : undefined;
+  const colorLightValue = isColorLightValue(device.value) ? device.value : undefined;
   const sliderCurrent = sliderValue?.current;
+  const colorBrightness = colorLightValue?.brightness;
+  const remoteBrightness = resolveRemoteBrightness(sliderCurrent, colorBrightness);
   const remoteToggleOn = isToggleValue(device.value) ? device.value.isOn : false;
   const [localSliderValue, setLocalSliderValue] = useState(
-    sliderCurrent ?? device.slider?.min ?? 0,
+    remoteBrightness ?? device.slider?.min ?? 0,
   );
   const [localToggleOn, setLocalToggleOn] = useState(remoteToggleOn);
+  const [localColorPresetId, setLocalColorPresetId] = useState<string | undefined>(
+    colorLightValue?.colorPresetId,
+  );
   const toggleInFlightRef = useRef(false);
   /** Ждём, пока remote станет равен этому значению после нашей команды */
   const expectedToggleRef = useRef<boolean | null>(null);
-  const ignoreStaleUntilRef = useRef(0);
+  const ignoreStaleToggleUntilRef = useRef(0);
+  /** Ожидаемая яркость после slider / color_light, пока REST не догнал */
+  const expectedBrightnessRef = useRef<number | null>(null);
+  const ignoreStaleBrightnessUntilRef = useRef(0);
 
   useEffect(() => {
     expectedToggleRef.current = null;
-    ignoreStaleUntilRef.current = 0;
+    ignoreStaleToggleUntilRef.current = 0;
+    expectedBrightnessRef.current = null;
+    ignoreStaleBrightnessUntilRef.current = 0;
     setLocalToggleOn(isToggleValue(device.value) ? device.value.isOn : false);
+    setLocalColorPresetId(
+      isColorLightValue(device.value) ? device.value.colorPresetId : undefined,
+    );
     // Сброс только при смене устройства в списке
     // eslint-disable-next-line react-hooks/exhaustive-deps -- device.id gate
   }, [device.id]);
 
   useEffect(() => {
-    if (sliderCurrent !== undefined) {
-      setLocalSliderValue(sliderCurrent);
+    if (remoteBrightness === undefined) return;
+
+    const expected = expectedBrightnessRef.current;
+    if (expected !== null) {
+      if (remoteBrightness === expected) {
+        expectedBrightnessRef.current = null;
+      }
+      return;
     }
-  }, [sliderCurrent, device.id]);
+
+    if (Date.now() < ignoreStaleBrightnessUntilRef.current) {
+      return;
+    }
+
+    setLocalSliderValue(remoteBrightness);
+  }, [remoteBrightness]);
+
+  useEffect(() => {
+    if (
+      expectedBrightnessRef.current === null &&
+      Date.now() >= ignoreStaleBrightnessUntilRef.current
+    ) {
+      return;
+    }
+
+    const remaining = ignoreStaleBrightnessUntilRef.current - Date.now();
+    const delay = remaining > 0 ? remaining : STALE_REMOTE_IGNORE_MS;
+    const timer = setTimeout(() => {
+      expectedBrightnessRef.current = null;
+      ignoreStaleBrightnessUntilRef.current = 0;
+      if (remoteBrightness !== undefined) {
+        setLocalSliderValue(remoteBrightness);
+      }
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [localSliderValue, remoteBrightness]);
+
+  useEffect(() => {
+    if (colorLightValue?.colorPresetId) {
+      setLocalColorPresetId(colorLightValue.colorPresetId);
+    }
+  }, [colorLightValue?.colorPresetId, device.id]);
 
   useEffect(() => {
     const expected = expectedToggleRef.current;
     if (expected !== null) {
       if (remoteToggleOn === expected) {
         // HA (или optimistic cache) совпал — больше не ждём expected,
-        // но ещё TOGGLE_STALE_REMOTE_IGNORE_MS игнорируем откат на stale refetch
+        // но ещё STALE_REMOTE_IGNORE_MS игнорируем откат на stale refetch
         expectedToggleRef.current = null;
       }
       return;
     }
 
-    if (Date.now() < ignoreStaleUntilRef.current) {
+    if (Date.now() < ignoreStaleToggleUntilRef.current) {
       return;
     }
 
@@ -95,15 +163,15 @@ export function BedroomDeviceControlsCard({
   }, [remoteToggleOn]);
 
   useEffect(() => {
-    if (expectedToggleRef.current === null && Date.now() >= ignoreStaleUntilRef.current) {
+    if (expectedToggleRef.current === null && Date.now() >= ignoreStaleToggleUntilRef.current) {
       return;
     }
 
-    const remaining = ignoreStaleUntilRef.current - Date.now();
-    const delay = remaining > 0 ? remaining : TOGGLE_STALE_REMOTE_IGNORE_MS;
+    const remaining = ignoreStaleToggleUntilRef.current - Date.now();
+    const delay = remaining > 0 ? remaining : STALE_REMOTE_IGNORE_MS;
     const timer = setTimeout(() => {
       expectedToggleRef.current = null;
-      ignoreStaleUntilRef.current = 0;
+      ignoreStaleToggleUntilRef.current = 0;
       setLocalToggleOn(remoteToggleOn);
     }, delay);
 
@@ -112,13 +180,30 @@ export function BedroomDeviceControlsCard({
 
   let valueCaption: string | undefined;
   if (sliderValue) {
-    valueCaption = formatSliderValue(sliderValue);
+    valueCaption = formatSliderValue({ ...sliderValue, current: localSliderValue });
+  } else if (colorLightValue) {
+    valueCaption = `${Math.round(localSliderValue)} %`;
+  }
+
+  function beginBrightnessOptimistic(value: number) {
+    expectedBrightnessRef.current = value;
+    ignoreStaleBrightnessUntilRef.current = Date.now() + STALE_REMOTE_IGNORE_MS;
+    setLocalSliderValue(value);
+  }
+
+  function cancelBrightnessOptimistic(fallback: number | undefined) {
+    expectedBrightnessRef.current = null;
+    ignoreStaleBrightnessUntilRef.current = 0;
+    if (fallback !== undefined) {
+      setLocalSliderValue(fallback);
+    }
   }
 
   async function handleSliderComplete(value: number) {
+    beginBrightnessOptimistic(value);
     const applied = await onSliderComplete(value);
-    if (!applied && sliderCurrent !== undefined) {
-      setLocalSliderValue(sliderCurrent);
+    if (!applied) {
+      cancelBrightnessOptimistic(sliderCurrent ?? colorBrightness);
     }
   }
 
@@ -127,18 +212,48 @@ export function BedroomDeviceControlsCard({
     toggleInFlightRef.current = true;
     const previous = localToggleOn;
     expectedToggleRef.current = next;
-    ignoreStaleUntilRef.current = Date.now() + TOGGLE_STALE_REMOTE_IGNORE_MS;
+    ignoreStaleToggleUntilRef.current = Date.now() + STALE_REMOTE_IGNORE_MS;
     setLocalToggleOn(next);
     try {
       const applied = await onToggle(next);
       if (!applied) {
         expectedToggleRef.current = null;
-        ignoreStaleUntilRef.current = 0;
+        ignoreStaleToggleUntilRef.current = 0;
         setLocalToggleOn(previous);
       }
     } finally {
       toggleInFlightRef.current = false;
     }
+  }
+
+  async function handleColorLightSlider(value: number) {
+    if (!colorLightValue || !onColorLightChange) {
+      return;
+    }
+    const presetId =
+      localColorPresetId ??
+      colorLightValue.colorPresetId ??
+      colorLightValue.colorPresets[0]?.id;
+    if (!presetId) {
+      return;
+    }
+    beginBrightnessOptimistic(value);
+    const applied = await onColorLightChange(value, presetId);
+    if (!applied) {
+      cancelBrightnessOptimistic(colorBrightness);
+    }
+  }
+
+  function handleColorPresetSelect(presetId: string) {
+    if (!colorLightValue || !onColorLightChange) {
+      return;
+    }
+    setLocalColorPresetId(presetId);
+    // При яркости 0 только запоминаем цвет локально — ночник включит слайдер
+    if (localSliderValue <= 0) {
+      return;
+    }
+    void onColorLightChange(localSliderValue, presetId);
   }
 
   return (
@@ -162,7 +277,8 @@ export function BedroomDeviceControlsCard({
         {!device.isAvailable ? (
           <Text style={[typography.caption, { color: c.textMuted }]}>{copy.bedroom.unavailable}</Text>
         ) : null}
-        {device.isAvailable && valueCaption && device.control === 'slider' ? (
+        {device.isAvailable && valueCaption &&
+        (device.control === 'slider' || device.control === 'color_light') ? (
           <Text style={[typography.caption, { color: c.textMuted }]}>{valueCaption}</Text>
         ) : null}
 
@@ -188,6 +304,29 @@ export function BedroomDeviceControlsCard({
             disabled={controlsDisabled}
             accessibilityLabel={device.label}
           />
+        ) : null}
+
+        {device.control === 'color_light' && device.slider ? (
+          <>
+            <CalmSlider
+              value={localSliderValue}
+              onValueChange={setLocalSliderValue}
+              onSlidingComplete={(value) => void handleColorLightSlider(value)}
+              minimumValue={device.slider.min}
+              maximumValue={device.slider.max}
+              step={device.slider.step}
+              disabled={controlsDisabled}
+              accessibilityLabel={device.label}
+            />
+            {colorLightValue && colorLightValue.colorPresets.length > 0 ? (
+              <BedroomDeviceControlsColorPresets
+                presets={colorLightValue.colorPresets}
+                activePresetId={localColorPresetId ?? colorLightValue.colorPresetId}
+                disabled={controlsDisabled}
+                onSelect={handleColorPresetSelect}
+              />
+            ) : null}
+          </>
         ) : null}
 
         {device.control === 'segmented' && device.segmentOptions ? (

@@ -6,6 +6,7 @@ import {
   getAllMockEntityStates,
   getMockEntitySnapshot,
   resetMockEntityStore,
+  updateMockEntityState,
 } from '@/ha/haMockStore';
 import { mapPresence } from '@/ha/mappers/domainMapper';
 import { mapScenarioHaState } from '@/ha/mappers/mapScenarioHaState';
@@ -44,6 +45,15 @@ describe('runMockScript', () => {
 
     assert.equal(getMockEntitySnapshot(HA_ENTITIES.system.homeMode)?.state, 'sleep');
     assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.light)?.state, 'off');
+    assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.nightlight)?.state, 'on');
+    assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.nightlight)?.attributes.brightness_pct, 8);
+  });
+
+  it('sleep turns nightlight off when the helper is disabled', () => {
+    updateMockEntityState(HA_ENTITIES.scenarioParams.sleep.nightlight, 'off');
+    runMockScript(HA_ENTITIES.scripts.sleep);
+
+    assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.nightlight)?.state, 'off');
   });
 
   it('syncs activeScenarioId via mapScenarioHaState after evening', () => {

@@ -11,6 +11,7 @@ import {
   getBedroomStateTone,
   interpretBedroomState,
 } from '@/features/now/lib/interpretState';
+import { shouldShowBedroomSensorSetupCta } from '@/features/now/lib/shouldShowBedroomSensorSetup';
 import { useBedroom } from '@/features/now/lib/useBedroom';
 import { useNowHome } from '@/features/now/lib/useNowHome';
 import { AdjustSheet } from '@/features/now/ui/AdjustSheet';
@@ -35,7 +36,6 @@ export default function NowScreen() {
   const nightSchedule = useSleepScheduleStore((s) => s.schedule);
   const { readings, isLoading: isBedroomLoading } = useBedroom();
   const hasSensorHydrated = useBedroomSensorStore((s) => s.hasHydrated);
-  const isSensorsConfigured = useBedroomSensorStore((s) => s.isConfigured());
 
   const isRefreshing = useHomeStore((s) => s.isRefreshing);
   const refresh = useHomeStore((s) => s.refresh);
@@ -75,7 +75,12 @@ export default function NowScreen() {
   const outdoorMetrics = formatOutdoorMetrics(resolvedReadings);
   const tone = getBedroomStateTone(resolvedReadings, bedroomContext);
   const showBedroomSkeleton = haReady && isBedroomLoading;
-  const showSetupCta = haReady && hasSensorHydrated && !isSensorsConfigured;
+  const showSetupCta = shouldShowBedroomSensorSetupCta({
+    haReady,
+    hasSensorHydrated,
+    isBedroomLoading: showBedroomSkeleton,
+    readings: resolvedReadings,
+  });
 
   const filteredNotifications = visibleNotifications.filter(
     (notification) => notification.id !== primaryGentleNotificationId,

@@ -5,6 +5,16 @@ import type { IHaEntityState } from '@/ha/types';
 
 type TMockEntry = IMockEntitySnapshot;
 
+const MOCK_NIGHTLIGHT_FAVORITE_COLORS: unknown[] = [
+  { rgb_color: [242, 145, 61] },
+  { rgb_color: [246, 194, 145] },
+  { rgb_color: [250, 229, 212] },
+  { rgb_color: [255, 255, 255] },
+  { rgb_color: [134, 168, 249] },
+  { rgb_color: [198, 145, 243] },
+  { rgb_color: [247, 158, 244] },
+];
+
 function cloneEntry(entry: TMockEntry): TMockEntry {
   return {
     state: entry.state,
@@ -42,6 +52,21 @@ function mergeAttributes(
 ): Record<string, unknown> {
   const existing = getEntry(entityId)?.attributes ?? {};
   return { ...existing, ...patch };
+}
+
+function getLightColorAttributes(data: Record<string, unknown>): Record<string, unknown> {
+  const supportedKeys = [
+    'rgb_color',
+    'hs_color',
+    'color_temp_kelvin',
+    'rgbw_color',
+    'rgbww_color',
+  ];
+  const attributes: Record<string, unknown> = {};
+  for (const key of supportedKeys) {
+    if (key in data) attributes[key] = data[key];
+  }
+  return attributes;
 }
 
 /** Обновить state entity в локальном мок-store */
@@ -140,6 +165,7 @@ export function applyMockHaService(
         mergeAttributes(entityId, {
           brightness,
           brightness_pct: brightnessPct,
+          ...getLightColorAttributes(data),
         }),
       );
     }
@@ -246,6 +272,12 @@ export function getMockEntitySnapshot(
   const entry = getEntry(entityId);
   if (!entry) return undefined;
   return { state: entry.state, attributes: entry.attributes ?? {} };
+}
+
+/** Мок-избранное из entity registry для light. */
+export function getMockLightFavoriteColors(entityId: string): unknown[] {
+  if (entityId !== HA_ENTITIES.devices.nightlight) return [];
+  return MOCK_NIGHTLIGHT_FAVORITE_COLORS.map((color) => ({ ...(color as Record<string, unknown>) }));
 }
 
 /** Прочитать input_number из мок-store */

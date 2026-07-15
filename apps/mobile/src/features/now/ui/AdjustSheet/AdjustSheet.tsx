@@ -31,6 +31,7 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
     setSlider,
     setToggle,
     setSegment,
+    setColorLight,
   } = useBedroomControls({ enabled: visible });
 
   const handleSliderComplete = useCallback(
@@ -65,6 +66,17 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
     [setSegment, onManualControlError],
   );
 
+  const handleColorLightChange = useCallback(
+    async (deviceId: string, brightness: number, colorPresetId: string) => {
+      const applied = await setColorLight(deviceId, brightness, colorPresetId);
+      if (!applied) {
+        onManualControlError();
+      }
+      return applied;
+    },
+    [setColorLight, onManualControlError],
+  );
+
   let panelContent = null;
 
   if (!haReady) {
@@ -96,6 +108,7 @@ export function AdjustSheet({ visible, onClose, onManualControlError }: IAdjustS
         onSliderComplete={handleSliderComplete}
         onToggle={handleToggle}
         onSegmentSelect={(deviceId, optionId) => void handleSegmentSelect(deviceId, optionId)}
+        onColorLightChange={handleColorLightChange}
       />
     );
   }

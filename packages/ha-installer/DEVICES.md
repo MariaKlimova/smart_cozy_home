@@ -11,6 +11,7 @@
 | Entity ID | Назначение | Используется в |
 |---|---|---|
 | `light.bedroom` | Основной свет | scripts, bedroom devices UI |
+| `light.bedroom_nightlight` | Ночник (цвет + яркость; избранные цвета — entity registry) | scripts, bedroom devices UI |
 | `cover.bedroom_curtains` | Шторы | scripts, bedroom devices UI |
 | `cover.bedroom_window` | Открыватель окна | scripts, bedroom devices UI |
 | `climate.bedroom_ac` | Кондиционер | scripts, bedroom devices UI |

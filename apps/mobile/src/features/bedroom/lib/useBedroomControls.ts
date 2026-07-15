@@ -1,16 +1,18 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
 import {
   bedroomDeviceMappingQueryKey,
   getActiveBedroomDeviceEntityIds,
+  resolveBedroomDevices,
 } from '@/config/resolveBedroomDevices';
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
 import type { IBedroomDeviceState } from '@/domain/bedroomDevice.typings';
 import { setBedroomDevice } from '@/domain/bedroomDeviceControl';
+import { fetchHaLightFavoriteColors } from '@/ha/entityRegistry';
 import { fetchEntityStates } from '@/ha/haClient';
+import { mapBedroomDevices, mapHaLightPresetsToDomain } from '@/ha/mappers/domainMapper';
 import { useHaBackend } from '@/ha/useHaBackend';
-import { mapBedroomDevices } from '@/ha/mappers/domainMapper';
 import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useConnectionStore } from '@/store/connectionStore';
 
@@ -38,9 +40,17 @@ export interface IUseBedroomControlsResult {
   setToggle: (deviceId: string, isOn: boolean) => Promise<boolean>;
   /** Выбрать сегмент; false — команда не применилась */
   setSegment: (deviceId: string, optionId: string) => Promise<boolean>;
+  /** Установить яркость и цвет ночника; false — команда не применилась */
+  setColorLight: (
+    deviceId: string,
+    brightness: number,
+    colorPresetId: string,
+  ) => Promise<boolean>;
   /** Обновить состояния */
   refresh: () => Promise<void>;
 }
+
+type TDevicesQueryKey = readonly ['bedroom-devices', string | null, string];
 
 function patchToggleInCache(
   devices: IBedroomDeviceState[] | undefined,
@@ -54,6 +64,71 @@ function patchToggleInCache(
   });
 }
 
+function patchColorLightInCache(
+  devices: IBedroomDeviceState[] | undefined,
+  deviceId: string,
+  brightness: number,
+  colorPresetId: string,
+): IBedroomDeviceState[] | undefined {
+  if (!devices) return devices;
+  return devices.map((device) => {
+    if (device.id !== deviceId) return device;
+    if (!device.value || !('colorPresets' in device.value)) return device;
+    return {
+      ...device,
+      value: {
+        ...device.value,
+        brightness,
+        colorPresetId,
+      },
+    };
+  });
+}
+
+function patchSliderInCache(
+  devices: IBedroomDeviceState[] | undefined,
+  deviceId: string,
+  current: number,
+): IBedroomDeviceState[] | undefined {
+  if (!devices) return devices;
+  return devices.map((device) => {
+    if (device.id !== deviceId) return device;
+    if (!device.value || !('current' in device.value)) return device;
+    return {
+      ...device,
+      value: {
+        ...device.value,
+        current,
+      },
+    };
+  });
+}
+
+/**
+ * REST /api/states часто отстаёт от call_service — сразу возвращаем optimistic
+ * и после soft-refresh снова накладываем patch, чтобы refetch не затирал UI.
+ */
+function commitOptimisticAndSoftRefresh(
+  queryClient: QueryClient,
+  devicesQueryKey: TDevicesQueryKey,
+  previousDevices: IBedroomDeviceState[] | undefined,
+  patch: (devices: IBedroomDeviceState[] | undefined) => IBedroomDeviceState[] | undefined,
+): void {
+  queryClient.setQueryData(
+    devicesQueryKey,
+    patch(queryClient.getQueryData<IBedroomDeviceState[]>(devicesQueryKey) ?? previousDevices),
+  );
+  void queryClient.invalidateQueries({ queryKey: devicesQueryKey }).then(() => {
+    queryClient.setQueryData(
+      devicesQueryKey,
+      (current: IBedroomDeviceState[] | undefined) => {
+        const patched = patch(current);
+        return patched ?? current;
+      },
+    );
+  });
+}
+
 /** Загрузка и управление устройствами спальни через HA */
 export function useBedroomControls(
   options?: IUseBedroomControlsOptions,
@@ -63,7 +138,15 @@ export function useBedroomControls(
   const baseUrl = useConnectionStore((s) => s.baseUrl);
   const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const config = useBedroomDeviceStore((s) => s.config);
+  const resolvedDevices = useMemo(() => resolveBedroomDevices(config), [config]);
   const entityIds = useMemo(() => getActiveBedroomDeviceEntityIds(config), [config]);
+  const nightlightEntity = useMemo(
+    () =>
+      resolvedDevices.find(
+        (device) => device.id === 'nightlight' && device.control === 'color_light',
+      ),
+    [resolvedDevices],
+  );
   const mappingKey = bedroomDeviceMappingQueryKey(config);
   const devicesQueryKey = useMemo(
     () => ['bedroom-devices', baseUrl, mappingKey] as const,
@@ -73,14 +156,25 @@ export function useBedroomControls(
 
   const query = useQuery({
     queryKey: devicesQueryKey,
-    enabled: Boolean(
-      pollingEnabled && haReady && entityIds.length > 0,
-    ),
+    enabled: Boolean(pollingEnabled && haReady && entityIds.length > 0),
     staleTime: BEDROOM_DEVICES_STALE_MS,
     refetchInterval: pollingEnabled ? BEDROOM_DEVICES_STALE_MS : false,
     queryFn: async () => {
       const states = await fetchEntityStates(haBaseUrl, haToken, entityIds);
-      return mapBedroomDevices(states, config);
+      const presetsMap: Record<string, ReturnType<typeof mapHaLightPresetsToDomain>> = {};
+
+      if (nightlightEntity) {
+        const nightlightState = states.find((s) => s.entityId === nightlightEntity.entity);
+        const haPresets = await fetchHaLightFavoriteColors(
+          haBaseUrl,
+          haToken,
+          nightlightEntity.entity,
+          nightlightState?.attributes,
+        );
+        presetsMap.nightlight = mapHaLightPresetsToDomain(haPresets);
+      }
+
+      return mapBedroomDevices(states, config, presetsMap);
     },
   });
 
@@ -95,30 +189,54 @@ export function useBedroomControls(
           devicesQueryKey,
           patchToggleInCache(previousDevices, deviceId, action.isOn),
         );
+      } else if (action.kind === 'color_light') {
+        queryClient.setQueryData(
+          devicesQueryKey,
+          patchColorLightInCache(
+            previousDevices,
+            deviceId,
+            action.brightness,
+            action.colorPresetId,
+          ),
+        );
+      } else if (action.kind === 'slider') {
+        queryClient.setQueryData(
+          devicesQueryKey,
+          patchSliderInCache(previousDevices, deviceId, action.value),
+        );
       }
 
       try {
         await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config);
-        // REST /api/states часто отстаёт от call_service — не ждём refetch и
-        // сразу возвращаем optimistic; soft-refresh не должен затирать UI.
+
         if (action.kind === 'toggle') {
-          queryClient.setQueryData(
+          commitOptimisticAndSoftRefresh(
+            queryClient,
             devicesQueryKey,
-            patchToggleInCache(
-              queryClient.getQueryData<IBedroomDeviceState[]>(devicesQueryKey) ?? previousDevices,
-              deviceId,
-              action.isOn,
-            ),
+            previousDevices,
+            (devices) => patchToggleInCache(devices, deviceId, action.isOn),
           );
-          void queryClient.invalidateQueries({ queryKey: devicesQueryKey }).then(() => {
-            queryClient.setQueryData(
-              devicesQueryKey,
-              (current: IBedroomDeviceState[] | undefined) => {
-                const patched = patchToggleInCache(current, deviceId, action.isOn);
-                return patched ?? current;
-              },
-            );
-          });
+          return true;
+        }
+
+        if (action.kind === 'color_light') {
+          commitOptimisticAndSoftRefresh(
+            queryClient,
+            devicesQueryKey,
+            previousDevices,
+            (devices) =>
+              patchColorLightInCache(devices, deviceId, action.brightness, action.colorPresetId),
+          );
+          return true;
+        }
+
+        if (action.kind === 'slider') {
+          commitOptimisticAndSoftRefresh(
+            queryClient,
+            devicesQueryKey,
+            previousDevices,
+            (devices) => patchSliderInCache(devices, deviceId, action.value),
+          );
           return true;
         }
 
@@ -159,6 +277,25 @@ export function useBedroomControls(
     [runAction],
   );
 
+  const setColorLight = useCallback(
+    async (deviceId: string, brightness: number, colorPresetId: string) => {
+      const device = query.data?.find((item) => item.id === deviceId);
+      const value =
+        device?.value && 'colorPresets' in device.value ? device.value : undefined;
+      const preset = value?.colorPresets.find((item) => item.id === colorPresetId);
+      if (!preset) {
+        return false;
+      }
+      return runAction(deviceId, {
+        kind: 'color_light',
+        brightness,
+        colorPresetId,
+        color: preset.color,
+      });
+    },
+    [query.data, runAction],
+  );
+
   const refresh = useCallback(async () => {
     await queryClient.invalidateQueries({
       queryKey: devicesQueryKey,
@@ -174,6 +311,7 @@ export function useBedroomControls(
     setSlider,
     setToggle,
     setSegment,
+    setColorLight,
     refresh,
   };
 }

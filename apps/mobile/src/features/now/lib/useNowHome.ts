@@ -49,6 +49,14 @@ function mapBedroomDevicesForSuggestion(
       };
     }
 
+    if (device.control === 'color_light') {
+      return {
+        id: device.id,
+        isAvailable: device.isAvailable,
+        control: device.control,
+      };
+    }
+
     return {
       id: device.id,
       isAvailable: device.isAvailable,

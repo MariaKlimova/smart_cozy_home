@@ -61,11 +61,24 @@ describe('resolveNowSuggestion', () => {
     }
   });
 
-  it('returns none during day without device triggers', () => {
+  it('suggests focus scenario during day', () => {
     const suggestion = resolveNowSuggestion({
       ...baseInput,
       now: new Date(2026, 6, 10, 14, 0),
       activeScenarioId: 'none',
+    });
+
+    assert.equal(suggestion.kind, 'scenario');
+    if (suggestion.kind === 'scenario') {
+      assert.equal(suggestion.scenarioId, 'focus');
+    }
+  });
+
+  it('skips focus scenario when it is already active', () => {
+    const suggestion = resolveNowSuggestion({
+      ...baseInput,
+      now: new Date(2026, 6, 10, 14, 0),
+      activeScenarioId: 'focus',
     });
 
     assert.equal(suggestion.kind, 'none');

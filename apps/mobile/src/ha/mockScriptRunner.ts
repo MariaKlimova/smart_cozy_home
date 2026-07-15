@@ -44,6 +44,7 @@ function isDaytime(now: Date = new Date()): boolean {
 
 function runEveningScript(): void {
   const params = scenarioParams.evening;
+  setMockLightBrightnessPercent(devices.nightlight, 0);
   setMockLightBrightnessPercent(
     devices.light,
     readMockNumberParam(params.brightness, 15),
@@ -68,6 +69,12 @@ function runEveningScript(): void {
 function runSleepScript(): void {
   const params = scenarioParams.sleep;
   setMockLightBrightnessPercent(devices.light, 0);
+  const nightlightEnabled = readMockBooleanParam(params.nightlight, true);
+  const nightlightBrightness = readMockNumberParam(params.nightlightBrightness, 8);
+  setMockLightBrightnessPercent(
+    devices.nightlight,
+    nightlightEnabled ? nightlightBrightness : 0,
+  );
   updateMockEntityState(devices.occupancy, 'on');
 
   const sleepTemp = readMockNumberParam(params.temperature, 17);
@@ -85,6 +92,7 @@ function runSleepScript(): void {
 function runMorningScript(): void {
   const params = scenarioParams.morning;
   resetSleepMaintainer();
+  setMockLightBrightnessPercent(devices.nightlight, 0);
   setMockCoverPosition(devices.window, 0);
   setMockLightBrightnessPercent(
     devices.light,
@@ -97,6 +105,7 @@ function runMorningScript(): void {
 
 function runAwayScript(): void {
   const params = scenarioParams.away;
+  setMockLightBrightnessPercent(devices.nightlight, 0);
   setMockLightBrightnessPercent(devices.light, 0);
   applyMockHaService('light', 'turn_off', { entity_id: 'light.living_room' });
 
@@ -117,6 +126,7 @@ function runAwayScript(): void {
 
 function runComingHomeScript(): void {
   const params = scenarioParams.comingHome;
+  setMockLightBrightnessPercent(devices.nightlight, 0);
   setMockHumidifierPower(true);
   setMockClimateTemperature(
     CLIMATE_ENTITIES,
@@ -137,6 +147,7 @@ function runComingHomeScript(): void {
 
 function runCozyScript(): void {
   const params = scenarioParams.cozy;
+  setMockLightBrightnessPercent(devices.nightlight, 0);
   setMockLightBrightnessPercent(
     devices.light,
     readMockNumberParam(params.brightness, 40),
@@ -152,6 +163,7 @@ function runCozyScript(): void {
 
 function runFocusScript(): void {
   const params = scenarioParams.focus;
+  setMockLightBrightnessPercent(devices.nightlight, 0);
   setMockLightBrightnessPercent(
     devices.light,
     readMockNumberParam(params.brightness, 90),

@@ -7,6 +7,8 @@
 export interface IHaBedroomDeviceEntities {
   /** Основной свет */
   light: string;
+  /** Ночник */
+  nightlight: string;
   /** Шторы */
   curtains: string;
   /** Открыватель окна */
@@ -79,6 +81,8 @@ export type TScenarioHaParamKey =
   | 'curtains'
   | 'humidifier'
   | 'window'
+  | 'nightlight'
+  | 'nightlightBrightness'
   | 'warmupMinutes'
   | 'minutes'
   | 'scheduleConfig';
@@ -113,6 +117,7 @@ export interface IHaEntities {
 export const HA_ENTITIES: IHaEntities = {
   devices: {
     light: 'light.bedroom',
+    nightlight: 'light.bedroom_nightlight',
     curtains: 'cover.bedroom_curtains',
     window: 'cover.bedroom_window',
     airConditioner: 'climate.bedroom_ac',
@@ -155,6 +160,8 @@ export const HA_ENTITIES: IHaEntities = {
     sleep: {
       temperature: 'input_number.sleep_temperature',
       window: 'input_boolean.sleep_window',
+      nightlight: 'input_boolean.sleep_nightlight',
+      nightlightBrightness: 'input_number.sleep_nightlight_brightness',
       scheduleConfig: 'input_text.sleep_schedule',
     },
     morning: {

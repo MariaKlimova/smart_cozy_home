@@ -12,6 +12,7 @@ export function BedroomDeviceControls({
   onSliderComplete,
   onToggle,
   onSegmentSelect,
+  onColorLightChange,
   onConfigureDevice,
 }: IBedroomDeviceControlsProps) {
   return (
@@ -25,6 +26,12 @@ export function BedroomDeviceControls({
           onSliderComplete={(value) => onSliderComplete(device.id, value)}
           onToggle={(isOn) => onToggle(device.id, isOn)}
           onSegmentSelect={(optionId) => onSegmentSelect(device.id, optionId)}
+          onColorLightChange={
+            onColorLightChange
+              ? (brightness, colorPresetId) =>
+                  onColorLightChange(device.id, brightness, colorPresetId)
+              : undefined
+          }
           onConfigure={
             onConfigureDevice ? () => onConfigureDevice(device.id) : undefined
           }

@@ -45,4 +45,16 @@ describe('filterDevicesForSlot', () => {
     assert.equal(recommended.length, 1);
     assert.equal(other.length, 1);
   });
+
+  it('recommends nightlight entities by name', () => {
+    const items = [
+      item('light.bedroom_nightlight', 'Ночник спальни'),
+      item('light.kitchen', 'Кухня'),
+    ];
+    const { recommended, other } = filterDevicesForSlot(items, 'nightlight', '');
+
+    assert.equal(recommended.length, 1);
+    assert.equal(recommended[0].entityId, 'light.bedroom_nightlight');
+    assert.equal(other.length, 1);
+  });
 });
