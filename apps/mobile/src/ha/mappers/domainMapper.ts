@@ -1,12 +1,12 @@
 import { loadHomeConfig } from '@/config/homeConfig';
 import { VISIBLE_ROOM_IDS } from '@/config/visibleRooms';
-import type { IHaEntityState } from '@/ha/types';
 import type {
-  IGentleNotification,
-  IPresenceMember,
-  IRoom,
-  ITimelineEvent,
+    IGentleNotification,
+    IPresenceMember,
+    IRoom,
+    ITimelineEvent,
 } from '@/domain/types';
+import type { IHaEntityState } from '@/ha/types';
 
 function stateMap(states: IHaEntityState[]): Map<string, IHaEntityState> {
   return new Map(states.map((s) => [s.entityId, s]));
@@ -143,9 +143,9 @@ export function collectWatchedEntityIds(): string[] {
   return [...ids];
 }
 
-export { collectBedroomDeviceEntityIds, mapBedroomDevices } from './mapBedroomDevices';
 export {
-  domainColorToHaPayload,
-  haPayloadToDomainColor,
-  mapHaLightPresetsToDomain,
+    domainColorToHaPayload,
+    haPayloadToDomainColor,
+    mapHaLightPresetsToDomain
 } from './lightColorMapper';
+export { collectBedroomDeviceEntityIds, mapBedroomDevices } from './mapBedroomDevices';

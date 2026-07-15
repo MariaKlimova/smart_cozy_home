@@ -21,8 +21,8 @@ export function CalmToggle({
         onValueChange={onValueChange}
         disabled={disabled}
         accessibilityLabel={accessibilityLabel}
-        trackColor={{ false: c.border, true: c.accentMuted }}
-        thumbColor={value ? c.accent : c.surface}
+        trackColor={{ false: c.border, true: c.accent }}
+        thumbColor={value ? c.onAccent : c.surface}
         ios_backgroundColor={c.border}
       />
     </View>

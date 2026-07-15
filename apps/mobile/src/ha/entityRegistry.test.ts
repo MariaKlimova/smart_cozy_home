@@ -2,15 +2,15 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
-  extractDisplayRgbFromLightAttributes,
-  getDefaultHaLightColorPresets,
-  lightSupportsColorModes,
-  normalizeHaLightFavoriteColors,
+    extractDisplayRgbFromLightAttributes,
+    getDefaultHaLightColorPresets,
+    lightSupportsColorModes,
+    normalizeHaLightFavoriteColors,
 } from '@/ha/entityRegistry';
 import {
-  domainColorToHaPayload,
-  haPayloadToDomainColor,
-  mapHaLightPresetsToDomain,
+    domainColorToHaPayload,
+    haPayloadToDomainColor,
+    mapHaLightPresetsToDomain,
 } from '@/ha/mappers/lightColorMapper';
 
 describe('entityRegistry', () => {
