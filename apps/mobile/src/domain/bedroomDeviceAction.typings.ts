@@ -1,4 +1,4 @@
-import type { THaLightColorPayload } from '@/ha/entityRegistry';
+import type { TLightColorValue } from '@/domain/lightColor.typings';
 
 /** Действие slider-устройства */
 export interface IBedroomDeviceSliderAction {
@@ -32,8 +32,8 @@ export interface IBedroomDeviceColorLightAction {
   brightness: number;
   /** id пресета из списка favorites */
   colorPresetId: string;
-  /** Payload цвета для light.turn_on */
-  haColor: THaLightColorPayload;
+  /** Нейтральный цвет пресета; в HA keys маппится в `src/ha/` / control */
+  color: TLightColorValue;
 }
 
 /** Команда управления устройством спальни (domain id + значение) */

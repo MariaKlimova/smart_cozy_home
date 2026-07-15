@@ -96,7 +96,7 @@ describe('resolveBedroomDeviceServiceCall', () => {
       kind: 'color_light',
       brightness: 40,
       colorPresetId: 'color-0',
-      haColor: { rgb_color: [242, 145, 61] },
+      color: { kind: 'rgb', rgb: [242, 145, 61] },
     });
 
     assert.equal(call.domain, 'light');
@@ -111,7 +111,7 @@ describe('resolveBedroomDeviceServiceCall', () => {
       kind: 'color_light',
       brightness: 0,
       colorPresetId: 'color-0',
-      haColor: { rgb_color: [242, 145, 61] },
+      color: { kind: 'rgb', rgb: [242, 145, 61] },
     });
 
     assert.equal(call.domain, 'light');

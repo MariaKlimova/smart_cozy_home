@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { radii, spacing } from '@/theme/tokens';
+import { radii, spacing, touchMin } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   row: {
@@ -9,8 +9,8 @@ export const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   swatch: {
-    width: 48,
-    height: 48,
+    width: touchMin,
+    height: touchMin,
     borderRadius: radii.sm,
   },
   swatchSelected: {

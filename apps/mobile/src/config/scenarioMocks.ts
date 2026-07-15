@@ -58,7 +58,14 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
     },
     [HA_ENTITIES.devices.nightlight]: {
       state: 'off',
-      attributes: { brightness_pct: 8, brightness: 20, rgb_color: [242, 145, 61] },
+      attributes: {
+        brightness_pct: 8,
+        brightness: 20,
+        rgb_color: [242, 145, 61],
+        supported_color_modes: ['hs', 'color_temp'],
+        min_color_temp_kelvin: 2000,
+        max_color_temp_kelvin: 6500,
+      },
     },
     [HA_ENTITIES.devices.curtains]: {
       state: 'open',

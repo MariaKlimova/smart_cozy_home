@@ -13,11 +13,11 @@ import type {
   IBedroomToggleValue,
   INightlightColorPreset,
 } from '@/domain/bedroomDevice.typings';
+import { findNearestNightlightPresetId } from '@/domain/nightlightColorPresets';
 import {
   extractDisplayRgbFromLightAttributes,
-  findNearestNightlightPresetId,
   lightSupportsColorModes,
-} from '@/domain/nightlightColorPresets';
+} from '@/ha/entityRegistry';
 import type { IHaEntityState } from '@/ha/types';
 
 function stateMap(states: IHaEntityState[]): Map<string, IHaEntityState> {

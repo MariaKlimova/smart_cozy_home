@@ -144,3 +144,8 @@ export function collectWatchedEntityIds(): string[] {
 }
 
 export { collectBedroomDeviceEntityIds, mapBedroomDevices } from './mapBedroomDevices';
+export {
+  domainColorToHaPayload,
+  haPayloadToDomainColor,
+  mapHaLightPresetsToDomain,
+} from './lightColorMapper';

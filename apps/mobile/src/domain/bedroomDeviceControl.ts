@@ -4,6 +4,7 @@ import { getHumidifierEntityCandidates } from '@/config/humidifierEntity';
 import { resolveBedroomDevices } from '@/config/resolveBedroomDevices';
 import type { IBedroomDeviceMapping } from '@/config/homeConfig.typings';
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
+import type { TLightColorValue } from '@/domain/lightColor.typings';
 import {
   callHaService,
   fetchEntityStates,
@@ -14,6 +15,7 @@ import {
   setLightColorBrightness,
 } from '@/ha/haClient';
 import { parseEntityDomain } from '@/ha/entityList';
+import { domainColorToHaPayload } from '@/ha/mappers/lightColorMapper';
 import type { IHaEntityState } from '@/ha/types';
 
 /** Параметры вызова HA-сервиса для устройства спальни */
@@ -122,7 +124,7 @@ function resolveSegmentAction(
 function resolveColorLightAction(
   mapping: IBedroomDeviceMapping,
   brightness: number,
-  haColor: Record<string, unknown>,
+  color: TLightColorValue,
 ): IBedroomDeviceServiceCall {
   if (mapping.control !== 'color_light') {
     throw new Error(`Device ${mapping.id} is not a color light`);
@@ -137,6 +139,7 @@ function resolveColorLightAction(
   }
 
   const brightnessByte = Math.round((brightness / 100) * 255);
+  const haColor = domainColorToHaPayload(color);
   return {
     domain: 'light',
     service: 'turn_on',
@@ -162,7 +165,7 @@ export function resolveBedroomDeviceServiceCall(
   if (action.kind === 'segment') {
     return resolveSegmentAction(mapping, action.optionId);
   }
-  return resolveColorLightAction(mapping, action.brightness, action.haColor);
+  return resolveColorLightAction(mapping, action.brightness, action.color);
 }
 
 /**
@@ -222,7 +225,7 @@ export async function setBedroomDevice(
       token,
       mapping.entity,
       action.brightness,
-      action.haColor,
+      domainColorToHaPayload(action.color),
     );
     return;
   }

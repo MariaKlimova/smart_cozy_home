@@ -103,7 +103,7 @@ Scripts читают эти значения в runtime, не hardcode.
 
 **Увлажнитель (SH-37):** на объекте достаточно одного entity. HA scripts вызывают `script.bedroom_humidifier_on` / `script.bedroom_humidifier_off` (предпочитают `humidifier.bedroom`; если `unknown` / `unavailable` — `switch.bedroom_humidifier`). Приложение делает тот же автофолбек при командах. Пользовательский override слота в настройках устройств сильнее автофолбека.
 
-Приложение **читает** избранные цвета ночника из entity registry (`options.light.favorite_colors`) через WebSocket; не пишет их обратно. Если список пуст — используется fallback как в HA UI.
+Приложение **читает** избранные цвета ночника из entity registry (`options.light.favorite_colors`) через WebSocket; не пишет их обратно. Если в registry пусто — как в HA UI: дефолтная палитра по `supported_color_modes` лампы (обычно 4 color_temp + 4 rgb).
 
 **Дом:** `light.living_room`, `climate.living_room`, `sensor.living_room_temperature`, `weather.forecast_home_assistant`, `sun.sun`, `alarm_control_panel.home`
 

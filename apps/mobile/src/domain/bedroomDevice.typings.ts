@@ -1,4 +1,4 @@
-import type { THaLightColorPayload } from '@/ha/entityRegistry';
+import type { TLightColorValue } from '@/domain/lightColor.typings';
 
 /** Тип контрола устройства в domain (без привязки к config) */
 export type TBedroomDeviceControlKind = 'slider' | 'toggle' | 'segmented' | 'color_light';
@@ -29,8 +29,8 @@ export interface INightlightColorPreset {
   id: string;
   /** RGB для swatch в UI */
   displayRgb: [number, number, number];
-  /** Payload для light.turn_on */
-  haColor: THaLightColorPayload;
+  /** Нейтральный цвет пресета; в HA-форму переводится только в `src/ha/` */
+  color: TLightColorValue;
 }
 
 /** Значение color_light (ночник) */

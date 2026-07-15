@@ -161,12 +161,12 @@ describe('mapBedroomDevices', () => {
         {
           id: 'color-0',
           displayRgb: [242, 145, 61],
-          haColor: { rgb_color: [242, 145, 61] },
+          color: { kind: 'rgb', rgb: [242, 145, 61] },
         },
         {
           id: 'color-1',
           displayRgb: [134, 168, 249],
-          haColor: { rgb_color: [134, 168, 249] },
+          color: { kind: 'rgb', rgb: [134, 168, 249] },
         },
       ],
     });
