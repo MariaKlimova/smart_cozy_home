@@ -54,12 +54,14 @@ export interface IMetricChipView {
   value: string;
   /** Показать « ppm » рядом со значением */
   showPpmUnit?: boolean;
+  /** Показать « мм рт. ст. » рядом со значением */
+  showMmhgUnit?: boolean;
 }
 
 /** Метрика датчиков спальни */
 export type IBedroomMetricView = IMetricChipView & {
   /** Идентификатор метрики спальни */
-  id: 'temperature' | 'humidity' | 'co2';
+  id: 'temperature' | 'humidity' | 'co2' | 'pressure';
 };
 
 /** Метрика внешних условий */
@@ -71,14 +73,14 @@ export type IOutdoorMetricView = IMetricChipView & {
 function resolveBedroomNightDeviation(readings: IBedroomReadings): TBedroomNightDeviation {
   const { co2Ppm, temperatureC, humidityPct } = readings;
 
-  if (co2Ppm !== undefined) {
-    if (co2Ppm > SLEEP_CO2_NORM_MAX_PPM) return 'stuffy';
-    if (co2Ppm >= BEDROOM_CO2_ELEVATED_PPM) return 'slightlyStuffy';
-  }
-
   if (temperatureC !== undefined) {
     if (temperatureC > SLEEP_TEMP_NORM_MAX_C) return 'warm';
     if (temperatureC < SLEEP_TEMP_NORM_MIN_C) return 'cool';
+  }
+
+  if (co2Ppm !== undefined) {
+    if (co2Ppm > SLEEP_CO2_NORM_MAX_PPM) return 'stuffy';
+    if (co2Ppm >= BEDROOM_CO2_ELEVATED_PPM) return 'slightlyStuffy';
   }
 
   if (humidityPct !== undefined && humidityPct < SLEEP_HUMIDITY_NORM_MIN_PCT) {
@@ -109,7 +111,7 @@ function nightDeviationToTone(deviation: TBedroomNightDeviation): TBedroomStateT
   return 'comfort';
 }
 
-/** Интерпретация показаний спальни одной фразой (приоритет: CO₂ → температура → влажность) */
+/** Интерпретация показаний спальни одной фразой (ночь: температура → CO₂ → влажность; день: CO₂ → температура → влажность) */
 export function interpretBedroomState(
   readings: IBedroomReadings,
   context: IBedroomInterpretContext = { isNight: false },
@@ -131,7 +133,7 @@ export function interpretBedroomState(
   }
 
   if (temperatureC !== undefined) {
-    if (temperatureC > SLEEP_TEMP_NORM_MAX_C) return phrases.warmForSleep;
+    if (temperatureC > SLEEP_TEMP_NORM_MAX_C) return phrases.warmBedroom;
     if (temperatureC < 17) return phrases.coolBedroom;
   }
 
@@ -163,7 +165,7 @@ export function getBedroomStateTone(
   return 'comfort';
 }
 
-/** Метрики датчиков спальни (три чипа) */
+/** Метрики датчиков спальни (четыре чипа, сетка 2×2) */
 export function formatBedroomMetrics(readings: IBedroomReadings): IBedroomMetricView[] {
   const dash = copy.now.metricsUnavailable;
   const labels = copy.now.metrics;
@@ -189,6 +191,14 @@ export function formatBedroomMetrics(readings: IBedroomReadings): IBedroomMetric
       label: labels.co2,
       value: readings.co2Ppm !== undefined ? `${Math.round(readings.co2Ppm)}` : dash,
       showPpmUnit: true,
+    },
+    {
+      id: 'pressure',
+      icon: '🌀',
+      label: labels.pressure,
+      value:
+        readings.pressureMmhg !== undefined ? `${Math.round(readings.pressureMmhg)}` : dash,
+      showMmhgUnit: true,
     },
   ];
 }

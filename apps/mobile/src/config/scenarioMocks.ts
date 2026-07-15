@@ -92,6 +92,10 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
       state: '38',
       attributes: { unit_of_measurement: '%', friendly_name: 'Влажность спальня' },
     },
+    [HA_ENTITIES.devices.pressure]: {
+      state: '760',
+      attributes: { unit_of_measurement: 'mmHg', friendly_name: 'Давление спальня' },
+    },
     [HA_ENTITIES.devices.outdoorTemperature]: {
       state: 'cloudy',
       attributes: {
@@ -171,4 +175,5 @@ export const MOCK_BEDROOM_SENSOR_MAPPING: IBedroomSensorMapping = {
   temperature: HA_ENTITIES.devices.temperature,
   humidity: HA_ENTITIES.devices.humidity,
   co2: HA_ENTITIES.devices.co2,
+  pressure: HA_ENTITIES.devices.pressure,
 };

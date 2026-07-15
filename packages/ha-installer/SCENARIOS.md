@@ -33,6 +33,7 @@
 | `sensor.bedroom_co2` | Датчик CO₂ |
 | `sensor.bedroom_temperature` | Датчик температуры |
 | `sensor.bedroom_humidity` | Датчик влажности |
+| `sensor.bedroom_pressure` | Датчик атмосферного давления |
 
 Сценарии отправляют `climate.set_temperature` на все три climate-entity спальни. HA применяет команду только к доступным устройствам; отсутствующие entity игнорируются без ошибки.
 

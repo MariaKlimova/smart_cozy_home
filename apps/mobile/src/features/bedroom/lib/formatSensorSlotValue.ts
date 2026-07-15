@@ -27,8 +27,15 @@ export function formatSensorSlotValue(
     return uiState === 'unset' ? copy.bedroom.sensors.notConfigured : copy.bedroom.unavailable;
   }
 
-  if (readings?.co2Ppm !== undefined) {
-    return `${Math.round(readings.co2Ppm)} ppm`;
+  if (slot === 'co2') {
+    if (readings?.co2Ppm !== undefined) {
+      return `${Math.round(readings.co2Ppm)} ppm`;
+    }
+    return uiState === 'unset' ? copy.bedroom.sensors.notConfigured : copy.bedroom.unavailable;
+  }
+
+  if (readings?.pressureMmhg !== undefined) {
+    return `${Math.round(readings.pressureMmhg)} ${copy.now.metrics.mmhgUnit}`;
   }
 
   if (uiState === 'unset') {

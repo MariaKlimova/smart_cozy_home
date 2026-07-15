@@ -24,6 +24,7 @@ const MOCK_BEDROOM_ENTITY_IDS = new Set<string>([
   HA_ENTITIES.devices.co2,
   HA_ENTITIES.devices.temperature,
   HA_ENTITIES.devices.humidity,
+  HA_ENTITIES.devices.pressure,
   HA_ENTITIES.devices.outdoorTemperature,
   HA_ENTITIES.devices.occupancy,
 ]);

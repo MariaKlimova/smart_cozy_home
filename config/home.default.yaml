@@ -62,6 +62,8 @@ bedroom_sensors:
     entity: sensor.bedroom_temperature
   humidity:
     entity: sensor.bedroom_humidity
+  pressure:
+    entity: sensor.bedroom_pressure
 
 bedroom_devices:
   devices:

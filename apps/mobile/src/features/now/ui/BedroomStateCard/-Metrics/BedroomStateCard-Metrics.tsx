@@ -7,6 +7,14 @@ import { typography } from '@/theme/tokens';
 import { styles } from './BedroomStateCard-Metrics.styles';
 import type { IBedroomStateCardMetricsProps } from './BedroomStateCard-Metrics.typings';
 
+function chunkMetrics<T>(items: T[], size: number): T[][] {
+  const rows: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    rows.push(items.slice(i, i + size));
+  }
+  return rows;
+}
+
 function MetricValue({ metric }: { metric: IBedroomStateCardMetricsProps['metrics'][number] }) {
   const c = useThemeColors();
   const hasNumber = metric.value !== copy.now.metricsUnavailable;
@@ -24,6 +32,15 @@ function MetricValue({ metric }: { metric: IBedroomStateCardMetricsProps['metric
     );
   }
 
+  if (metric.showMmhgUnit) {
+    return (
+      <View style={styles.valueRow}>
+        <Text style={[styles.value, { color: c.text }]}>{metric.value}</Text>
+        <Text style={[styles.unit, { color: c.textMuted }]}>{copy.now.metrics.mmhgUnit}</Text>
+      </View>
+    );
+  }
+
   return <Text style={[styles.value, { color: c.text }]}>{metric.value}</Text>;
 }
 
@@ -32,6 +49,7 @@ export function BedroomStateCardMetrics({
   metrics,
 }: IBedroomStateCardMetricsProps) {
   const c = useThemeColors();
+  const rows = chunkMetrics(metrics, 2);
 
   return (
     <View style={styles.section}>
@@ -40,20 +58,25 @@ export function BedroomStateCardMetrics({
           {sectionTitle}
         </Text>
       ) : null}
-      <View style={styles.row}>
-        {metrics.map((metric) => (
-          <View
-            key={metric.id}
-            style={[styles.chip, { backgroundColor: c.background, borderColor: c.border }]}
-          >
-            <Text style={styles.icon}>{metric.icon}</Text>
-            <MetricValue metric={metric} />
-            <Text style={[typography.caption, styles.label, { color: c.textMuted }]}>
-              {metric.label}
-            </Text>
-          </View>
-        ))}
-      </View>
+      {rows.map((row, rowIndex) => (
+        <View key={`row-${rowIndex}`} style={styles.row}>
+          {row.map((metric) => (
+            <View
+              key={metric.id}
+              style={[styles.chip, { backgroundColor: c.background, borderColor: c.border }]}
+            >
+              <Text style={styles.icon}>{metric.icon}</Text>
+              <MetricValue metric={metric} />
+              <Text
+                style={[typography.caption, styles.label, { color: c.textMuted }]}
+                numberOfLines={1}
+              >
+                {metric.label}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ))}
     </View>
   );
 }

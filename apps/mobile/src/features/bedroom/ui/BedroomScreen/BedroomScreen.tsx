@@ -34,7 +34,12 @@ const BEDROOM_DEVICE_SLOTS: TBedroomDeviceSlot[] = [
   'window',
 ];
 
-const BEDROOM_SENSOR_SLOTS: TBedroomSensorSlot[] = ['temperature', 'humidity', 'co2'];
+const BEDROOM_SENSOR_SLOTS: TBedroomSensorSlot[] = [
+  'temperature',
+  'humidity',
+  'co2',
+  'pressure',
+];
 
 function isBedroomTabId(value: string): value is TBedroomTabId {
   return value === 'devices' || value === 'sensors';

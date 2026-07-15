@@ -12,7 +12,8 @@ import { styles } from './BedroomSensorControls.styles';
 function slotLabel(slot: (typeof BEDROOM_SENSOR_SLOTS)[number]): string {
   if (slot === 'temperature') return copy.now.metrics.temperature;
   if (slot === 'humidity') return copy.now.metrics.humidity;
-  return copy.now.metrics.co2;
+  if (slot === 'co2') return copy.now.metrics.co2;
+  return copy.now.metrics.pressure;
 }
 
 export function BedroomSensorControls({

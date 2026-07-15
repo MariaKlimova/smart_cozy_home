@@ -8,7 +8,7 @@ import { SensorPickerScreen } from '@/features/settings/ui/SensorPickerScreen';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { typography } from '@/theme/tokens';
 
-const SLOTS: TBedroomSensorSlot[] = ['temperature', 'humidity', 'co2'];
+const SLOTS: TBedroomSensorSlot[] = ['temperature', 'humidity', 'co2', 'pressure'];
 
 function isBedroomSensorSlot(value: string): value is TBedroomSensorSlot {
   return SLOTS.includes(value as TBedroomSensorSlot);

@@ -21,6 +21,7 @@
 | `sensor.bedroom_co2` | Датчик CO₂ | bedroom sensors UI |
 | `sensor.bedroom_temperature` | Датчик температуры | bedroom sensors UI |
 | `sensor.bedroom_humidity` | Датчик влажности | bedroom sensors UI |
+| `sensor.bedroom_pressure` | Датчик атмосферного давления | bedroom sensors UI / Now card |
 | `binary_sensor.bedroom_occupancy` | Присутствие в спальне | automation sleep_air_quality |
 | `weather.forecast_home_assistant` | Температура на улице (`attributes.temperature`) | блок «Снаружи», физика mock |
 | `sun.sun` | Следующий восход / закат (`next_rising`, `next_setting`) | блок «Снаружи»: «Восход в …» / «Закат в …» |
