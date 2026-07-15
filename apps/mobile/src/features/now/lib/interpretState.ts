@@ -10,6 +10,7 @@ import {
 } from '@/domain/sleepMetricNorms';
 
 import type { IBedroomReadings } from './bedroomReadings.typings';
+import { weatherConditionIcon } from './parseWeatherCondition';
 
 /** Контекст интерпретации показаний спальни */
 export interface IBedroomInterpretContext {
@@ -34,7 +35,11 @@ export function hasAnyBedroomReading(readings: IBedroomReadings): boolean {
 
 /** Есть хотя бы одно показание внешних условий */
 export function hasAnyOutdoorReading(readings: IBedroomReadings): boolean {
-  return readings.outdoorTemperatureC !== undefined || readings.sunEvent !== undefined;
+  return (
+    readings.outdoorTemperatureC !== undefined ||
+    readings.outdoorWeatherCondition !== undefined ||
+    readings.sunEvent !== undefined
+  );
 }
 
 /** Одна метрика для чипа */
@@ -205,7 +210,7 @@ export function formatOutdoorMetrics(readings: IBedroomReadings): IOutdoorMetric
   return [
     {
       id: 'outdoorTemperature',
-      icon: '🌤',
+      icon: weatherConditionIcon(readings.outdoorWeatherCondition),
       label: labels.temperature,
       value:
         readings.outdoorTemperatureC !== undefined

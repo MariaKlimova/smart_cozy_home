@@ -109,7 +109,7 @@ Scripts читают эти значения в runtime, не hardcode.
 
 | Entity | Что читает приложение | UI |
 |--------|------------------------|-----|
-| `weather.forecast_home_assistant` | `attributes.temperature` — температура, °C (`state` — условие погоды) | Чип «Температура» |
+| `weather.forecast_home_assistant` | `attributes.temperature` — °C; `state` — условие (`sunny`, `rainy`, …) для иконки | Чип «Температура» |
 | `sun.sun` | `attributes.next_rising`, `attributes.next_setting` (ISO datetime) | Время + подпись «Закат» / «Восход» |
 
 **`sun.sun`** — встроенная entity Home Assistant (маппинг не нужен). Атрибуты `next_rising` / `next_setting` всегда указывают на **следующие** восход и закат.
