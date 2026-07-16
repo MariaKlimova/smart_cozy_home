@@ -14,6 +14,7 @@ import {
 import { shouldShowBedroomSensorSetupCta } from '@/features/now/lib/shouldShowBedroomSensorSetup';
 import { useBedroom } from '@/features/now/lib/useBedroom';
 import { useNowHome } from '@/features/now/lib/useNowHome';
+import { ActiveScenarioBanner } from '@/features/now/ui/ActiveScenarioBanner';
 import { AdjustSheet } from '@/features/now/ui/AdjustSheet';
 import { BedroomStateCard } from '@/features/now/ui/BedroomStateCard';
 import { NowHomeSection } from '@/features/now/ui/NowHomeSection';
@@ -90,6 +91,14 @@ export default function NowScreen() {
     router.push({ pathname: '/scenario-settings', params: { id: scenarioId } });
   };
 
+  const activeScenario = activeScenarioId
+    ? scenarios.find((item) => item.id === activeScenarioId)
+    : undefined;
+  const preparedScenario =
+    !activeScenarioId && preparedScenarioId
+      ? scenarios.find((item) => item.id === preparedScenarioId)
+      : undefined;
+
   return (
     <View style={{ flex: 1 }}>
     <ScreenLayout
@@ -104,6 +113,24 @@ export default function NowScreen() {
         tone={tone}
         isLoading={showBedroomSkeleton}
       />
+
+      {haReady && activeScenario ? (
+        <ActiveScenarioBanner
+          scenario={activeScenario}
+          kind="active"
+          isRunning={(runStateById[activeScenario.id] ?? 'idle') === 'running'}
+          onPress={runScenarioById}
+        />
+      ) : null}
+
+      {haReady && preparedScenario ? (
+        <ActiveScenarioBanner
+          scenario={preparedScenario}
+          kind="prepared"
+          isRunning={(runStateById[preparedScenario.id] ?? 'idle') === 'running'}
+          onPress={runScenarioById}
+        />
+      ) : null}
 
       {haReady ? (
         <NowHomeSection

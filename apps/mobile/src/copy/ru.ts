@@ -17,6 +17,8 @@ export const copy = {
     setupSensorsButton: 'Открыть спальню',
     deviceActionFailed: 'Не получилось выполнить действие',
     scenarioUnavailable: 'Сценарий сейчас недоступен',
+    activeScenarioTitle: 'Сейчас: {label}',
+    activeScenarioExitA11y: 'Выключить режим «{label}»',
     phrases: {
       stuffyVentilate: 'Душно — стоит проветрить',
       slightlyStuffy: 'Немного душновато',
