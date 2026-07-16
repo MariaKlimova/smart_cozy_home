@@ -8,14 +8,40 @@ import type {
 /** Порядок дней для UI (с понедельника) */
 export const WEEKDAY_IDS: TWeekdayId[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
+/**
+ * Компактная запись дня в JSON v1: [enabled, "HH:mm"].
+ * Нужна, чтобы весь JSON вмещался в лимит HA input_text (max 255).
+ */
+export type TWeekdayScheduleCompactEntry = [boolean, string];
+
+/** Значение дня в JSON: объект (legacy) или компактный массив */
+export type TWeekdayScheduleJsonEntry = IWeekdayScheduleEntry | TWeekdayScheduleCompactEntry;
+
 /** JSON-версия схемы расписания */
 export interface IScenarioWeeklyScheduleJson {
   /** v1 */
   version: 1;
   /** Мастер-переключатель */
   enabled: boolean;
-  /** Дни недели */
-  weekdays: Record<TWeekdayId, IWeekdayScheduleEntry>;
+  /** Дни недели (компактный или legacy-формат) */
+  weekdays: Partial<Record<TWeekdayId, TWeekdayScheduleJsonEntry>>;
+}
+
+function parseWeekdayEntry(
+  entry: TWeekdayScheduleJsonEntry | undefined,
+  defaultTime: string,
+): IWeekdayScheduleEntry {
+  if (Array.isArray(entry)) {
+    return {
+      enabled: Boolean(entry[0]),
+      time: normalizeTime(typeof entry[1] === 'string' ? entry[1] : defaultTime, defaultTime),
+    };
+  }
+
+  return {
+    enabled: entry?.enabled ?? false,
+    time: normalizeTime(entry?.time ?? defaultTime, defaultTime),
+  };
 }
 
 function jsDayToWeekdayId(day: number): TWeekdayId {
@@ -74,11 +100,7 @@ export function parseWeeklyScheduleJson(
     const weekdays = {} as Record<TWeekdayId, IWeekdayScheduleEntry>;
 
     for (const id of WEEKDAY_IDS) {
-      const entry = parsed.weekdays[id];
-      weekdays[id] = {
-        enabled: entry?.enabled ?? false,
-        time: normalizeTime(entry?.time ?? defaultTime, defaultTime),
-      };
+      weekdays[id] = parseWeekdayEntry(parsed.weekdays[id], defaultTime);
     }
 
     return {
@@ -90,14 +112,19 @@ export function parseWeeklyScheduleJson(
   }
 }
 
-/** Сериализация в JSON для input_text */
+/** Сериализация в компактный JSON для input_text (лимит HA 255) */
 export function serializeWeeklyScheduleJson(
   schedule: IScenarioWeeklyScheduleData,
 ): string {
+  const weekdays = {} as Record<TWeekdayId, TWeekdayScheduleCompactEntry>;
+  for (const id of WEEKDAY_IDS) {
+    const entry = schedule.weekdays[id];
+    weekdays[id] = [entry.enabled, entry.time];
+  }
   const payload: IScenarioWeeklyScheduleJson = {
     version: 1,
     enabled: schedule.enabled,
-    weekdays: schedule.weekdays,
+    weekdays,
   };
   return JSON.stringify(payload);
 }
