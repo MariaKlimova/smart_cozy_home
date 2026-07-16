@@ -12,3 +12,6 @@ export const SCENARIO_CARD_SETTINGS_INSET = 8 as const;
 
 /** Дополнительный hitSlop поверх зоны 48dp */
 export const SCENARIO_CARD_SETTINGS_HIT_SLOP = 4 as const;
+
+/** Размер иконки / слота ActivityIndicator — без скачка высоты при running */
+export const SCENARIO_CARD_ICON_SIZE = 24 as const;
