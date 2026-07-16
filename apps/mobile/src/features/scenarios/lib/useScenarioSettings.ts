@@ -1,8 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { resolveBedroomDevices } from '@/config/resolveBedroomDevices';
 import { getScenarioDefinition } from '@/config/scenarios';
+import { getScenarioFieldDefinitions } from '@/config/scenarioSettingsFields';
 import { copy } from '@/copy/ru';
+import type { TLightColorValue } from '@/domain/lightColor.typings';
 import type { IScenarioSettings } from '@/domain/scenarioSettings.typings';
 import type { IScenarioWeeklyScheduleData, TWeekdayId } from '@/domain/scenarioWeeklySchedule.typings';
 import {
@@ -12,18 +15,22 @@ import {
 import {
   toScheduleData,
 } from '@/features/scenarios/lib/scenarioSettingsSchedule';
+import { fetchHaLightFavoriteColors } from '@/ha/entityRegistry';
 import {
   fetchEntityStates,
   setBooleanState,
   setNumberValue,
   setTextValue,
 } from '@/ha/haClient';
+import { mapHaLightPresetsToDomain } from '@/ha/mappers/lightColorMapper';
 import {
   getScenarioFieldEntityId,
   getScenarioParamEntityIds,
   mapScenarioSettings,
 } from '@/ha/mappers/mapScenarioSettings';
+import { serializeScenarioLightColor } from '@/ha/mappers/scenarioLightColor';
 import { useHaBackend } from '@/hooks/useHaBackend';
+import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
 
@@ -48,6 +55,8 @@ export interface IUseScenarioSettingsResult {
   setNumber: (key: string, value: number) => Promise<boolean>;
   /** Записать булевый параметр */
   setBoolean: (key: string, value: boolean) => Promise<boolean>;
+  /** Записать цветовой параметр */
+  setColor: (key: string, color: TLightColorValue) => Promise<boolean>;
   /** Включить/выключить расписание */
   setScheduleEnabled: (enabled: boolean) => Promise<boolean>;
   /** Включить/выключить день */
@@ -60,17 +69,33 @@ export interface IUseScenarioSettingsResult {
   dismissWriteError: () => void;
 }
 
+function scenarioNeedsNightlightPresets(scenarioId: string): boolean {
+  return getScenarioFieldDefinitions(scenarioId).some((field) => field.kind === 'color');
+}
+
 /** Загрузка и запись настроек сценария через HA */
 export function useScenarioSettings(scenarioId: string): IUseScenarioSettingsResult {
   const queryClient = useQueryClient();
   const baseUrl = useConnectionStore((s) => s.baseUrl);
   const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const refreshHome = useHomeStore((s) => s.refresh);
+  const bedroomConfig = useBedroomDeviceStore((s) => s.config);
   const definition = getScenarioDefinition(scenarioId);
   const entityIds = useMemo(() => getScenarioParamEntityIds(scenarioId), [scenarioId]);
+  const needsColorPresets = useMemo(
+    () => scenarioNeedsNightlightPresets(scenarioId),
+    [scenarioId],
+  );
+  const nightlightEntityId = useMemo(() => {
+    if (!needsColorPresets) return undefined;
+    const nightlight = resolveBedroomDevices(bedroomConfig).find(
+      (device) => device.id === 'nightlight',
+    );
+    return nightlight?.entity;
+  }, [bedroomConfig, needsColorPresets]);
   const settingsQueryKey = useMemo(
-    () => ['scenario-settings', scenarioId, baseUrl] as const,
-    [scenarioId, baseUrl],
+    () => ['scenario-settings', scenarioId, baseUrl, nightlightEntityId] as const,
+    [scenarioId, baseUrl, nightlightEntityId],
   );
   const [pendingFieldKey, setPendingFieldKey] = useState<string>();
   const [writeError, setWriteError] = useState<string>();
@@ -82,11 +107,26 @@ export function useScenarioSettings(scenarioId: string): IUseScenarioSettingsRes
     enabled: Boolean(haReady && entityIds.length > 0 && definition),
     staleTime: SCENARIO_SETTINGS_STALE_MS,
     queryFn: async () => {
-      const states = await fetchEntityStates(haBaseUrl, haToken, entityIds);
+      const fetchIds = nightlightEntityId ? [...entityIds, nightlightEntityId] : entityIds;
+      const states = await fetchEntityStates(haBaseUrl, haToken, fetchIds);
+      const colorPresetsByKey: Record<string, ReturnType<typeof mapHaLightPresetsToDomain>> = {};
+
+      if (nightlightEntityId) {
+        const nightlightState = states.find((state) => state.entityId === nightlightEntityId);
+        const haPresets = await fetchHaLightFavoriteColors(
+          haBaseUrl,
+          haToken,
+          nightlightEntityId,
+          nightlightState?.attributes,
+        );
+        colorPresetsByKey.nightlightColor = mapHaLightPresetsToDomain(haPresets);
+      }
+
       return mapScenarioSettings(
         scenarioId,
         states,
         definition?.defaultScheduleTime ?? '22:00',
+        { colorPresetsByKey },
       );
     },
   });
@@ -107,14 +147,20 @@ export function useScenarioSettings(scenarioId: string): IUseScenarioSettingsRes
       setWriteError(undefined);
       try {
         await write();
-        await invalidate();
-        return true;
       } catch {
         setWriteError(copy.scenarios.writeFailed);
+        setPendingFieldKey(undefined);
         return false;
+      }
+
+      try {
+        await invalidate();
+      } catch {
+        // Запись в HA уже прошла — не показываем ошибку из‑за refresh/refetch
       } finally {
         setPendingFieldKey(undefined);
       }
+      return true;
     },
     [haReady, invalidate],
   );
@@ -131,14 +177,20 @@ export function useScenarioSettings(scenarioId: string): IUseScenarioSettingsRes
           setWriteError(undefined);
           try {
             await write();
-            await invalidate();
-            return true;
           } catch {
             setWriteError(copy.scenarios.writeFailed);
+            setPendingFieldKey(undefined);
             return false;
+          }
+
+          try {
+            await invalidate();
+          } catch {
+            // Запись в HA уже прошла — не показываем ошибку из‑за refresh/refetch
           } finally {
             setPendingFieldKey(undefined);
           }
+          return true;
         });
 
       scheduleWriteQueueRef.current = run;
@@ -212,6 +264,17 @@ export function useScenarioSettings(scenarioId: string): IUseScenarioSettingsRes
     [scenarioId, haBaseUrl, haToken, writeField],
   );
 
+  const setColor = useCallback(
+    async (key: string, color: TLightColorValue) => {
+      const entityId = getScenarioFieldEntityId(scenarioId, key);
+      if (!entityId) return false;
+      return writeField(key, () =>
+        setTextValue(haBaseUrl, haToken, entityId, serializeScenarioLightColor(color)),
+      );
+    },
+    [scenarioId, haBaseUrl, haToken, writeField],
+  );
+
   const setScheduleEnabled = useCallback(
     async (enabled: boolean) => {
       return patchSchedule('scheduleEnabled', (current) => ({ ...current, enabled }));
@@ -255,6 +318,7 @@ export function useScenarioSettings(scenarioId: string): IUseScenarioSettingsRes
     writeError,
     setNumber,
     setBoolean,
+    setColor,
     setScheduleEnabled,
     setWeekdayEnabled,
     setWeekdayTime,

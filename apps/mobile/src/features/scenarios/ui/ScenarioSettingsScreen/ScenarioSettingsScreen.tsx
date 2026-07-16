@@ -11,6 +11,7 @@ import { ScreenLayout } from '@/ui/ScreenLayout';
 import { spacing, typography } from '@/theme/tokens';
 
 import { ScenarioSettingsScreenBooleanField } from './ScenarioSettingsScreen-BooleanField';
+import { ScenarioSettingsScreenColorField } from './ScenarioSettingsScreen-ColorField';
 import { ScenarioSettingsScreenNumberField } from './ScenarioSettingsScreen-NumberField';
 import type { IScenarioSettingsScreenProps } from './ScenarioSettingsScreen.typings';
 import { styles } from './ScenarioSettingsScreen.styles';
@@ -27,6 +28,7 @@ export function ScenarioSettingsScreen({
   runState,
   onNumberChange,
   onBooleanChange,
+  onColorChange,
   onScheduleEnabledChange,
   onWeekdayEnabledChange,
   onWeekdayTimeChange,
@@ -82,6 +84,20 @@ export function ScenarioSettingsScreen({
                       setting={numberSetting}
                       isPending={pendingFieldKey === field.key}
                       onComplete={(value) => onNumberChange(field.key, value)}
+                    />
+                  );
+                }
+
+                if (field.kind === 'color') {
+                  const colorSetting = settings.colors.find((item) => item.key === field.key);
+                  if (!colorSetting) return null;
+                  return (
+                    <ScenarioSettingsScreenColorField
+                      key={field.key}
+                      label={getScenarioFieldLabel(field)}
+                      setting={colorSetting}
+                      isPending={pendingFieldKey === field.key}
+                      onSelect={(color) => onColorChange(field.key, color)}
                     />
                   );
                 }

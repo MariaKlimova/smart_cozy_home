@@ -7,6 +7,9 @@ import {
 } from '@/config/scenarioHaMapping';
 import { SCENARIO_DEFINITIONS } from '@/config/scenarios';
 import { getScenarioFieldDefinitions } from '@/config/scenarioSettingsFields';
+import type { INightlightColorPreset } from '@/domain/bedroomDevice.typings';
+import type { TLightColorValue } from '@/domain/lightColor.typings';
+import { findNearestNightlightPresetId } from '@/domain/nightlightColorPresets';
 import type {
   IScenarioScheduleState,
   IScenarioSettings,
@@ -17,6 +20,11 @@ import {
   parseWeeklyScheduleJson,
 } from '@/domain/scenarioWeeklySchedule';
 import type { IHaEntityState } from '@/ha/types';
+import {
+  DEFAULT_SLEEP_NIGHTLIGHT_COLOR,
+  DEFAULT_SLEEP_NIGHTLIGHT_DISPLAY_RGB,
+  parseScenarioLightColor,
+} from '@/ha/mappers/scenarioLightColor';
 
 function resolveParamsKey(scenarioId: string): TScenarioHaEntityKey | undefined {
   return SCENARIO_ID_TO_HA_ENTITY_KEY[scenarioId];
@@ -37,16 +45,26 @@ function readNumberState(
   stateMap: Map<string, IHaEntityState>,
   entityId: string,
   fallback: number,
-): { value: number; isAvailable: boolean } {
+): {
+  value: number;
+  isAvailable: boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+} {
   const state = stateMap.get(entityId);
   if (!isEntityAvailable(state)) {
     return { value: fallback, isAvailable: false };
   }
   const value = Number.parseFloat(state!.state);
+  const attrs = state!.attributes;
+  const min = typeof attrs.min === 'number' ? attrs.min : undefined;
+  const max = typeof attrs.max === 'number' ? attrs.max : undefined;
+  const step = typeof attrs.step === 'number' ? attrs.step : undefined;
   if (Number.isNaN(value)) {
-    return { value: fallback, isAvailable: true };
+    return { value: fallback, isAvailable: true, min, max, step };
   }
-  return { value, isAvailable: true };
+  return { value, isAvailable: true, min, max, step };
 }
 
 function readBooleanState(
@@ -59,6 +77,33 @@ function readBooleanState(
     return { value: fallback, isAvailable: false };
   }
   return { value: state!.state === 'on', isAvailable: true };
+}
+
+function readColorState(
+  stateMap: Map<string, IHaEntityState>,
+  entityId: string,
+): {
+  color: TLightColorValue;
+  displayRgb: [number, number, number];
+  isAvailable: boolean;
+} {
+  const state = stateMap.get(entityId);
+  if (!isEntityAvailable(state)) {
+    return {
+      color: DEFAULT_SLEEP_NIGHTLIGHT_COLOR,
+      displayRgb: DEFAULT_SLEEP_NIGHTLIGHT_DISPLAY_RGB,
+      isAvailable: false,
+    };
+  }
+  const parsed = parseScenarioLightColor(state!.state);
+  if (!parsed) {
+    return {
+      color: DEFAULT_SLEEP_NIGHTLIGHT_COLOR,
+      displayRgb: DEFAULT_SLEEP_NIGHTLIGHT_DISPLAY_RGB,
+      isAvailable: true,
+    };
+  }
+  return { color: parsed.color, displayRgb: parsed.displayRgb, isAvailable: true };
 }
 
 /** entity_id helpers параметров сценария */
@@ -116,16 +161,24 @@ export function getScenarioFieldEntityId(
   return params[fieldKey as TScenarioHaParamKey];
 }
 
+/** Опции маппинга настроек сценария */
+export interface IMapScenarioSettingsOptions {
+  /** Пресеты цвета по ключу поля (например nightlightColor) */
+  colorPresetsByKey?: Record<string, INightlightColorPreset[]>;
+}
+
 /** Маппинг HA states → настройки сценария */
 export function mapScenarioSettings(
   scenarioId: string,
   states: IHaEntityState[],
   defaultScheduleTime: string,
+  options?: IMapScenarioSettingsOptions,
 ): IScenarioSettings {
   const stateMap = getStateMap(states);
   const paramsKey = resolveParamsKey(scenarioId);
   const missingFieldKeys: string[] = [];
   const fieldDefs = getScenarioFieldDefinitions(scenarioId);
+  const colorPresetsByKey = options?.colorPresetsByKey ?? {};
 
   const numbers = fieldDefs
     .filter((f) => f.kind === 'number')
@@ -143,14 +196,18 @@ export function mapScenarioSettings(
           isAvailable: false,
         };
       }
-      const { value, isAvailable } = readNumberState(stateMap, entityId, field.min ?? 0);
+      const { value, isAvailable, min, max, step } = readNumberState(
+        stateMap,
+        entityId,
+        field.min ?? 0,
+      );
       if (!isAvailable) missingFieldKeys.push(field.key);
       return {
         key: field.key,
         value,
-        min: field.min ?? 0,
-        max: field.max ?? 100,
-        step: field.step ?? 1,
+        min: min ?? field.min ?? 0,
+        max: max ?? field.max ?? 100,
+        step: step ?? field.step ?? 1,
         unit: field.unit,
         isAvailable,
       };
@@ -167,6 +224,35 @@ export function mapScenarioSettings(
       const { value, isAvailable } = readBooleanState(stateMap, entityId, false);
       if (!isAvailable) missingFieldKeys.push(field.key);
       return { key: field.key, value, isAvailable };
+    });
+
+  const colors = fieldDefs
+    .filter((f) => f.kind === 'color')
+    .map((field) => {
+      const entityId = getScenarioFieldEntityId(scenarioId, field.key);
+      const colorPresets = colorPresetsByKey[field.key] ?? [];
+      if (!entityId) {
+        missingFieldKeys.push(field.key);
+        return {
+          key: field.key,
+          color: DEFAULT_SLEEP_NIGHTLIGHT_COLOR,
+          colorPresetId: findNearestNightlightPresetId(
+            DEFAULT_SLEEP_NIGHTLIGHT_DISPLAY_RGB,
+            colorPresets,
+          ),
+          colorPresets,
+          isAvailable: false,
+        };
+      }
+      const { color, displayRgb, isAvailable } = readColorState(stateMap, entityId);
+      if (!isAvailable) missingFieldKeys.push(field.key);
+      return {
+        key: field.key,
+        color,
+        colorPresetId: findNearestNightlightPresetId(displayRgb, colorPresets),
+        colorPresets,
+        isAvailable,
+      };
     });
 
   let schedule: IScenarioWeeklySchedule = {
@@ -187,6 +273,7 @@ export function mapScenarioSettings(
     scenarioId,
     numbers,
     booleans,
+    colors,
     schedule,
     missingFieldKeys,
   };

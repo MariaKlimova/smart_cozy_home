@@ -28,6 +28,7 @@ export default function ScenarioSettingsRoute() {
     writeError,
     setNumber,
     setBoolean,
+    setColor,
     setScheduleEnabled,
     setWeekdayEnabled,
     setWeekdayTime,
@@ -69,6 +70,7 @@ export default function ScenarioSettingsRoute() {
         runState={runState}
         onNumberChange={setNumber}
         onBooleanChange={setBoolean}
+        onColorChange={setColor}
         onScheduleEnabledChange={setScheduleEnabled}
         onWeekdayEnabledChange={setWeekdayEnabled}
         onWeekdayTimeChange={setWeekdayTime}

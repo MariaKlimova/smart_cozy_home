@@ -133,6 +133,9 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
     [HA_ENTITIES.scenarioParams.sleep.window]: { state: 'off' },
     [HA_ENTITIES.scenarioParams.sleep.nightlight]: { state: 'on' },
     [HA_ENTITIES.scenarioParams.sleep.nightlightBrightness]: { state: '8' },
+    [HA_ENTITIES.scenarioParams.sleep.nightlightColor]: {
+      state: '{"rgb_color":[242,145,61]}',
+    },
     [HA_ENTITIES.scenarioParams.sleep.scheduleConfig]: {
       state: mockScheduleState(false, '23:00'),
     },

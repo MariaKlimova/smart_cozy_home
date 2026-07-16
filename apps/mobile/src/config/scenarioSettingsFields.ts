@@ -1,7 +1,7 @@
 import { copy } from '@/copy/ru';
 
 /** Тип поля настроек сценария */
-export type TScenarioFieldKind = 'number' | 'boolean';
+export type TScenarioFieldKind = 'number' | 'boolean' | 'color';
 
 const MINUTES_UNIT = copy.units.minutesShort;
 
@@ -40,10 +40,11 @@ export const SCENARIO_FIELD_DEFINITIONS: Record<string, IScenarioFieldDefinition
       kind: 'number',
       copyKey: 'nightlightBrightness',
       min: 1,
-      max: 30,
+      max: 100,
       step: 1,
       unit: '%',
     },
+    { key: 'nightlightColor', kind: 'color', copyKey: 'nightlightColor' },
   ],
   morning: [
     { key: 'brightness', kind: 'number', copyKey: 'brightness', min: 1, max: 100, step: 1, unit: '%' },

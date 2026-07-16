@@ -47,6 +47,21 @@ describe('runMockScript', () => {
     assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.light)?.state, 'off');
     assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.nightlight)?.state, 'on');
     assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.nightlight)?.attributes.brightness_pct, 8);
+    assert.deepEqual(getMockEntitySnapshot(HA_ENTITIES.devices.nightlight)?.attributes.rgb_color, [
+      242, 145, 61,
+    ]);
+  });
+
+  it('sleep applies custom nightlight color from helper', () => {
+    updateMockEntityState(
+      HA_ENTITIES.scenarioParams.sleep.nightlightColor,
+      '{"rgb_color":[134,168,249]}',
+    );
+    runMockScript(HA_ENTITIES.scripts.sleep);
+
+    assert.deepEqual(getMockEntitySnapshot(HA_ENTITIES.devices.nightlight)?.attributes.rgb_color, [
+      134, 168, 249,
+    ]);
   });
 
   it('sleep turns nightlight off when the helper is disabled', () => {

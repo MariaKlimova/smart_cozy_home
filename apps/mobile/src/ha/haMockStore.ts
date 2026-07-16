@@ -296,8 +296,19 @@ export function readMockBooleanParam(entityId: string, fallback = false): boolea
   return entry.state === 'on';
 }
 
-/** Яркость света 0–100 % */
-export function setMockLightBrightnessPercent(entityId: string, percent: number): void {
+/** Прочитать input_text из мок-store */
+export function readMockTextParam(entityId: string, fallback: string): string {
+  const entry = getEntry(entityId);
+  if (!entry) return fallback;
+  return entry.state;
+}
+
+/** Яркость света 0–100 %; опционально цвет для light.turn_on */
+export function setMockLightBrightnessPercent(
+  entityId: string,
+  percent: number,
+  colorData?: Record<string, unknown>,
+): void {
   if (percent <= 0) {
     updateMockEntityState(entityId, 'off', mergeAttributes(entityId, { brightness: 0, brightness_pct: 0 }));
     return;
@@ -306,7 +317,11 @@ export function setMockLightBrightnessPercent(entityId: string, percent: number)
   updateMockEntityState(
     entityId,
     'on',
-    mergeAttributes(entityId, { brightness, brightness_pct: Math.round(percent) }),
+    mergeAttributes(entityId, {
+      brightness,
+      brightness_pct: Math.round(percent),
+      ...getLightColorAttributes(colorData ?? {}),
+    }),
   );
 }
 

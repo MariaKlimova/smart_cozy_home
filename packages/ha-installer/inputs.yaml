@@ -56,6 +56,13 @@ input_text:
     initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"23:00"],"tue":[false,"23:00"],"wed":[false,"23:00"],"thu":[false,"23:00"],"fri":[false,"23:00"],"sat":[false,"23:00"],"sun":[false,"23:00"]}}'
     max: 255
 
+  # Компактный HA payload для light.turn_on: rgb_color / hs_color / color_temp_kelvin / …
+  sleep_nightlight_color:
+    name: Цвет ночника во время сна (JSON)
+    initial: '{"rgb_color":[242,145,61]}'
+    max: 255
+    icon: mdi:palette
+
   morning_schedule:
     name: Расписание утра (JSON)
     initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"07:00"],"tue":[false,"07:00"],"wed":[false,"07:00"],"thu":[false,"07:00"],"fri":[false,"07:00"],"sat":[false,"07:00"],"sun":[false,"07:00"]}}'
@@ -115,7 +122,7 @@ input_number:
     name: Яркость ночника во время сна (%)
     initial: 8
     min: 1
-    max: 30
+    max: 100
     step: 1
     unit_of_measurement: "%"
     icon: mdi:brightness-4
