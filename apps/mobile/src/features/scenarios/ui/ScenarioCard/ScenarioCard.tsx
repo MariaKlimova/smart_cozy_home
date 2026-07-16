@@ -11,6 +11,7 @@ import Animated, {
 
 import { copy } from '@/copy/ru';
 import { getScenarioCardState } from '@/features/scenarios/lib/getScenarioCardState';
+import { getScenarioHighlightColors } from '@/features/scenarios/lib/getScenarioHighlightColors';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { typography } from '@/theme/tokens';
 
@@ -84,18 +85,13 @@ export function ScenarioCard({
     transform: [{ scale: scale.value }],
   }));
 
-  let backgroundColor: string = c.surface;
-  let borderColor: string = c.border;
-  let iconColor: string = c.accent;
-
+  let highlightKind: 'active' | 'prepared' | 'idle' = 'idle';
   if (isActive) {
-    backgroundColor = c.accentMuted;
-    borderColor = c.accent;
+    highlightKind = 'active';
   } else if (isPrepared) {
-    backgroundColor = c.surface;
-    borderColor = c.success;
-    iconColor = c.success;
+    highlightKind = 'prepared';
   }
+  const { backgroundColor, borderColor, iconColor } = getScenarioHighlightColors(c, highlightKind);
 
   return (
     <Animated.View

@@ -2,6 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
+import { getScenarioHighlightColors } from '@/features/scenarios/lib/getScenarioHighlightColors';
 import { useThemeColors } from '@/hooks/useThemeColors';
 
 import {
@@ -19,13 +20,10 @@ export function ActiveScenarioBanner({
 }: IActiveScenarioBannerProps) {
   const c = useThemeColors();
   const isActive = kind === 'active';
-
-  const borderColor = isActive ? c.accent : c.success;
-  const iconColor = isActive ? c.accent : c.success;
-  const backgroundColor = isActive ? c.accentMuted : c.surface;
+  const { backgroundColor, borderColor, iconColor } = getScenarioHighlightColors(c, kind);
   const caption = isActive ? copy.scenarios.activeNow : copy.scenarios.prepared;
 
-  let accessibilityLabel = `${scenario.label}. ${caption}`;
+  let accessibilityLabel = copy.now.preparedScenarioA11y.replace('{label}', scenario.label);
   if (isActive) {
     accessibilityLabel = copy.now.activeScenarioExitA11y.replace('{label}', scenario.label);
   }
@@ -55,9 +53,7 @@ export function ActiveScenarioBanner({
         )}
       </View>
       <View style={styles.textBlock}>
-        <Text style={[styles.title, { color: c.text }]}>
-          {copy.now.activeScenarioTitle.replace('{label}', scenario.label)}
-        </Text>
+        <Text style={[styles.title, { color: c.text }]}>{scenario.label}</Text>
         <Text style={[styles.caption, { color: iconColor }]}>{caption}</Text>
       </View>
     </Pressable>

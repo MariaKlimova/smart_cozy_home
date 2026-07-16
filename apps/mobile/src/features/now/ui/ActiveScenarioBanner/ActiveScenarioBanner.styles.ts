@@ -23,12 +23,12 @@ export const styles = StyleSheet.create({
   },
   textBlock: {
     flex: 1,
-    gap: 2,
+    gap: spacing.xxs,
   },
   title: {
     ...typography.subtitle,
   },
   caption: {
-    fontSize: typography.caption.fontSize,
+    ...typography.caption,
   },
 });
