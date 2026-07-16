@@ -19,6 +19,4 @@ export interface IScenarioCardProps {
   isAnyRunning: boolean;
   /** На всю ширину (контекстный сценарий на «Сейчас») */
   fullWidth?: boolean;
-  /** Показывать расписание в idle-состоянии */
-  showSchedule?: boolean;
 }

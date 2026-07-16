@@ -43,7 +43,6 @@ export function NowHomeSection({
           onSettingsPress={onSettingsPress}
           isAnyRunning={isAnyRunning}
           fullWidth
-          showSchedule={false}
         />
       ) : null}
 

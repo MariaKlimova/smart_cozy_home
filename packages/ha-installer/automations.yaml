@@ -16,8 +16,13 @@ automation:
             {% else %}
               {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
               {% set day = days[now().weekday()] %}
-              {% set d = s.get('weekdays', {}).get(day, {}) %}
-              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% set d = s.get('weekdays', {}).get(day, none) %}
+              {% if d is none %}false
+              {% elif d is mapping %}
+                {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% else %}
+                {{ d[0] and d[1] == now().strftime('%H:%M') }}
+              {% endif %}
             {% endif %}
           {% endif %}
     action:
@@ -43,8 +48,13 @@ automation:
             {% else %}
               {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
               {% set day = days[now().weekday()] %}
-              {% set d = s.get('weekdays', {}).get(day, {}) %}
-              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% set d = s.get('weekdays', {}).get(day, none) %}
+              {% if d is none %}false
+              {% elif d is mapping %}
+                {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% else %}
+                {{ d[0] and d[1] == now().strftime('%H:%M') }}
+              {% endif %}
             {% endif %}
           {% endif %}
     action:
@@ -70,8 +80,13 @@ automation:
             {% else %}
               {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
               {% set day = days[now().weekday()] %}
-              {% set d = s.get('weekdays', {}).get(day, {}) %}
-              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% set d = s.get('weekdays', {}).get(day, none) %}
+              {% if d is none %}false
+              {% elif d is mapping %}
+                {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% else %}
+                {{ d[0] and d[1] == now().strftime('%H:%M') }}
+              {% endif %}
             {% endif %}
           {% endif %}
     action:
@@ -97,8 +112,13 @@ automation:
             {% else %}
               {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
               {% set day = days[now().weekday()] %}
-              {% set d = s.get('weekdays', {}).get(day, {}) %}
-              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% set d = s.get('weekdays', {}).get(day, none) %}
+              {% if d is none %}false
+              {% elif d is mapping %}
+                {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% else %}
+                {{ d[0] and d[1] == now().strftime('%H:%M') }}
+              {% endif %}
             {% endif %}
           {% endif %}
     action:
@@ -124,8 +144,13 @@ automation:
             {% else %}
               {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
               {% set day = days[now().weekday()] %}
-              {% set d = s.get('weekdays', {}).get(day, {}) %}
-              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% set d = s.get('weekdays', {}).get(day, none) %}
+              {% if d is none %}false
+              {% elif d is mapping %}
+                {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% else %}
+                {{ d[0] and d[1] == now().strftime('%H:%M') }}
+              {% endif %}
             {% endif %}
           {% endif %}
     action:
@@ -151,8 +176,13 @@ automation:
             {% else %}
               {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
               {% set day = days[now().weekday()] %}
-              {% set d = s.get('weekdays', {}).get(day, {}) %}
-              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% set d = s.get('weekdays', {}).get(day, none) %}
+              {% if d is none %}false
+              {% elif d is mapping %}
+                {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% else %}
+                {{ d[0] and d[1] == now().strftime('%H:%M') }}
+              {% endif %}
             {% endif %}
           {% endif %}
     action:
@@ -178,8 +208,13 @@ automation:
             {% else %}
               {% set days = ['mon','tue','wed','thu','fri','sat','sun'] %}
               {% set day = days[now().weekday()] %}
-              {% set d = s.get('weekdays', {}).get(day, {}) %}
-              {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% set d = s.get('weekdays', {}).get(day, none) %}
+              {% if d is none %}false
+              {% elif d is mapping %}
+                {{ d.get('enabled', false) and d.get('time', '') == now().strftime('%H:%M') }}
+              {% else %}
+                {{ d[0] and d[1] == now().strftime('%H:%M') }}
+              {% endif %}
             {% endif %}
           {% endif %}
     action:

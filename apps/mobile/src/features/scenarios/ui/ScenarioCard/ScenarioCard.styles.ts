@@ -1,8 +1,9 @@
 import { StyleSheet } from 'react-native';
 
-import { radii, spacing, touchMin, typography } from '@/theme/tokens';
+import { radii, spacing, touchMin } from '@/theme/tokens';
 
 import {
+  SCENARIO_CARD_ICON_SIZE,
   SCENARIO_CARD_SETTINGS_INSET,
 } from './ScenarioCard.const';
 
@@ -13,7 +14,7 @@ export const styles = StyleSheet.create({
     width: SCENARIO_CARD_TILE_WIDTH_PERCENT,
     minHeight: touchMin + 32,
     borderRadius: radii.sm,
-    borderWidth: 1,
+    borderWidth: 2,
     padding: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -41,11 +42,13 @@ export const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingTop: spacing.sm,
   },
+  iconSlot: {
+    width: SCENARIO_CARD_ICON_SIZE,
+    height: SCENARIO_CARD_ICON_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   label: {
     textAlign: 'center',
-  },
-  subtitle: {
-    textAlign: 'center',
-    fontSize: typography.caption.fontSize,
   },
 });

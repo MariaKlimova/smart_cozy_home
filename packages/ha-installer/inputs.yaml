@@ -44,41 +44,42 @@ input_boolean:
     initial: true
     icon: mdi:curtains
 
+# max: 255 — лимит HA для input_text. JSON компактный: day → [enabled, "HH:mm"]
 input_text:
   evening_schedule:
     name: Расписание вечера (JSON)
-    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"22:30"},"tue":{"enabled":false,"time":"22:30"},"wed":{"enabled":false,"time":"22:30"},"thu":{"enabled":false,"time":"22:30"},"fri":{"enabled":false,"time":"22:30"},"sat":{"enabled":false,"time":"22:30"},"sun":{"enabled":false,"time":"22:30"}}}'
-    max: 512
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"22:30"],"tue":[false,"22:30"],"wed":[false,"22:30"],"thu":[false,"22:30"],"fri":[false,"22:30"],"sat":[false,"22:30"],"sun":[false,"22:30"]}}'
+    max: 255
 
   sleep_schedule:
     name: Расписание сна (JSON)
-    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"23:00"},"tue":{"enabled":false,"time":"23:00"},"wed":{"enabled":false,"time":"23:00"},"thu":{"enabled":false,"time":"23:00"},"fri":{"enabled":false,"time":"23:00"},"sat":{"enabled":false,"time":"23:00"},"sun":{"enabled":false,"time":"23:00"}}}'
-    max: 512
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"23:00"],"tue":[false,"23:00"],"wed":[false,"23:00"],"thu":[false,"23:00"],"fri":[false,"23:00"],"sat":[false,"23:00"],"sun":[false,"23:00"]}}'
+    max: 255
 
   morning_schedule:
     name: Расписание утра (JSON)
-    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"07:00"},"tue":{"enabled":false,"time":"07:00"},"wed":{"enabled":false,"time":"07:00"},"thu":{"enabled":false,"time":"07:00"},"fri":{"enabled":false,"time":"07:00"},"sat":{"enabled":false,"time":"07:00"},"sun":{"enabled":false,"time":"07:00"}}}'
-    max: 512
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"07:00"],"tue":[false,"07:00"],"wed":[false,"07:00"],"thu":[false,"07:00"],"fri":[false,"07:00"],"sat":[false,"07:00"],"sun":[false,"07:00"]}}'
+    max: 255
 
   away_schedule:
     name: Расписание «Уехали» (JSON)
-    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"08:00"},"tue":{"enabled":false,"time":"08:00"},"wed":{"enabled":false,"time":"08:00"},"thu":{"enabled":false,"time":"08:00"},"fri":{"enabled":false,"time":"08:00"},"sat":{"enabled":false,"time":"08:00"},"sun":{"enabled":false,"time":"08:00"}}}'
-    max: 512
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"08:00"],"tue":[false,"08:00"],"wed":[false,"08:00"],"thu":[false,"08:00"],"fri":[false,"08:00"],"sat":[false,"08:00"],"sun":[false,"08:00"]}}'
+    max: 255
 
   coming_home_schedule:
     name: Расписание «Еду домой» (JSON)
-    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"18:00"},"tue":{"enabled":false,"time":"18:00"},"wed":{"enabled":false,"time":"18:00"},"thu":{"enabled":false,"time":"18:00"},"fri":{"enabled":false,"time":"18:00"},"sat":{"enabled":false,"time":"18:00"},"sun":{"enabled":false,"time":"18:00"}}}'
-    max: 512
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"18:00"],"tue":[false,"18:00"],"wed":[false,"18:00"],"thu":[false,"18:00"],"fri":[false,"18:00"],"sat":[false,"18:00"],"sun":[false,"18:00"]}}'
+    max: 255
 
   cozy_schedule:
     name: Расписание «Уют» (JSON)
-    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"20:00"},"tue":{"enabled":false,"time":"20:00"},"wed":{"enabled":false,"time":"20:00"},"thu":{"enabled":false,"time":"20:00"},"fri":{"enabled":false,"time":"20:00"},"sat":{"enabled":false,"time":"20:00"},"sun":{"enabled":false,"time":"20:00"}}}'
-    max: 512
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"20:00"],"tue":[false,"20:00"],"wed":[false,"20:00"],"thu":[false,"20:00"],"fri":[false,"20:00"],"sat":[false,"20:00"],"sun":[false,"20:00"]}}'
+    max: 255
 
   focus_schedule:
     name: Расписание «Фокус» (JSON)
-    initial: '{"version":1,"enabled":false,"weekdays":{"mon":{"enabled":false,"time":"09:00"},"tue":{"enabled":false,"time":"09:00"},"wed":{"enabled":false,"time":"09:00"},"thu":{"enabled":false,"time":"09:00"},"fri":{"enabled":false,"time":"09:00"},"sat":{"enabled":false,"time":"09:00"},"sun":{"enabled":false,"time":"09:00"}}}'
-    max: 512
+    initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"09:00"],"tue":[false,"09:00"],"wed":[false,"09:00"],"thu":[false,"09:00"],"fri":[false,"09:00"],"sat":[false,"09:00"],"sun":[false,"09:00"]}}'
+    max: 255
 
 input_number:
   # Вечер

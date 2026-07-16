@@ -12,10 +12,20 @@ describe('scenarioWeeklySchedule', () => {
   it('roundtrips JSON', () => {
     const source = createUniformWeeklySchedule(true, '07:30', '07:00');
     const raw = serializeWeeklyScheduleJson(source);
+    assert.ok(raw.length <= 255);
     const parsed = parseWeeklyScheduleJson(raw, '07:00');
     assert.ok(parsed);
     assert.equal(parsed.enabled, true);
     assert.equal(parsed.weekdays.mon.time, '07:30');
+  });
+
+  it('parses legacy object weekday entries', () => {
+    const raw =
+      '{"version":1,"enabled":true,"weekdays":{"mon":{"enabled":true,"time":"07:15"},"tue":{"enabled":false,"time":"07:00"},"wed":{"enabled":false,"time":"07:00"},"thu":{"enabled":false,"time":"07:00"},"fri":{"enabled":false,"time":"07:00"},"sat":{"enabled":false,"time":"07:00"},"sun":{"enabled":false,"time":"07:00"}}}';
+    const parsed = parseWeeklyScheduleJson(raw, '07:00');
+    assert.ok(parsed);
+    assert.equal(parsed.weekdays.mon.enabled, true);
+    assert.equal(parsed.weekdays.mon.time, '07:15');
   });
 
   it('finds next run on a later weekday', () => {
