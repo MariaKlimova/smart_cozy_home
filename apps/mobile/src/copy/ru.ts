@@ -140,6 +140,7 @@ export const copy = {
       window: 'Открывать окно',
       nightlight: 'Ночник',
       nightlightBrightness: 'Яркость ночника',
+      nightlightColor: 'Цвет ночника',
       warmupMinutes: 'Плавное пробуждение',
       awayTemperature: 'Температура ожидания',
       minutes: 'За сколько минут',

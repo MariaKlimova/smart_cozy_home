@@ -83,6 +83,7 @@ export type TScenarioHaParamKey =
   | 'window'
   | 'nightlight'
   | 'nightlightBrightness'
+  | 'nightlightColor'
   | 'warmupMinutes'
   | 'minutes'
   | 'scheduleConfig';
@@ -162,6 +163,7 @@ export const HA_ENTITIES: IHaEntities = {
       window: 'input_boolean.sleep_window',
       nightlight: 'input_boolean.sleep_nightlight',
       nightlightBrightness: 'input_number.sleep_nightlight_brightness',
+      nightlightColor: 'input_text.sleep_nightlight_color',
       scheduleConfig: 'input_text.sleep_schedule',
     },
     morning: {

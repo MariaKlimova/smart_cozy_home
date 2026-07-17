@@ -59,6 +59,50 @@ describe('mapScenarioSettings', () => {
     assert.equal(settings.schedule.enabled, true);
     assert.equal(settings.schedule.weekdays.mon.time, '07:15');
     assert.equal(settings.schedule.isAvailable, true);
+    assert.equal(settings.colors.length, 0);
+  });
+
+  it('maps sleep nightlight color with presets', () => {
+    const params = HA_ENTITIES.scenarioParams.sleep;
+    const presets = [
+      {
+        id: 'color-0',
+        displayRgb: [242, 145, 61] as [number, number, number],
+        color: { kind: 'rgb' as const, rgb: [242, 145, 61] as [number, number, number] },
+      },
+      {
+        id: 'color-1',
+        displayRgb: [134, 168, 249] as [number, number, number],
+        color: { kind: 'rgb' as const, rgb: [134, 168, 249] as [number, number, number] },
+      },
+    ];
+
+    const settings = mapScenarioSettings(
+      'sleep',
+      [
+        { entityId: params.temperature, state: '17', attributes: {} },
+        { entityId: params.window, state: 'off', attributes: {} },
+        { entityId: params.nightlight, state: 'on', attributes: {} },
+        { entityId: params.nightlightBrightness, state: '8', attributes: {} },
+        {
+          entityId: params.nightlightColor,
+          state: '{"rgb_color":[134,168,249]}',
+          attributes: {},
+        },
+        {
+          entityId: params.scheduleConfig,
+          state: serializeWeeklyScheduleJson(createUniformWeeklySchedule(false, '23:00', '23:00')),
+          attributes: {},
+        },
+      ],
+      '23:00',
+      { colorPresetsByKey: { nightlightColor: presets } },
+    );
+
+    assert.equal(settings.colors.length, 1);
+    assert.equal(settings.colors[0]?.key, 'nightlightColor');
+    assert.equal(settings.colors[0]?.colorPresetId, 'color-1');
+    assert.equal(settings.colors[0]?.isAvailable, true);
   });
 });
 

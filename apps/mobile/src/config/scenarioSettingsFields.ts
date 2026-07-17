@@ -1,7 +1,7 @@
 import { copy } from '@/copy/ru';
 
 /** Тип поля настроек сценария */
-export type TScenarioFieldKind = 'number' | 'boolean';
+export type TScenarioFieldKind = 'number' | 'boolean' | 'color';
 
 const MINUTES_UNIT = copy.units.minutesShort;
 
@@ -13,6 +13,11 @@ export interface IScenarioFieldDefinition {
   kind: TScenarioFieldKind;
   /** Ключ в copy.scenarios.settingsFields */
   copyKey: string;
+  /**
+   * Ключ родительского boolean-поля: при `false` это поле скрыто в UI
+   * (например яркость/цвет ночника зависят от `nightlight`)
+   */
+  dependsOnKey?: string;
   /** Минимум для number */
   min?: number;
   /** Максимум для number */
@@ -39,10 +44,17 @@ export const SCENARIO_FIELD_DEFINITIONS: Record<string, IScenarioFieldDefinition
       key: 'nightlightBrightness',
       kind: 'number',
       copyKey: 'nightlightBrightness',
+      dependsOnKey: 'nightlight',
       min: 1,
-      max: 30,
+      max: 100,
       step: 1,
       unit: '%',
+    },
+    {
+      key: 'nightlightColor',
+      kind: 'color',
+      copyKey: 'nightlightColor',
+      dependsOnKey: 'nightlight',
     },
   ],
   morning: [

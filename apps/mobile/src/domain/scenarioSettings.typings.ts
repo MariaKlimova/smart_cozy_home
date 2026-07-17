@@ -1,3 +1,5 @@
+import type { INightlightColorPreset } from '@/domain/bedroomDevice.typings';
+import type { TLightColorValue } from '@/domain/lightColor.typings';
 import type { IScenarioWeeklySchedule } from '@/domain/scenarioWeeklySchedule.typings';
 
 /** Числовой параметр сценария */
@@ -28,6 +30,20 @@ export interface IScenarioBooleanSetting {
   isAvailable: boolean;
 }
 
+/** Цветовой параметр сценария (ночник) */
+export interface IScenarioColorSetting {
+  /** Ключ поля, например nightlightColor */
+  key: string;
+  /** Текущий цвет в domain-форме */
+  color: TLightColorValue;
+  /** id активного пресета; undefined если список пуст */
+  colorPresetId?: string;
+  /** Пресеты из избранного ночника (или дефолтная палитра) */
+  colorPresets: INightlightColorPreset[];
+  /** Entity доступна в HA */
+  isAvailable: boolean;
+}
+
 /** Настройки одного сценария для UI */
 export interface IScenarioSettings {
   /** id сценария */
@@ -36,6 +52,8 @@ export interface IScenarioSettings {
   numbers: IScenarioNumberSetting[];
   /** Булевые параметры */
   booleans: IScenarioBooleanSetting[];
+  /** Цветовые параметры */
+  colors: IScenarioColorSetting[];
   /** Недельное расписание */
   schedule: IScenarioWeeklySchedule;
   /** Ключи полей, недоступных в HA */

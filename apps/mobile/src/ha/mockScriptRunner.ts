@@ -4,6 +4,7 @@ import {
   applyMockHaService,
   readMockBooleanParam,
   readMockNumberParam,
+  readMockTextParam,
   setMockClimateTemperature,
   setMockCoverPosition,
   setMockLightBrightnessPercent,
@@ -11,6 +12,8 @@ import {
 } from '@/ha/haMockStore';
 import { setMockHumidifierPower } from '@/ha/mockHumidifier';
 import { resetSleepMaintainer, startSleepMaintainer } from '@/ha/mockSleepMaintainer';
+import { domainColorToHaPayload } from '@/ha/mappers/lightColorMapper';
+import { parseScenarioLightColor } from '@/ha/mappers/scenarioLightColor';
 
 const { devices, system, scenarioParams } = HA_ENTITIES;
 
@@ -71,10 +74,20 @@ function runSleepScript(): void {
   setMockLightBrightnessPercent(devices.light, 0);
   const nightlightEnabled = readMockBooleanParam(params.nightlight, true);
   const nightlightBrightness = readMockNumberParam(params.nightlightBrightness, 8);
-  setMockLightBrightnessPercent(
-    devices.nightlight,
-    nightlightEnabled ? nightlightBrightness : 0,
-  );
+
+  if (!nightlightEnabled) {
+    setMockLightBrightnessPercent(devices.nightlight, 0);
+  } else {
+    // Как в scripts.yaml: сначала яркость, цвет — только при валидном JSON
+    setMockLightBrightnessPercent(devices.nightlight, nightlightBrightness);
+    const colorRaw = readMockTextParam(params.nightlightColor, '');
+    const parsedColor = parseScenarioLightColor(colorRaw);
+    if (parsedColor) {
+      const colorData = domainColorToHaPayload(parsedColor.color) as Record<string, unknown>;
+      setMockLightBrightnessPercent(devices.nightlight, nightlightBrightness, colorData);
+    }
+  }
+
   updateMockEntityState(devices.occupancy, 'on');
 
   const sleepTemp = readMockNumberParam(params.temperature, 17);

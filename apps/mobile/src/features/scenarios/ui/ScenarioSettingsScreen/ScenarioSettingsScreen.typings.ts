@@ -1,4 +1,5 @@
 import type { IScenarioSettings } from '@/domain/scenarioSettings.typings';
+import type { TLightColorValue } from '@/domain/lightColor.typings';
 import type { TWeekdayId } from '@/domain/scenarioWeeklySchedule.typings';
 import type { TScenarioRunState } from '@/features/scenarios/lib/useRunScenario';
 
@@ -25,6 +26,8 @@ export interface IScenarioSettingsScreenProps {
   onNumberChange: (key: string, value: number) => Promise<boolean>;
   /** Записать булевый параметр */
   onBooleanChange: (key: string, value: boolean) => Promise<boolean>;
+  /** Записать цветовой параметр */
+  onColorChange: (key: string, color: TLightColorValue) => Promise<boolean>;
   /** Включить/выключить расписание */
   onScheduleEnabledChange: (enabled: boolean) => Promise<boolean>;
   /** Переключить день */
