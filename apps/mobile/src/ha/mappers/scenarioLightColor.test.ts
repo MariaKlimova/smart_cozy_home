@@ -26,6 +26,13 @@ describe('scenarioLightColor', () => {
     }
   });
 
+  it('returns null for empty or placeholder states', () => {
+    assert.equal(parseScenarioLightColor(''), null);
+    assert.equal(parseScenarioLightColor('   '), null);
+    assert.equal(parseScenarioLightColor('unknown'), null);
+    assert.equal(parseScenarioLightColor('{}'), null);
+  });
+
   it('returns null for invalid json', () => {
     assert.equal(parseScenarioLightColor('not-json'), null);
     assert.equal(parseScenarioLightColor('{"foo":1}'), null);

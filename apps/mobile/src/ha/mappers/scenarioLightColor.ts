@@ -29,9 +29,14 @@ export interface IParsedScenarioLightColor {
 
 /** Парсит JSON из input_text.sleep_nightlight_color */
 export function parseScenarioLightColor(raw: string): IParsedScenarioLightColor | null {
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed === 'unknown' || trimmed === 'unavailable' || trimmed === 'none') {
+    return null;
+  }
+
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(trimmed);
   } catch {
     return null;
   }

@@ -81,7 +81,7 @@
 **Действия по порядку:**
 
 1. Выключает основной свет (`light.turn_off` на `light.bedroom`)
-2. Если `input_boolean.sleep_nightlight = true` — включает ночник на `input_number.sleep_nightlight_brightness`, затем (если доступен) задаёт цвет из `input_text.sleep_nightlight_color`; иначе выключает ночник
+2. Если `input_boolean.sleep_nightlight = true` — включает ночник на яркость, затем (если в helper валидный цвет) задаёт цвет вместе с яркостью; иначе выключает ночник. Пустой/битый `sleep_nightlight_color` не мешает включению по яркости. Приложение при открытии настроек само записывает дефолтный цвет, если helper пуст.
 3. Открывает окно если `input_boolean.sleep_window = true` (`cover.open_cover` на `cover.bedroom_window`)
 4. Устанавливает ночную температуру `input_number.sleep_temperature` (`climate.set_temperature`)
 5. Записывает `input_select.home_mode = sleep`
