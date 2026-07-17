@@ -8,13 +8,14 @@ import type { IScenarioWeeklyScheduleData } from '@/domain/scenarioWeeklySchedul
 import { toScheduleData } from '@/features/scenarios/lib/scenarioSettingsSchedule';
 import { getScenarioParamEntityIds } from '@/ha/mappers/mapScenarioSettings';
 import { useHaBackend } from '@/hooks/useHaBackend';
-import { useBedroomDeviceStore } from '@/store/bedroomDeviceStore';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
 
 import { prepareScenarioSettings } from './prepareScenarioSettings';
-import { resolveNightlightEntityId } from './resolveNightlightEntityId';
-import type { IUseScenarioSettingsResult } from './useScenarioSettings.typings';
+import type {
+  IUseScenarioSettingsOptions,
+  IUseScenarioSettingsResult,
+} from './useScenarioSettingsHook.typings';
 import {
   writeScenarioBoolean,
   writeScenarioColor,
@@ -26,16 +27,18 @@ import { createScenarioScheduleWriter } from './writeScenarioSchedule';
 const SCENARIO_SETTINGS_STALE_MS = 30_000;
 
 /** Оркестрация загрузки и записи настроек сценария через HA */
-export function useScenarioSettings(scenarioId: string): IUseScenarioSettingsResult {
+export function useScenarioSettings(
+  scenarioId: string,
+  options: IUseScenarioSettingsOptions = {},
+): IUseScenarioSettingsResult {
   const queryClient = useQueryClient();
   const baseUrl = useConnectionStore((s) => s.baseUrl);
   const { haReady, baseUrl: haBaseUrl, token: haToken } = useHaBackend();
   const refreshHome = useHomeStore((s) => s.refresh);
-  const bedroomConfig = useBedroomDeviceStore((s) => s.config);
   const scenarioDefinition = getScenarioDefinition(scenarioId);
+  const nightlightEntityId = options.nightlightEntityId;
 
   const scenarioParamEntityIds = getScenarioParamEntityIds(scenarioId);
-  const nightlightEntityId = resolveNightlightEntityId(scenarioId, bedroomConfig);
 
   const settingsQueryKey = useMemo(
     () => ['scenario-settings', scenarioId, baseUrl, nightlightEntityId] as const,

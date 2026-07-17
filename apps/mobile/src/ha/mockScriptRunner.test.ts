@@ -71,6 +71,21 @@ describe('runMockScript', () => {
     assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.nightlight)?.state, 'off');
   });
 
+  it('sleep does not force nightlight color when helper JSON is invalid', () => {
+    updateMockEntityState(HA_ENTITIES.devices.nightlight, 'off', {
+      brightness_pct: 8,
+      brightness: 20,
+      rgb_color: [10, 20, 30],
+    });
+    updateMockEntityState(HA_ENTITIES.scenarioParams.sleep.nightlightColor, 'not-json');
+    runMockScript(HA_ENTITIES.scripts.sleep);
+
+    const nightlight = getMockEntitySnapshot(HA_ENTITIES.devices.nightlight);
+    assert.equal(nightlight?.state, 'on');
+    assert.equal(nightlight?.attributes.brightness_pct, 8);
+    assert.deepEqual(nightlight?.attributes.rgb_color, [10, 20, 30]);
+  });
+
   it('syncs activeScenarioId via mapScenarioHaState after evening', () => {
     runMockScript(HA_ENTITIES.scripts.evening);
 

@@ -16,8 +16,6 @@ import { ScenarioSettingsScreenNumberField } from './ScenarioSettingsScreen-Numb
 import type { IScenarioSettingsScreenProps } from './ScenarioSettingsScreen.typings';
 import { styles } from './ScenarioSettingsScreen.styles';
 
-const NIGHTLIGHT_DEPENDENT_KEYS = new Set(['nightlightBrightness', 'nightlightColor']);
-
 export function ScenarioSettingsScreen({
   scenarioId,
   description,
@@ -40,8 +38,9 @@ export function ScenarioSettingsScreen({
   const c = useThemeColors();
   const fieldDefs = getScenarioFieldDefinitions(scenarioId);
   const isRunning = runState === 'running';
-  const nightlightEnabled =
-    settings?.booleans.find((field) => field.key === 'nightlight')?.value ?? true;
+  const booleanByKey = new Map(
+    (settings?.booleans ?? []).map((field) => [field.key, field.value]),
+  );
 
   return (
     <ScreenLayout variant="stack" onRefresh={onRefresh} isRefreshing={isRefreshing}>
@@ -78,8 +77,11 @@ export function ScenarioSettingsScreen({
                 {copy.scenarios.paramsSectionTitle}
               </Text>
               {fieldDefs.map((field) => {
-                if (!nightlightEnabled && NIGHTLIGHT_DEPENDENT_KEYS.has(field.key)) {
-                  return null;
+                if (field.dependsOnKey) {
+                  const parentEnabled = booleanByKey.get(field.dependsOnKey) ?? true;
+                  if (!parentEnabled) {
+                    return null;
+                  }
                 }
 
                 if (field.kind === 'number') {

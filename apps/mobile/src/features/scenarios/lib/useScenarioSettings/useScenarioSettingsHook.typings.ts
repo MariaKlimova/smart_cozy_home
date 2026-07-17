@@ -2,6 +2,15 @@ import type { TLightColorValue } from '@/domain/lightColor.typings';
 import type { IScenarioSettings } from '@/domain/scenarioSettings.typings';
 import type { TWeekdayId } from '@/domain/scenarioWeeklySchedule.typings';
 
+/** Опции хука настроек сценария */
+export interface IUseScenarioSettingsOptions {
+  /**
+   * Entity_id ночника для seed пресетов цвета.
+   * Резолвится снаружи (маршрут / adapter), без прямого доступа к bedroom store.
+   */
+  nightlightEntityId?: string;
+}
+
 export interface IUseScenarioSettingsResult {
   /** Настройки сценария */
   settings: IScenarioSettings | undefined;
