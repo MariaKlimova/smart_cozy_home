@@ -9,6 +9,8 @@ export interface IDataSyncStatusProps {
   syncDebug: IHomeSyncDebug;
   /** Идёт обновление */
   isRefreshing: boolean;
+  /** Включён ли mock-режим HA */
+  mocksEnabled: boolean;
   /** Запросить данные заново */
   onRefresh: () => void;
 }

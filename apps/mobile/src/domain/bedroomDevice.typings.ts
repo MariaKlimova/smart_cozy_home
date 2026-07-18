@@ -9,6 +9,11 @@ export interface IBedroomSliderValue {
   current: number;
   /** Единица, например % или °C */
   unit?: string;
+  /**
+   * Порог «свет виден с» (%) — только для основного света.
+   * Логическая яркость пересчитывается в диапазон [visibleMin, 100] на железе.
+   */
+  visibleMin?: number;
 }
 
 /** Значение toggle-устройства */

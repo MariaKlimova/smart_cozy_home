@@ -88,6 +88,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
     setToggle,
     setSegment,
     setColorLight,
+    setLightVisibleMin,
     refresh: refreshDevices,
   } = useBedroomControls({ enabled: devicesTabActive });
 
@@ -154,6 +155,7 @@ export function BedroomScreen({ initialTab }: IBedroomScreenProps) {
               onColorLightChange={(deviceId, brightness, colorPresetId) =>
                 setColorLight(deviceId, brightness, colorPresetId)
               }
+              onVisibleMinComplete={(value) => setLightVisibleMin(value)}
               onConfigureDevice={(deviceId) => {
                 if (!isBedroomDeviceSlot(deviceId)) return;
                 router.push({ pathname: '/device-picker', params: { slot: deviceId } });

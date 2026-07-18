@@ -40,6 +40,17 @@
 
 Увлажнитель: сценарии вызывают `script.bedroom_humidifier_on` / `script.bedroom_humidifier_off` (`humidifier.bedroom`, иначе `switch.bedroom_humidifier`). Подробности — [`DEVICES.md`](./DEVICES.md) § «Увлажнитель».
 
+### Калибровка яркости основного света
+
+Многие лампы почти не светят на низких процентах. Helper `input_number.bedroom_light_visible_min` (дефолт `0`, max `99`) задаёт порог «свет виден с».
+
+Формула для любого сценария / слайдера, который ставит яркость `light.bedroom`:
+
+- логический `0` → `light.turn_off`
+- логический `L` (1–100) → `device = round(floor + L/100 * (100 - floor))`
+
+Приложение показывает и пишет логические %, scripts читают тот же helper.
+
 ---
 
 ## Сценарий 1 — Вечер (`script.evening`)
@@ -49,7 +60,7 @@
 **Действия по порядку:**
 
 1. Выключает ночник (`light.turn_off` на `light.bedroom_nightlight`)
-2. Плавно снижает яркость основного света до `input_number.evening_brightness` за 5 минут (`light.turn_on` с `transition: 300`)
+2. Снижает яркость основного света до `input_number.evening_brightness` (через калибровку `bedroom_light_visible_min`; без `transition`)
 3. Закрывает шторы если `input_boolean.evening_curtains = true` (`cover.close_cover`)
 4. Устанавливает целевую температуру `input_number.evening_temperature` (`climate.set_temperature`)
 5. Включает увлажнитель если `input_boolean.evening_humidifier = true` (`humidifier.bedroom` или фолбек `switch.bedroom_humidifier`)
@@ -127,12 +138,17 @@
 
 **Действия по порядку:**
 
-1. Выключает ночник (`light.turn_off` на `light.bedroom_nightlight`)
-2. Закрывает окно (`cover.close_cover` на `cover.bedroom_window`)
-3. Плавно поднимает яркость до `input_number.morning_brightness` за `input_number.morning_warmup_minutes` минут (`light.turn_on` с `transition`)
-4. Открывает шторы (`cover.open_cover`)
-5. Устанавливает дневную температуру 21° (`climate.set_temperature`, значение фиксированное)
-6. Записывает `input_select.home_mode = morning`
+1. Записывает `input_select.home_mode = morning` (сразу, до устройств)
+2. Выключает ночник (`light.turn_off` на `light.bedroom_nightlight`)
+3. Закрывает окно (`cover.close_cover` на `cover.bedroom_window`)
+4. Включает свет на первый шаг логической яркости (софтовый ramp: шаги `brightness_pct` + `delay`, без `transition`)
+5. Открывает шторы (`cover.open_cover`)
+6. Устанавливает дневную температуру 21° (`climate.set_temperature`, значение фиксированное)
+7. Продолжает подъём яркости до `input_number.morning_brightness` за `input_number.morning_warmup_minutes` минут
+
+Каждый шаг яркости пересчитывается через калибровку `input_number.bedroom_light_visible_min` (логические % → железо `[min, 100]`).
+
+`mode: restart` — повторный запуск сбрасывает предыдущий ramp. Остановка из приложения: `script.turn_off` на `script.morning` (вместе со сбросом `home_mode`).
 
 **Helpers — параметры:**
 
@@ -147,7 +163,7 @@
 | ----------------------------- | -------------- | ------------------------- |
 | `input_text.morning_schedule` | text (JSON v1) | все дни выкл, время 07:00 |
 
-**Automation:** срабатывает по JSON-расписанию. Плавный подъём света начинается в момент запуска script (не за `morning_warmup_minutes` до подъёма).
+**Automation:** срабатывает по JSON-расписанию в момент времени. Soft ramp начинается сразу при запуске script (не за `morning_warmup_minutes` до подъёма).
 
 ---
 

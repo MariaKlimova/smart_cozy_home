@@ -13,6 +13,7 @@ export function BedroomDeviceControls({
   onToggle,
   onSegmentSelect,
   onColorLightChange,
+  onVisibleMinComplete,
   onConfigureDevice,
 }: IBedroomDeviceControlsProps) {
   return (
@@ -30,6 +31,11 @@ export function BedroomDeviceControls({
             onColorLightChange
               ? (brightness, colorPresetId) =>
                   onColorLightChange(device.id, brightness, colorPresetId)
+              : undefined
+          }
+          onVisibleMinComplete={
+            device.id === 'light' && onVisibleMinComplete
+              ? onVisibleMinComplete
               : undefined
           }
           onConfigure={

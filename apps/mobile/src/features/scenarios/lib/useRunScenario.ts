@@ -81,7 +81,7 @@ export function useRunScenario(): IUseRunScenarioResult {
         setScenarioState(scenarioId, 'running');
         clearError();
         try {
-          await exitActiveScenario(haBaseUrl, haToken);
+          await exitActiveScenario(haBaseUrl, haToken, scenarioId);
           setScenarioActivation(null, preparedScenarioId);
           await refresh({ silent: true });
         } catch {
@@ -97,7 +97,9 @@ export function useRunScenario(): IUseRunScenarioResult {
       clearError();
 
       try {
-        await runScenario(scenarioId, haBaseUrl, haToken);
+        await runScenario(scenarioId, haBaseUrl, haToken, {
+          stopActiveScenarioId: activeScenarioId,
+        });
 
         if (definition?.kind === 'prepared') {
           setScenarioActivation(null, scenarioId);

@@ -68,13 +68,17 @@ script:
           entity_id: light.bedroom_nightlight
 
       # Без transition/color_temp: у многих ламп ломают вызов (ручной тест подтвердил).
+      # Яркость: logical % → [visible_min, 100] через bedroom_light_visible_min
       - alias: Гасим свет
         continue_on_error: true
         service: light.turn_on
         target:
           entity_id: light.bedroom
         data:
-          brightness_pct: "{{ states('input_number.evening_brightness') | int(15) }}"
+          brightness_pct: >-
+            {% set floor = states('input_number.bedroom_light_visible_min') | int(0) %}
+            {% set logical = states('input_number.evening_brightness') | int(15) %}
+            {{ (floor + (logical / 100) * (100 - floor)) | round | int }}
 
       - alias: Закрываем шторы если нужно
         if:
@@ -199,6 +203,8 @@ script:
     alias: Утро
     description: Мягкое пробуждение — плавно поднимает яркость и открывает шторы
     icon: mdi:weather-sunny
+    # Длинный софтовый ramp; повторный запуск сбрасывает предыдущий подъём
+    mode: restart
     sequence:
       - alias: Фиксируем режим
         service: input_select.select_option
@@ -219,14 +225,35 @@ script:
         target:
           entity_id: cover.bedroom_window
 
-      # Без transition — см. комментарий у script.evening
-      - alias: Поднимаем свет
+      # Hardware transition на light.bedroom ломает вызов — только шаги brightness_pct + delay.
+      # Логический % → [visible_min, 100] через bedroom_light_visible_min.
+      - alias: Параметры подъёма света
+        variables:
+          morning_visible_min: "{{ states('input_number.bedroom_light_visible_min') | int(0) }}"
+          morning_target_pct: "{{ states('input_number.morning_brightness') | int(80) }}"
+          morning_warmup_min: "{{ states('input_number.morning_warmup_minutes') | int(20) }}"
+          morning_ramp_steps: "{{ [morning_warmup_min | int, 1] | max }}"
+          morning_ramp_delay_sec: >-
+            {{
+              (
+                (morning_warmup_min | float) * 60
+                / ([morning_ramp_steps | int - 1, 1] | max)
+              ) | int
+            }}
+
+      - alias: Включаем свет (первый шаг)
         continue_on_error: true
         service: light.turn_on
         target:
           entity_id: light.bedroom
         data:
-          brightness_pct: "{{ states('input_number.morning_brightness') | int }}"
+          brightness_pct: >-
+            {% set floor = morning_visible_min | int %}
+            {% set logical = [
+              ((1 / (morning_ramp_steps | int)) * (morning_target_pct | int)) | round(0, 'ceil'),
+              1
+            ] | max | int %}
+            {{ (floor + (logical / 100) * (100 - floor)) | round | int }}
 
       - alias: Открываем шторы
         continue_on_error: true
@@ -244,6 +271,29 @@ script:
             - climate.bedroom_ventilation
         data:
           temperature: 21
+
+      - alias: Плавный подъём яркости
+        if:
+          - condition: template
+            value_template: "{{ morning_ramp_steps | int > 1 }}"
+        then:
+          - repeat:
+              count: "{{ morning_ramp_steps | int - 1 }}"
+              sequence:
+                - delay:
+                    seconds: "{{ morning_ramp_delay_sec | int }}"
+                - continue_on_error: true
+                  service: light.turn_on
+                  target:
+                    entity_id: light.bedroom
+                  data:
+                    brightness_pct: >-
+                      {% set floor = morning_visible_min | int %}
+                      {% set logical = [
+                        (((repeat.index + 1) / (morning_ramp_steps | int)) * (morning_target_pct | int)) | round(0, 'ceil'),
+                        morning_target_pct | int
+                      ] | min | int %}
+                      {{ (floor + (logical / 100) * (100 - floor)) | round | int }}
 
   away:
     alias: Уехали
@@ -351,7 +401,10 @@ script:
         target:
           entity_id: light.bedroom
         data:
-          brightness_pct: "{{ states('input_number.coming_home_brightness') | int }}"
+          brightness_pct: >-
+            {% set floor = states('input_number.bedroom_light_visible_min') | int(0) %}
+            {% set logical = states('input_number.coming_home_brightness') | int(60) %}
+            {{ (floor + (logical / 100) * (100 - floor)) | round | int }}
 
       - alias: Открываем шторы если день
         if:
@@ -388,7 +441,10 @@ script:
         target:
           entity_id: light.bedroom
         data:
-          brightness_pct: "{{ states('input_number.cozy_brightness') | int }}"
+          brightness_pct: >-
+            {% set floor = states('input_number.bedroom_light_visible_min') | int(0) %}
+            {% set logical = states('input_number.cozy_brightness') | int(40) %}
+            {{ (floor + (logical / 100) * (100 - floor)) | round | int }}
 
       - alias: Закрываем шторы
         continue_on_error: true
@@ -437,7 +493,10 @@ script:
         target:
           entity_id: light.bedroom
         data:
-          brightness_pct: "{{ states('input_number.focus_brightness') | int }}"
+          brightness_pct: >-
+            {% set floor = states('input_number.bedroom_light_visible_min') | int(0) %}
+            {% set logical = states('input_number.focus_brightness') | int(90) %}
+            {{ (floor + (logical / 100) * (100 - floor)) | round | int }}
 
       - alias: Открываем шторы — естественный свет
         continue_on_error: true

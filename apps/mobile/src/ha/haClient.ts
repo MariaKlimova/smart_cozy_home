@@ -65,12 +65,10 @@ async function haFetch(url: string, init?: RequestInit): Promise<Response> {
 
 /**
  * Мок-режим HA: данные из scenarioMocks.ts, без сетевых запросов.
- * В test-раннере выключен, чтобы не ломать unit-тесты кастомных entity.
- * Для реального HA: EXPO_PUBLIC_USE_HA_MOCKS=false
+ * По умолчанию выключен — приложение ходит в реальный HA.
+ * Включить: EXPO_PUBLIC_USE_HA_MOCKS=true
  */
-export const USE_HA_MOCKS =
-  process.env.EXPO_PUBLIC_USE_HA_MOCKS === 'true' ||
-  (process.env.EXPO_PUBLIC_USE_HA_MOCKS !== 'false' && process.env.NODE_ENV !== 'test');
+export const USE_HA_MOCKS = process.env.EXPO_PUBLIC_USE_HA_MOCKS === 'true';
 
 /** Можно ли читать/писать HA (реальное подключение или моки) */
 export function canUseHaBackend(
@@ -180,6 +178,20 @@ export async function runHaScript(
   }
 
   await callHaService(baseUrl, token, 'script', 'turn_on', { entity_id: scriptEntityId });
+}
+
+/** Остановить выполняющийся script.* (сбрасывает delay/repeat, напр. morning ramp) */
+export async function stopHaScript(
+  baseUrl: string,
+  token: string,
+  scriptEntityId: string,
+): Promise<void> {
+  if (USE_HA_MOCKS) {
+    logMockService('script', 'turn_off', { entity_id: scriptEntityId });
+    return;
+  }
+
+  await callHaService(baseUrl, token, 'script', 'turn_off', { entity_id: scriptEntityId });
 }
 
 /** Установить option у input_select */

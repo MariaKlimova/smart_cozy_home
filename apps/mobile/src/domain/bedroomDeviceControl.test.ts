@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { resolveBedroomDeviceServiceCall } from './bedroomDeviceControl';
+import {
+  resolveBedroomDeviceServiceCall,
+  resolveLogicalBrightnessToKeep,
+} from './bedroomDeviceControl';
 
 describe('resolveBedroomDeviceServiceCall', () => {
   it('maps light brightness to turn_on with brightness', () => {
@@ -11,6 +14,18 @@ describe('resolveBedroomDeviceServiceCall', () => {
     assert.equal(call.service, 'turn_on');
     assert.equal(call.data.entity_id, 'light.bedroom');
     assert.equal(call.data.brightness, 128);
+  });
+
+  it('remaps light brightness using visible min floor', () => {
+    const call = resolveBedroomDeviceServiceCall(
+      'light',
+      { kind: 'slider', value: 50 },
+      null,
+      { lightVisibleMin: 50 },
+    );
+
+    // logical 50% with floor 50 → device 75% → 191
+    assert.equal(call.data.brightness, 191);
   });
 
   it('maps light 0% to turn_off', () => {
@@ -123,6 +138,39 @@ describe('resolveBedroomDeviceServiceCall', () => {
     assert.throws(
       () => resolveBedroomDeviceServiceCall('unknown', { kind: 'toggle', isOn: true }),
       /Unknown bedroom device/,
+    );
+  });
+});
+
+describe('resolveLogicalBrightnessToKeep', () => {
+  it('returns null when light is off', () => {
+    assert.equal(
+      resolveLogicalBrightnessToKeep(
+        { entityId: 'light.bedroom', state: 'off', attributes: {} },
+        0,
+      ),
+      null,
+    );
+  });
+
+  it('returns logical brightness for on light with previous floor', () => {
+    // device 75% (191/255) with floor 50 → logical 50
+    assert.equal(
+      resolveLogicalBrightnessToKeep(
+        { entityId: 'light.bedroom', state: 'on', attributes: { brightness: 191 } },
+        50,
+      ),
+      50,
+    );
+  });
+
+  it('returns null when brightness is missing', () => {
+    assert.equal(
+      resolveLogicalBrightnessToKeep(
+        { entityId: 'light.bedroom', state: 'on', attributes: {} },
+        0,
+      ),
+      null,
     );
   });
 });

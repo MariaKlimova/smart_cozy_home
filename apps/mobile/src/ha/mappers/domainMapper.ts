@@ -76,24 +76,25 @@ export function mapSecurityStatus(states: IHaEntityState[]): 'ok' | 'attention' 
 }
 
 export function mapTimelineFromLogbook(
-  entries: { when: string; message: string; entity_id?: string; name: string }[],
+  entries: { when: string; message?: string; entity_id?: string; name?: string }[],
 ): ITimelineEvent[] {
   return entries.slice(0, 30).map((e, i) => {
+    const message = typeof e.message === 'string' ? e.message : '';
     let kind: ITimelineEvent['kind'] = 'generic';
     let ritualId: string | undefined;
-    if (e.entity_id?.startsWith('person.') && e.message.toLowerCase().includes('home')) {
+    if (e.entity_id?.startsWith('person.') && message.toLowerCase().includes('home')) {
       kind = 'presence_home';
     }
     if (e.entity_id === 'input_select.home_mode') {
       kind = 'ritual';
-      if (e.message.includes('evening')) ritualId = 'evening';
-      if (e.message.includes('sleep')) ritualId = 'sleep';
+      if (message.includes('evening')) ritualId = 'evening';
+      if (message.includes('sleep')) ritualId = 'sleep';
     }
     return {
       id: `${e.when}-${i}`,
       kind,
       at: e.when,
-      message: e.message,
+      message: message || e.name || 'Событие дома',
       entityId: e.entity_id,
       ritualId,
     };

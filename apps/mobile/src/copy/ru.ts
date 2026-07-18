@@ -154,6 +154,8 @@ export const copy = {
   rooms: {
     sectionTitle: 'Комнаты',
     openRoomA11y: 'Открыть',
+    offlineHint: 'Дом не подключён — список из настроек приложения. Live-статус появится после связи с домом.',
+    syncErrorHint: 'Не удалось обновить данные: {error}',
   },
   presence: {
     sectionTitle: 'Кто дома',
@@ -287,6 +289,7 @@ export const copy = {
     unavailable: 'Сейчас недоступен',
     setupDevicesButton: 'Состав устройств',
     configureDeviceA11y: 'Настроить устройство',
+    lightVisibleMinLabel: 'Свет виден с',
     colorPresetA11y: 'Цвет {index}',
     emptyDevicesHint: 'Включи устройства в составе — тогда ими можно управлять здесь.',
     tabs: {

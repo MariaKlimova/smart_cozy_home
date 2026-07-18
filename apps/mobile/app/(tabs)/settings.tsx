@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 
 import { copy } from '@/copy/ru';
 import { maskUrl } from '@/lib/maskSensitive';
+import { isHaMocksEnabled } from '@/features/settings/lib/isHaMocksEnabled';
 import { NightScheduleSection } from '@/features/settings/ui/NightScheduleSection';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
@@ -43,6 +44,7 @@ export default function SettingsScreen() {
         baseUrl={baseUrl ? maskUrl(baseUrl) : null}
         syncDebug={syncDebug}
         isRefreshing={isRefreshing}
+        mocksEnabled={isHaMocksEnabled()}
         onRefresh={() => void refresh()}
       />
       <CalmButton

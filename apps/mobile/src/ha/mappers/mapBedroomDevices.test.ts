@@ -25,6 +25,25 @@ describe('mapBedroomDevices', () => {
     if (light.value && 'current' in light.value) {
       assert.equal(light.value.current, 50);
       assert.equal(light.value.unit, '%');
+      assert.equal(light.value.visibleMin, 0);
+    } else {
+      assert.fail('expected slider value');
+    }
+  });
+
+  it('maps light brightness through visible min floor', () => {
+    // device 75% with floor 50 → logical 50%
+    const states = [
+      haState('light.bedroom', 'on', { brightness: 191 }),
+      haState('input_number.bedroom_light_visible_min', '50'),
+    ];
+    const devices = mapBedroomDevices(states);
+    const light = devices.find((d) => d.id === 'light');
+
+    assert.ok(light);
+    if (light.value && 'current' in light.value) {
+      assert.equal(light.value.current, 50);
+      assert.equal(light.value.visibleMin, 50);
     } else {
       assert.fail('expected slider value');
     }
@@ -198,6 +217,7 @@ describe('collectBedroomDeviceEntityIds', () => {
     const ids = collectBedroomDeviceEntityIds();
     assert.deepEqual(ids, [
       'light.bedroom',
+      'input_number.bedroom_light_visible_min',
       'light.bedroom_nightlight',
       'climate.bedroom_ac',
       'climate.bedroom_ventilation',
