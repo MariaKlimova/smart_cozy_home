@@ -15,41 +15,54 @@ export const styles = StyleSheet.create({
   statValue: {
     lineHeight: 24,
   },
-  qualitySection: {
-    gap: spacing.sm,
+  nightScoreBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
     marginTop: spacing.md,
-  },
-  qualityBadge: {
-    alignSelf: 'flex-start',
     borderRadius: radii.md,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.sm + 2,
   },
-  qualityValue: {
-    lineHeight: 22,
+  nightScoreValue: {
+    flexShrink: 0,
   },
-  normSection: {
+  breakdownSection: {
     gap: spacing.sm,
     marginTop: spacing.md,
   },
-  normTrack: {
-    height: 10,
-    borderRadius: radii.sm,
-    overflow: 'hidden',
+  breakdownTitle: {
+    letterSpacing: 0.4,
   },
-  normFill: {
-    height: '100%',
-    borderRadius: radii.sm,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginTop: spacing.md,
-  },
-  footer: {
+  belowNormRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     marginTop: spacing.md,
+  },
+  belowNormText: {
+    flex: 1,
+  },
+  trendSection: {
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  trendBadge: {
+    alignSelf: 'flex-start',
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  footerText: {
+    flex: 1,
+    gap: spacing.xxs,
   },
   emptySection: {
     gap: spacing.sm,

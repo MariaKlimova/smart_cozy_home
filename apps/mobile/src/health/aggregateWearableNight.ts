@@ -1,5 +1,4 @@
 import type { ISleepWearableNightSummary, ISleepWearableSegment } from '@/health/healthKitSleep.typings';
-import { resolveWearableSleepQuality } from '@/health/scoreWearableSleepQuality';
 import { ASLEEP_WEARABLE_STAGES } from '@/health/wearableSleep.const';
 
 function durationMinutes(startAt: Date, endAt: Date): number {
@@ -67,7 +66,6 @@ function pickPrimarySource(segments: ISleepWearableSegment[]): {
 /** Агрегирует дедуплицированные сегменты в сводку за ночь */
 export function aggregateWearableNight(
   segments: ISleepWearableSegment[],
-  scoreSourceSegments: ISleepWearableSegment[] = segments,
 ): ISleepWearableNightSummary | null {
   if (segments.length === 0) {
     return null;
@@ -110,17 +108,12 @@ export function aggregateWearableNight(
   }
 
   const primarySource = pickPrimarySource(segments);
-  const baseSummary: ISleepWearableNightSummary = {
+  return {
     fellAsleepAt,
     wokeAt,
     totalSleepMinutes: Math.round(totalSleepMinutes),
     stageMinutes,
     primarySourceName: primarySource.name,
     primarySourceBundleId: primarySource.bundleId,
-  };
-
-  return {
-    ...baseSummary,
-    ...resolveWearableSleepQuality(scoreSourceSegments, baseSummary),
   };
 }

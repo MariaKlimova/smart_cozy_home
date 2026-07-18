@@ -19,8 +19,9 @@ import {
 } from '@/features/sleep/lib/formatSleepNightSummary';
 import { sleepScoreTextColor } from '@/features/sleep/lib/sleepScorePresentation';
 import { useSleepNightSamples } from '@/features/sleep/lib/useSleepNightSamples';
-import { useWearableSleepForNight } from '@/features/sleep/lib/useWearableSleepForNight';
+import { useWearableSleepScore } from '@/features/sleep/lib/useWearableSleepScore';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import type { TSleepScoreTrendDays } from '@/health/sleepScore.typings';
 import { CalmLineChart } from '@/ui/CalmLineChart';
 import { CalmSegmented } from '@/ui/CalmSegmented';
 import { typography } from '@/theme/tokens';
@@ -49,6 +50,7 @@ export function SleepNightDetail({ night, weekOffset }: ISleepNightDetailProps) 
   const c = useThemeColors();
   const [activeMetric, setActiveMetric] = useState<TSleepMetricId>('co2');
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [trendDays, setTrendDays] = useState<TSleepScoreTrendDays>(7);
 
   const { samples, isLoading, isFetching } = useSleepNightSamples({
     nightWindow: night.window,
@@ -57,8 +59,16 @@ export function SleepNightDetail({ night, weekOffset }: ISleepNightDetailProps) 
 
   const isWearableSupported = Platform.OS === 'ios';
 
-  const { wearable, isLoading: isWearableLoading } = useWearableSleepForNight({
-    nightWindow: night.window,
+  const {
+    status: wearableStatus,
+    selectedSummary,
+    selectedNightScore,
+    methodDetails,
+    trend,
+    isLoading: isWearableLoading,
+  } = useWearableSleepScore({
+    selectedNightDate: night.window.nightDate,
+    trendDays,
     enabled: isWearableSupported,
   });
 
@@ -146,7 +156,16 @@ export function SleepNightDetail({ night, weekOffset }: ISleepNightDetailProps) 
                 </View>
               ) : null}
 
-              <SleepNightDetailWearable wearable={wearable} isLoading={isWearableLoading} />
+              <SleepNightDetailWearable
+                status={wearableStatus}
+                selectedSummary={selectedSummary}
+                selectedNightScore={selectedNightScore}
+                methodDetails={methodDetails}
+                trend={trend}
+                trendDays={trendDays}
+                onTrendDaysChange={setTrendDays}
+                isLoading={isWearableLoading}
+              />
             </View>
           ) : null}
 

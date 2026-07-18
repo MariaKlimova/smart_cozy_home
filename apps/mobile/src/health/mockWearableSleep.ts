@@ -1,12 +1,15 @@
 import { Platform } from 'react-native';
 
+import type { ISleepNightWindow } from '@/domain/sleepNight.typings';
+import type { INightSchedule } from '@/domain/nightSchedule.typings';
+import { DEFAULT_NIGHT_SCHEDULE } from '@/domain/nightSchedule';
+import { bucketWearableSegmentsByNight } from '@/health/bucketWearableSegmentsByNight';
+import { dedupeSleepSegments } from '@/health/dedupeSleepSegments';
 import type {
   ISleepWearableSegment,
-  IWearableSleepNightResult,
   TWearableMockPreset,
 } from '@/health/healthKitSleep.typings';
-import { aggregateWearableNight } from '@/health/aggregateWearableNight';
-import { dedupeSleepSegments } from '@/health/dedupeSleepSegments';
+import type { IWearableSleepHistoryResult } from '@/health/bucketWearableSegmentsByNight';
 
 const VALID_PRESETS: readonly TWearableMockPreset[] = [
   'default',
@@ -110,29 +113,37 @@ function buildSegmentsForPreset(
   return buildDefaultNightSegments(windowStart);
 }
 
-/** Мок-результат wearable за ночное окно */
-export function loadMockWearableSleepNight(
+/** Мок-история за несколько ночей (для score / тренда) */
+export function loadMockWearableSleepHistory(
   preset: TWearableMockPreset,
-  windowStart: Date,
-  windowEnd: Date,
-): IWearableSleepNightResult {
+  windows: ISleepNightWindow[],
+  schedule: INightSchedule = DEFAULT_NIGHT_SCHEDULE,
+): IWearableSleepHistoryResult {
   if (preset === 'denied') {
-    return { status: 'denied' };
+    return { status: 'denied', nights: [] };
   }
 
-  const rawSegments = buildSegmentsForPreset(preset, windowStart, windowEnd);
-  if (rawSegments.length === 0) {
-    return { status: 'no_data' };
+  if (preset === 'empty') {
+    return { status: 'no_data', nights: [] };
   }
 
-  const deduped = dedupeSleepSegments(rawSegments);
-  const summary = aggregateWearableNight(deduped, rawSegments);
-  if (summary === null) {
-    return { status: 'no_data' };
+  const allSegments: ISleepWearableSegment[] = [];
+  for (const [index, window] of windows.entries()) {
+    const jitterMinutes = (index % 5) * 8;
+    const nightStart = addMinutes(window.startAt, jitterMinutes);
+    const nightSegments = buildSegmentsForPreset(preset, nightStart, window.endAt);
+    allSegments.push(...nightSegments);
   }
 
-  return {
-    status: 'available',
-    summary,
-  };
+  if (allSegments.length === 0) {
+    return { status: 'no_data', nights: [] };
+  }
+
+  const deduped = dedupeSleepSegments(allSegments);
+  const nights = bucketWearableSegmentsByNight(deduped, windows, schedule);
+  if (nights.length === 0) {
+    return { status: 'no_data', nights: [] };
+  }
+
+  return { status: 'available', nights };
 }

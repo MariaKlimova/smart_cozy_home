@@ -95,13 +95,12 @@ export function wearableSleepQualityLabel(tier: TWearableSleepQualityTier): stri
   return copy.sleep.wearableQualityPoor;
 }
 
-/** Строка оценки качества сна для UI */
-export function formatWearableSleepQuality(summary: ISleepWearableNightSummary): string | null {
-  if (summary.sleepQualityScore === undefined || summary.sleepQualityTier === undefined) {
-    return null;
-  }
-
+/** Строка score · label */
+export function formatSleepScoreValue(
+  score: number,
+  tier: TWearableSleepQualityTier,
+): string {
   return copy.sleep.wearableQualityValue
-    .replace('{score}', String(summary.sleepQualityScore))
-    .replace('{label}', wearableSleepQualityLabel(summary.sleepQualityTier));
+    .replace('{score}', String(score))
+    .replace('{label}', wearableSleepQualityLabel(tier));
 }

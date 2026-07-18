@@ -26,6 +26,9 @@ yarn-error.*
 .DS_Store
 *.log
 
+# Локальные recovery-дампы (не часть продукта)
+.recovery/
+
 # Expo prebuild (apps/mobile)
 apps/mobile/ios/
 apps/mobile/android/

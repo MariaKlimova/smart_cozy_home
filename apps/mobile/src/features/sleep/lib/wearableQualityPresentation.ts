@@ -13,3 +13,17 @@ export function wearableQualityTierColor(tier: TWearableSleepQualityTier, c: TTh
   }
   return c.danger;
 }
+
+/** Приглушённый фон полосы оценки по tier */
+export function wearableQualityTierMutedBg(
+  tier: TWearableSleepQualityTier,
+  c: TThemeColors,
+): string {
+  if (tier === 'excellent' || tier === 'good') {
+    return c.successMuted;
+  }
+  if (tier === 'fair') {
+    return c.warningMuted;
+  }
+  return c.dangerMuted;
+}

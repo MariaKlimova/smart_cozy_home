@@ -118,7 +118,11 @@ export function CalmSheet({ visible, title, subtitle, titleStyle, onClose, child
             <View style={[styles.handle, { backgroundColor: c.border }]} />
           </View>
 
-          <Text style={[typography.subtitle, styles.title, titleStyle, { color: c.text }]}>{title}</Text>
+          {title ? (
+            <Text style={[typography.subtitle, styles.title, titleStyle, { color: c.text }]}>
+              {title}
+            </Text>
+          ) : null}
           {subtitle ? (
             <Text style={[typography.caption, styles.subtitle, { color: c.textMuted }]}>
               {subtitle}
