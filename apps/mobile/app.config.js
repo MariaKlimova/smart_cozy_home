@@ -1,11 +1,10 @@
-import type { ExpoConfig } from 'expo/config';
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { shareUsageDescription } = require('./src/copy/healthPermissions.js');
 
-const config: ExpoConfig = {
+/** @type {import('expo/config').ExpoConfig} */
+const config = {
   name: 'Умный дом',
   slug: 'smart-house',
+  owner: 'mariakl5227',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
@@ -52,6 +51,11 @@ const config: ExpoConfig = {
   experiments: {
     typedRoutes: true,
   },
+  extra: {
+    eas: {
+      projectId: '74410c1c-f0a8-4122-bddf-b2ab2de2b55d',
+    },
+  },
 };
 
-export default config;
+module.exports = config;

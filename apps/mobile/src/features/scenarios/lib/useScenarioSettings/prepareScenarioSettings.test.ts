@@ -18,7 +18,7 @@ function haState(entityId: string, state: string): IHaEntityState {
 
 describe('ensureNightlightColorSeed', () => {
   it('writes default color when helper is empty', async () => {
-    const writes: Array<{ entityId: string; value: string }> = [];
+    const writes: { entityId: string; value: string }[] = [];
     const states = [
       haState(sleepParams.nightlightColor, ''),
       haState(sleepParams.temperature, '17'),
