@@ -9,7 +9,6 @@ import type {
   IBedroomSliderValue,
   IBedroomToggleValue,
 } from '@/domain/bedroomDevice.typings';
-import { LIGHT_VISIBLE_MIN_MAX } from '@/domain/lightBrightnessScale';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { CalmCard } from '@/ui/CalmCard';
 import { CalmSegmented } from '@/ui/CalmSegmented';
@@ -18,6 +17,7 @@ import { CalmToggle } from '@/ui/CalmToggle';
 import { typography } from '@/theme/tokens';
 
 import { BedroomDeviceControlsColorPresets } from '../-ColorPresets';
+import { BedroomDeviceControlsVisibleMinSlider } from '../-VisibleMinSlider';
 import { STALE_REMOTE_IGNORE_MS } from './BedroomDeviceControls-Card.const';
 import type { IBedroomDeviceControlsCardProps } from './BedroomDeviceControls-Card.typings';
 import { styles } from './BedroomDeviceControls-Card.styles';
@@ -327,21 +327,12 @@ export function BedroomDeviceControlsCard({
               accessibilityLabel={device.label}
             />
             {onVisibleMinComplete && sliderValue?.visibleMin !== undefined ? (
-              <View style={styles.visibleMinSection}>
-                <Text style={[typography.caption, { color: c.textMuted }]}>
-                  {copy.bedroom.lightVisibleMinLabel}: {Math.round(localVisibleMin)} %
-                </Text>
-                <CalmSlider
-                  value={localVisibleMin}
-                  onValueChange={setLocalVisibleMin}
-                  onSlidingComplete={(value) => void handleVisibleMinComplete(value)}
-                  minimumValue={0}
-                  maximumValue={LIGHT_VISIBLE_MIN_MAX}
-                  step={1}
-                  disabled={controlsDisabled}
-                  accessibilityLabel={copy.bedroom.lightVisibleMinLabel}
-                />
-              </View>
+              <BedroomDeviceControlsVisibleMinSlider
+                value={localVisibleMin}
+                disabled={controlsDisabled}
+                onValueChange={setLocalVisibleMin}
+                onSlidingComplete={(value) => void handleVisibleMinComplete(value)}
+              />
             ) : null}
           </>
         ) : null}

@@ -40,7 +40,10 @@ export function DataSyncStatus({
       <Text style={[typography.caption, styles.row, { color: c.textMuted }]}>
         Подключение: {isConnected ? 'есть' : 'нет'}
         {' · '}
-        Моки: {mocksEnabled ? 'вкл' : 'выкл'}
+        {copy.settings.mocksStatus.replace(
+          '{state}',
+          mocksEnabled ? copy.settings.mocksOn : copy.settings.mocksOff,
+        )}
       </Text>
       {baseUrl && (
         <Text style={[typography.caption, styles.row, { color: c.textMuted }]}>

@@ -7,10 +7,9 @@ import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
 import type { TLightColorValue } from '@/domain/lightColor.typings';
 import {
-  mapDeviceToLogicalPct,
   mapLogicalToDevicePct,
   clampVisibleMin,
-  parseVisibleMinState,
+  readVisibleMin,
 } from '@/domain/lightBrightnessScale';
 import {
   callHaService,
@@ -20,7 +19,6 @@ import {
   setEntityPower,
   setLightBrightness,
   setLightColorBrightness,
-  setNumberValue,
 } from '@/ha/haClient';
 import { parseEntityDomain } from '@/ha/entityList';
 import { domainColorToHaPayload } from '@/ha/mappers/lightColorMapper';
@@ -53,11 +51,12 @@ function readLightVisibleMin(
   options?: IResolveBedroomDeviceServiceCallOptions,
 ): number {
   if (typeof options?.lightVisibleMin === 'number') {
-    return parseVisibleMinState(String(options.lightVisibleMin));
+    return clampVisibleMin(options.lightVisibleMin);
   }
-  const helperId = HA_ENTITIES.devices.lightVisibleMin;
-  const helper = options?.states?.find((s) => s.entityId === helperId);
-  return parseVisibleMinState(helper?.state);
+  return readVisibleMin(
+    HA_ENTITIES.devices.lightVisibleMin,
+    (entityId) => options?.states?.find((s) => s.entityId === entityId)?.state,
+  );
 }
 
 function findDeviceMapping(
@@ -190,7 +189,10 @@ export function resolveBedroomDeviceServiceCall(
   if (action.kind === 'segment') {
     return resolveSegmentAction(mapping, action.optionId);
   }
-  return resolveColorLightAction(mapping, action.brightness, action.color);
+  if (action.kind === 'color_light') {
+    return resolveColorLightAction(mapping, action.brightness, action.color);
+  }
+  throw new Error(`Unsupported bedroom device action: ${action.kind}`);
 }
 
 /**
@@ -258,58 +260,12 @@ export async function setBedroomDevice(
     );
     return;
   }
+  if (action.kind === 'visible_min') {
+    throw new Error('visible_min must go through setBedroomLightVisibleMin');
+  }
 
   const { domain, service, data } = resolveBedroomDeviceServiceCall(deviceId, action, config, {
     states,
   });
   await callHaService(baseUrl, token, domain, service, data);
-}
-
-/** Записать порог «свет виден с» и пересчитать железо под текущую логическую яркость */
-export async function setBedroomLightVisibleMin(
-  value: number,
-  baseUrl: string,
-  token: string,
-  config: IBedroomDeviceUserConfig | null = null,
-): Promise<void> {
-  const nextFloor = clampVisibleMin(value);
-  const mapping = findDeviceMapping('light', config, null);
-  const states = await fetchEntityStates(baseUrl, token, [
-    mapping.entity,
-    HA_ENTITIES.devices.lightVisibleMin,
-  ]);
-  const previousFloor = readLightVisibleMin({ states });
-  const lightState = states.find((s) => s.entityId === mapping.entity);
-  const logicalToKeep = resolveLogicalBrightnessToKeep(lightState, previousFloor);
-
-  await setNumberValue(baseUrl, token, HA_ENTITIES.devices.lightVisibleMin, nextFloor);
-
-  if (logicalToKeep === null || logicalToKeep <= 0) {
-    return;
-  }
-
-  const devicePct = mapLogicalToDevicePct(logicalToKeep, nextFloor);
-  await setLightBrightness(baseUrl, token, mapping.entity, devicePct);
-}
-
-/**
- * Если свет включён — логическая яркость, которую нужно сохранить после смены floor.
- * Выкл / нет яркости → null (железо не трогаем).
- */
-export function resolveLogicalBrightnessToKeep(
-  lightState: IHaEntityState | undefined,
-  previousFloor: number,
-): number | null {
-  if (!lightState || lightState.state === 'off') {
-    return null;
-  }
-  if (lightState.state === 'unavailable' || lightState.state === 'unknown') {
-    return null;
-  }
-  const brightness = lightState.attributes?.brightness;
-  if (typeof brightness !== 'number' || brightness <= 0) {
-    return null;
-  }
-  const devicePct = Math.round((brightness / 255) * 100);
-  return mapDeviceToLogicalPct(devicePct, previousFloor);
 }

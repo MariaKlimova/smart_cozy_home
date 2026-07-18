@@ -146,7 +146,7 @@
 6. Устанавливает дневную температуру 21° (`climate.set_temperature`, значение фиксированное)
 7. Продолжает подъём яркости до `input_number.morning_brightness` за `input_number.morning_warmup_minutes` минут
 
-Каждый шаг яркости пересчитывается через калибровку `input_number.bedroom_light_visible_min` (логические % → железо `[min, 100]`).
+Каждый шаг яркости идёт через `script.bedroom_set_light_logical` (калибровка `input_number.bedroom_light_visible_min`: логические % → железо `[min, 100]`).
 
 `mode: restart` — повторный запуск сбрасывает предыдущий ramp. Остановка из приложения: `script.turn_off` на `script.morning` (вместе со сбросом `home_mode`).
 

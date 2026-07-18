@@ -94,7 +94,7 @@ export function mapTimelineFromLogbook(
       id: `${e.when}-${i}`,
       kind,
       at: e.when,
-      message: message || e.name || 'Событие дома',
+      message: message || e.name || '',
       entityId: e.entity_id,
       ritualId,
     };

@@ -1,6 +1,6 @@
 import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import { SCENARIO_DEFINITIONS } from '@/config/scenarios';
-import { mapLogicalToDevicePct, clampVisibleMin } from '@/domain/lightBrightnessScale';
+import { mapLogicalToDevicePct, readVisibleMin } from '@/domain/lightBrightnessScale';
 import {
   applyMockHaService,
   readMockBooleanParam,
@@ -19,7 +19,9 @@ import { parseScenarioLightColor } from '@/ha/mappers/scenarioLightColor';
 const { devices, system, scenarioParams } = HA_ENTITIES;
 
 function readLightVisibleMin(): number {
-  return clampVisibleMin(readMockNumberParam(devices.lightVisibleMin, 0));
+  return readVisibleMin(devices.lightVisibleMin, (entityId) =>
+    String(readMockNumberParam(entityId, 0)),
+  );
 }
 
 function setBedroomLightLogicalPercent(logicalPct: number): void {

@@ -16,7 +16,7 @@ import type {
 } from '@/domain/bedroomDevice.typings';
 import {
   mapDeviceToLogicalPct,
-  parseVisibleMinState,
+  readVisibleMin,
 } from '@/domain/lightBrightnessScale';
 import { findNearestNightlightPresetId } from '@/domain/nightlightColorPresets';
 import {
@@ -52,8 +52,10 @@ function mapLightBrightness(
 }
 
 function readLightVisibleMin(states: Map<string, IHaEntityState>): number {
-  const helper = states.get(HA_ENTITIES.devices.lightVisibleMin);
-  return parseVisibleMinState(helper?.state);
+  return readVisibleMin(
+    HA_ENTITIES.devices.lightVisibleMin,
+    (entityId) => states.get(entityId)?.state,
+  );
 }
 
 function mapClimateTemperature(state: IHaEntityState): number | undefined {

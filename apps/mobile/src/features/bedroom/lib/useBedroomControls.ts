@@ -8,7 +8,8 @@ import {
 } from '@/config/resolveBedroomDevices';
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
 import type { IBedroomDeviceState } from '@/domain/bedroomDevice.typings';
-import { setBedroomDevice, setBedroomLightVisibleMin } from '@/domain/bedroomDeviceControl';
+import { setBedroomDevice } from '@/domain/bedroomDeviceControl';
+import { setBedroomLightVisibleMin } from '@/domain/bedroomLightVisibleMin';
 import {
   clampVisibleMin,
 } from '@/domain/lightBrightnessScale';
@@ -227,10 +228,19 @@ export function useBedroomControls(
           devicesQueryKey,
           patchSliderInCache(previousDevices, deviceId, action.value),
         );
+      } else if (action.kind === 'visible_min') {
+        queryClient.setQueryData(
+          devicesQueryKey,
+          patchSliderVisibleMinInCache(previousDevices, action.value),
+        );
       }
 
       try {
-        await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config);
+        if (action.kind === 'visible_min') {
+          await setBedroomLightVisibleMin(action.value, haBaseUrl, haToken, config);
+        } else {
+          await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config);
+        }
 
         if (action.kind === 'toggle') {
           commitOptimisticAndSoftRefresh(
@@ -259,6 +269,16 @@ export function useBedroomControls(
             devicesQueryKey,
             previousDevices,
             (devices) => patchSliderInCache(devices, deviceId, action.value),
+          );
+          return true;
+        }
+
+        if (action.kind === 'visible_min') {
+          commitOptimisticAndSoftRefresh(
+            queryClient,
+            devicesQueryKey,
+            previousDevices,
+            (devices) => patchSliderVisibleMinInCache(devices, action.value),
           );
           return true;
         }
@@ -321,33 +341,9 @@ export function useBedroomControls(
 
   const setLightVisibleMin = useCallback(
     async (value: number) => {
-      if (!haReady) return false;
-      const next = clampVisibleMin(value);
-      setPendingDeviceId('light');
-      const previousDevices = queryClient.getQueryData<IBedroomDeviceState[]>(devicesQueryKey);
-      queryClient.setQueryData(
-        devicesQueryKey,
-        patchSliderVisibleMinInCache(previousDevices, next),
-      );
-      try {
-        await setBedroomLightVisibleMin(next, haBaseUrl, haToken, config);
-        commitOptimisticAndSoftRefresh(
-          queryClient,
-          devicesQueryKey,
-          previousDevices,
-          (devices) => patchSliderVisibleMinInCache(devices, next),
-        );
-        return true;
-      } catch {
-        if (previousDevices) {
-          queryClient.setQueryData(devicesQueryKey, previousDevices);
-        }
-        return false;
-      } finally {
-        setPendingDeviceId(undefined);
-      }
+      return runAction('light', { kind: 'visible_min', value: clampVisibleMin(value) });
     },
-    [haReady, haBaseUrl, haToken, queryClient, devicesQueryKey, config],
+    [runAction],
   );
 
   const refresh = useCallback(async () => {

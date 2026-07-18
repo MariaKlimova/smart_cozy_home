@@ -28,8 +28,4 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  visibleMinSection: {
-    gap: spacing.xs,
-    marginTop: spacing.sm,
-  },
 });

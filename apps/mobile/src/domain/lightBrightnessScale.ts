@@ -59,3 +59,15 @@ export function mapDeviceToLogicalPct(devicePct: number, visibleMin: number): nu
   const logical = ((devicePct - floor) / (100 - floor)) * 100;
   return Math.min(100, Math.max(1, Math.round(logical)));
 }
+
+/**
+ * Читает порог видимости по entity id через колбэк (массив states / Map / mock store).
+ * @param helperEntityId Entity helper `input_number.*`
+ * @param getRaw Возвращает raw state строки для entity
+ */
+export function readVisibleMin(
+  helperEntityId: string,
+  getRaw: (entityId: string) => string | undefined,
+): number {
+  return parseVisibleMinState(getRaw(helperEntityId));
+}

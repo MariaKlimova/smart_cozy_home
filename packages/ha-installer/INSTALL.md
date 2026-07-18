@@ -90,7 +90,7 @@ homeassistant:
 | Тип | Примеры |
 |-----|---------|
 | Helpers | `input_select.home_mode`, `input_number.evening_brightness`, `input_number.bedroom_light_visible_min`, `input_text.evening_schedule`, … |
-| Scripts | `script.evening`, `script.sleep`, `script.morning`, … (7 штук) + humidifier on/off |
+| Scripts | `script.evening`, `script.sleep`, `script.morning`, … (7 штук) + humidifier on/off + `script.bedroom_set_light_logical` |
 | Automations | `automation.evening_schedule`, … + `sleep_air_quality`, `ac_off_when_window_open` |
 
 Проверка: **Инструменты разработчика → Состояния** → поиск `home_mode`, `script.evening`, `bedroom_light_visible_min`.

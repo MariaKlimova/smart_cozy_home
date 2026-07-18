@@ -3,8 +3,8 @@ import { describe, it } from 'node:test';
 
 import {
   resolveBedroomDeviceServiceCall,
-  resolveLogicalBrightnessToKeep,
 } from './bedroomDeviceControl';
+import { resolveLogicalBrightnessToKeep } from './bedroomLightVisibleMin';
 
 describe('resolveBedroomDeviceServiceCall', () => {
   it('maps light brightness to turn_on with brightness', () => {

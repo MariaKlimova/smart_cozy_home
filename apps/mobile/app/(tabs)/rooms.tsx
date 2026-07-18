@@ -4,13 +4,15 @@ import { Text, View } from 'react-native';
 
 import { copy } from '@/copy/ru';
 import { isVisibleRoomId } from '@/config/visibleRooms';
+import { connectionFailureMessageKey } from '@/domain/connectionStatus';
 import { RoomList } from '@/features/rooms/ui/RoomList';
+import { RoomsStatusHint } from '@/features/rooms/ui/RoomsStatusHint';
 import { PresenceList } from '@/features/presence/ui/PresenceList';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useHomeStore } from '@/store/homeStore';
 import { ScreenLayout } from '@/ui/ScreenLayout';
-import { typography } from '@/theme/tokens';
+import { spacing, typography } from '@/theme/tokens';
 
 export default function RoomsScreen() {
   const c = useThemeColors();
@@ -31,10 +33,11 @@ export default function RoomsScreen() {
   if (!isConnected) {
     statusHint = copy.rooms.offlineHint;
     if (failureReason) {
-      statusHint = `${statusHint} (${failureReason})`;
+      const failureKey = connectionFailureMessageKey(failureReason);
+      statusHint = `${statusHint} ${copy.connection[failureKey]}`;
     }
   } else if (lastError) {
-    statusHint = copy.rooms.syncErrorHint.replace('{error}', lastError);
+    statusHint = copy.rooms.syncErrorHint;
   }
 
   return (
@@ -44,13 +47,10 @@ export default function RoomsScreen() {
       isRefreshing={isRefreshing}
     >
       {statusHint ? (
-        <Text style={[typography.caption, { color: c.textMuted, marginBottom: 12 }]}>
-          {statusHint}
-          {lastSyncAt ? ` · sync ${new Date(lastSyncAt).toLocaleTimeString('ru-RU')}` : null}
-        </Text>
+        <RoomsStatusHint message={statusHint} lastSyncAt={lastSyncAt} />
       ) : null}
       <View>
-        <Text style={[typography.subtitle, { color: c.text, marginBottom: 12 }]}>
+        <Text style={[typography.subtitle, { color: c.text, marginBottom: spacing.md }]}>
           {copy.presence.sectionTitle}
         </Text>
         <PresenceList members={presence} />
