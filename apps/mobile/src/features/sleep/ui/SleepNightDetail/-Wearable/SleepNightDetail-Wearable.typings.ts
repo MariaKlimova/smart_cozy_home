@@ -1,11 +1,13 @@
-import type { ISleepWearableNightSummary } from '@/health/healthKitSleep.typings';
+import type {
+  ISleepWearableNightSummary,
+  TWearableSleepStatus,
+} from '@/health/healthKitSleep.typings';
 import type {
   ISleepScoreMethodDetails,
   ISleepScoreResult,
   ISleepScoreTrend,
   TSleepScoreTrendDays,
 } from '@/health/sleepScore.typings';
-import type { TWearableSleepStatus } from '@/health/healthKitSleep.typings';
 
 export interface ISleepNightDetailWearableProps {
   /** Статус истории wearable */

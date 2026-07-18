@@ -1,14 +1,13 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import type { IWearableHistoryNight } from '@/health/bucketWearableSegmentsByNight';
+import { aggregateSleepScoreTrend } from '@/health/aggregateSleepScoreTrend';
+import { buildSleepScoreMethodDetails } from '@/health/buildSleepScoreMethodDetails';
+import { computeSleepScoresForHistory } from '@/health/computeSleepScore';
 import type {
   ISleepWearableNightSummary,
   TWearableSleepStatus,
 } from '@/health/healthKitSleep.typings';
-import { aggregateSleepScoreTrend } from '@/health/aggregateSleepScoreTrend';
-import { buildSleepScoreMethodDetails } from '@/health/buildSleepScoreMethodDetails';
-import { computeSleepScoresForHistory } from '@/health/computeSleepScore';
 import { loadWearableSleepHistory } from '@/health/loadWearableSleepHistory';
 import type {
   ISleepScoreMethodDetails,
@@ -62,7 +61,10 @@ export function useWearableSleepScore(
     queryFn: () => loadWearableSleepHistory(nightSchedule),
   });
 
-  const nights: IWearableHistoryNight[] = query.data?.nights ?? [];
+  const nights = useMemo(
+    () => query.data?.nights ?? [],
+    [query.data?.nights],
+  );
   const status = query.data?.status ?? null;
 
   const nightScores = useMemo(

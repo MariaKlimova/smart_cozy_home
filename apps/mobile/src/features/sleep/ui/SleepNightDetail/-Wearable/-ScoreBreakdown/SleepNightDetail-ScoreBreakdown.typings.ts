@@ -1,5 +1,7 @@
-import type { ISleepScoreComponents } from '@/health/sleepScore.typings';
-import type { TSleepScoreExplainComponent } from '@/health/sleepScore.typings';
+import type {
+  ISleepScoreComponents,
+  TSleepScoreExplainComponent,
+} from '@/health/sleepScore.typings';
 
 export interface ISleepNightDetailScoreBreakdownProps {
   /** Компоненты оценки выбранной ночи */
