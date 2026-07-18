@@ -1,0 +1,24 @@
+name: Preview on main
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'apps/mobile/**'
+      - 'config/**'
+
+jobs:
+  android_preview:
+    name: Android preview
+    type: build
+    params:
+      platform: android
+      profile: preview
+  # Раскомментировать после Apple Developer Program:
+  # ios_preview:
+  #   name: iOS preview
+  #   type: build
+  #   params:
+  #     platform: ios
+  #     profile: preview
+  #     refresh_ad_hoc_provisioning_profile: true
