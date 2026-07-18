@@ -28,6 +28,23 @@ describe('runMockScript', () => {
     assert.equal(light?.attributes.brightness_pct, 15);
   });
 
+  it('evening remaps brightness when visible min floor is set', () => {
+    updateMockEntityState(HA_ENTITIES.devices.lightVisibleMin, '50');
+    updateMockEntityState(HA_ENTITIES.scenarioParams.evening.brightness, '50');
+    runMockScript(HA_ENTITIES.scripts.evening);
+
+    // logical 50% with floor 50 → device 75%
+    assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.light)?.attributes.brightness_pct, 75);
+  });
+
+  it('cozy remaps brightness when visible min floor is set', () => {
+    updateMockEntityState(HA_ENTITIES.devices.lightVisibleMin, '50');
+    updateMockEntityState(HA_ENTITIES.scenarioParams.cozy.brightness, '50');
+    runMockScript(HA_ENTITIES.scripts.cozy);
+
+    assert.equal(getMockEntitySnapshot(HA_ENTITIES.devices.light)?.attributes.brightness_pct, 75);
+  });
+
   it('exit path via home_mode none after away then coming_home prepared flag', () => {
     runMockScript(HA_ENTITIES.scripts.away);
 

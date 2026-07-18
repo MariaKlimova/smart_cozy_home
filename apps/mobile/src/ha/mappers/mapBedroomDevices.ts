@@ -5,6 +5,7 @@ import {
   resolveBedroomDevices,
 } from '@/config/resolveBedroomDevices';
 import type { IBedroomDeviceMapping } from '@/config/homeConfig.typings';
+import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import type {
   IBedroomDeviceSegmentOption,
   IBedroomDeviceState,
@@ -13,6 +14,10 @@ import type {
   IBedroomToggleValue,
   INightlightColorPreset,
 } from '@/domain/bedroomDevice.typings';
+import {
+  mapDeviceToLogicalPct,
+  readVisibleMin,
+} from '@/domain/lightBrightnessScale';
 import { findNearestNightlightPresetId } from '@/domain/nightlightColorPresets';
 import {
   extractDisplayRgbFromLightAttributes,
@@ -29,16 +34,28 @@ function isUnavailable(state: IHaEntityState | undefined): boolean {
   return state.state === 'unavailable' || state.state === 'unknown';
 }
 
-function mapLightBrightness(state: IHaEntityState, bounds: { min: number; max: number }): number {
+function mapLightBrightness(
+  state: IHaEntityState,
+  bounds: { min: number; max: number },
+  visibleMin = 0,
+): number {
   if (state.state === 'off') {
     return bounds.min;
   }
   const brightness = state.attributes?.brightness;
   if (typeof brightness === 'number') {
-    const pct = Math.round((brightness / 255) * 100);
-    return Math.min(bounds.max, Math.max(bounds.min, pct));
+    const devicePct = Math.round((brightness / 255) * 100);
+    const logical = mapDeviceToLogicalPct(devicePct, visibleMin);
+    return Math.min(bounds.max, Math.max(bounds.min, logical));
   }
   return bounds.max;
+}
+
+function readLightVisibleMin(states: Map<string, IHaEntityState>): number {
+  return readVisibleMin(
+    HA_ENTITIES.devices.lightVisibleMin,
+    (entityId) => states.get(entityId)?.state,
+  );
 }
 
 function mapClimateTemperature(state: IHaEntityState): number | undefined {
@@ -95,6 +112,7 @@ function findClosestSegment(
 function mapSliderValue(
   mapping: IBedroomDeviceMapping,
   state: IHaEntityState | undefined,
+  visibleMin: number,
 ): IBedroomSliderValue | undefined {
   if (!state || isUnavailable(state) || !mapping.slider) {
     return undefined;
@@ -102,8 +120,9 @@ function mapSliderValue(
 
   if (mapping.id === 'light') {
     return {
-      current: mapLightBrightness(state, mapping.slider),
+      current: mapLightBrightness(state, mapping.slider, visibleMin),
       unit: '%',
+      visibleMin,
     };
   }
 
@@ -179,6 +198,7 @@ function mapSingleDevice(
   mapping: IBedroomDeviceMapping,
   states: Map<string, IHaEntityState>,
   colorPresetsByDeviceId: Record<string, INightlightColorPreset[]>,
+  lightVisibleMin: number,
 ): IBedroomDeviceState {
   const state = states.get(mapping.entity);
   const available = !isUnavailable(state);
@@ -197,7 +217,7 @@ function mapSingleDevice(
   }
 
   if (mapping.control === 'slider') {
-    const value = mapSliderValue(mapping, state);
+    const value = mapSliderValue(mapping, state, lightVisibleMin);
     if (value) {
       return { ...base, value };
     }
@@ -240,7 +260,10 @@ export function mapBedroomDevices(
 ): IBedroomDeviceState[] {
   const devices = resolveBedroomDevices(config, { states });
   const map = stateMap(states);
-  return devices.map((device) => mapSingleDevice(device, map, colorPresetsByDeviceId));
+  const lightVisibleMin = readLightVisibleMin(map);
+  return devices.map((device) =>
+    mapSingleDevice(device, map, colorPresetsByDeviceId, lightVisibleMin),
+  );
 }
 
 /** entity_id устройств спальни для запроса в HA (увлажнитель: primary + fallback) */

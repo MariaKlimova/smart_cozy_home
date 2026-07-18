@@ -89,6 +89,16 @@ input_text:
     max: 255
 
 input_number:
+  # Калибровка основного света спальни (логические % сценариев/UI → железо)
+  bedroom_light_visible_min:
+    name: Свет виден начиная с (%)
+    initial: 0
+    min: 0
+    max: 99
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:brightness-5
+
   # Вечер
   evening_brightness:
     name: Яркость вечером (%)

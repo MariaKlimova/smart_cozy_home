@@ -15,6 +15,8 @@ export interface IBedroomDeviceControlsCardProps {
   onSegmentSelect: (optionId: string) => void;
   /** Яркость и цвет ночника; false — откатить */
   onColorLightChange?: (brightness: number, colorPresetId: string) => Promise<boolean>;
+  /** Порог «свет виден с»; false — откатить */
+  onVisibleMinComplete?: (value: number) => Promise<boolean>;
   /** Открыть выбор устройства в HA */
   onConfigure?: () => void;
 }

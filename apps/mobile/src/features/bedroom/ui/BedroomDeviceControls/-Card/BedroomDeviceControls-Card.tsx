@@ -17,6 +17,7 @@ import { CalmToggle } from '@/ui/CalmToggle';
 import { typography } from '@/theme/tokens';
 
 import { BedroomDeviceControlsColorPresets } from '../-ColorPresets';
+import { BedroomDeviceControlsVisibleMinSlider } from '../-VisibleMinSlider';
 import { STALE_REMOTE_IGNORE_MS } from './BedroomDeviceControls-Card.const';
 import type { IBedroomDeviceControlsCardProps } from './BedroomDeviceControls-Card.typings';
 import { styles } from './BedroomDeviceControls-Card.styles';
@@ -60,6 +61,7 @@ export function BedroomDeviceControlsCard({
   onToggle,
   onSegmentSelect,
   onColorLightChange,
+  onVisibleMinComplete,
   onConfigure,
 }: IBedroomDeviceControlsCardProps) {
   const c = useThemeColors();
@@ -70,10 +72,12 @@ export function BedroomDeviceControlsCard({
   const sliderCurrent = sliderValue?.current;
   const colorBrightness = colorLightValue?.brightness;
   const remoteBrightness = resolveRemoteBrightness(sliderCurrent, colorBrightness);
+  const remoteVisibleMin = sliderValue?.visibleMin;
   const remoteToggleOn = isToggleValue(device.value) ? device.value.isOn : false;
   const [localSliderValue, setLocalSliderValue] = useState(
     remoteBrightness ?? device.slider?.min ?? 0,
   );
+  const [localVisibleMin, setLocalVisibleMin] = useState(remoteVisibleMin ?? 0);
   const [localToggleOn, setLocalToggleOn] = useState(remoteToggleOn);
   const [localColorPresetId, setLocalColorPresetId] = useState<string | undefined>(
     colorLightValue?.colorPresetId,
@@ -178,6 +182,12 @@ export function BedroomDeviceControlsCard({
     return () => clearTimeout(timer);
   }, [localToggleOn, remoteToggleOn]);
 
+  useEffect(() => {
+    if (remoteVisibleMin === undefined) return;
+    if (isPending) return;
+    setLocalVisibleMin(remoteVisibleMin);
+  }, [remoteVisibleMin, isPending]);
+
   let valueCaption: string | undefined;
   if (sliderValue) {
     valueCaption = formatSliderValue({ ...sliderValue, current: localSliderValue });
@@ -196,6 +206,17 @@ export function BedroomDeviceControlsCard({
     ignoreStaleBrightnessUntilRef.current = 0;
     if (fallback !== undefined) {
       setLocalSliderValue(fallback);
+    }
+  }
+
+  async function handleVisibleMinComplete(value: number) {
+    if (!onVisibleMinComplete) {
+      return;
+    }
+    setLocalVisibleMin(value);
+    const applied = await onVisibleMinComplete(value);
+    if (!applied && remoteVisibleMin !== undefined) {
+      setLocalVisibleMin(remoteVisibleMin);
     }
   }
 
@@ -294,16 +315,26 @@ export function BedroomDeviceControlsCard({
         ) : null}
 
         {device.control === 'slider' && device.slider ? (
-          <CalmSlider
-            value={localSliderValue}
-            onValueChange={setLocalSliderValue}
-            onSlidingComplete={(value) => void handleSliderComplete(value)}
-            minimumValue={device.slider.min}
-            maximumValue={device.slider.max}
-            step={device.slider.step}
-            disabled={controlsDisabled}
-            accessibilityLabel={device.label}
-          />
+          <>
+            <CalmSlider
+              value={localSliderValue}
+              onValueChange={setLocalSliderValue}
+              onSlidingComplete={(value) => void handleSliderComplete(value)}
+              minimumValue={device.slider.min}
+              maximumValue={device.slider.max}
+              step={device.slider.step}
+              disabled={controlsDisabled}
+              accessibilityLabel={device.label}
+            />
+            {onVisibleMinComplete && sliderValue?.visibleMin !== undefined ? (
+              <BedroomDeviceControlsVisibleMinSlider
+                value={localVisibleMin}
+                disabled={controlsDisabled}
+                onValueChange={setLocalVisibleMin}
+                onSlidingComplete={(value) => void handleVisibleMinComplete(value)}
+              />
+            ) : null}
+          </>
         ) : null}
 
         {device.control === 'color_light' && device.slider ? (

@@ -2,24 +2,29 @@
 
 ## Быстрый путь (рекомендуется)
 
-Установите инсталляционный пакет из задачи **SH-24** (`packages/ha-installer/`). Он создаёт helpers, scripts и automations с entity_id, которые ожидает приложение.
+Установите инсталляционный пакет (`packages/ha-installer/` в git → `/config/packages/ha-installer/` на HA). Он создаёт helpers, scripts и automations с entity_id, которые ожидает приложение.
+
+Пошагово: [`packages/ha-installer/INSTALL.md`](../packages/ha-installer/INSTALL.md) — только **File editor**, без Samba.
 
 Полный контракт entity_id: [scenarios-ha-contract.md](./scenarios-ha-contract.md).
 
 После установки пакета:
 
 1. Переименуйте / привяжите устройства под стандартные id (см. `DEVICES.md` в пакете).
-2. В приложении: onboarding → URL + токен.
-3. Проверьте сценарии вручную и расписание через экран настроек (SH-15).
+2. В приложении: onboarding → URL + токен (моки выкл: не задавать `EXPO_PUBLIC_USE_HA_MOCKS=true`).
+3. Проверьте сценарии вручную и расписание через экран настроек сценария.
+4. При необходимости: Спальня → «Свет виден с» (`input_number.bedroom_light_visible_min`).
 
 ## Роль приложения
 
 | Действие | Как |
 |----------|-----|
 | Запуск сценария | `script.turn_on` (`script.evening`, …) |
+| Выход из режима | `home_mode = none` + `script.turn_off` на script режима |
 | Active / prepared | Чтение `input_select.home_mode`, `input_boolean.home_ready_for_arrival` |
 | Параметры (яркость, температура, …) | Запись в `input_number.*` / `input_boolean.*` |
-| Расписание | Запись в `input_text.{id}_schedule` (JSON v1) |
+| Калибровка яркости света | `input_number.bedroom_light_visible_min` |
+| Расписание | Запись в `input_text.{id}_schedule` (компактный JSON v1) |
 
 Scripts и automations в HA **не редактируются** из приложения.
 

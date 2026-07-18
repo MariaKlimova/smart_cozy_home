@@ -7,6 +7,11 @@
 export interface IHaBedroomDeviceEntities {
   /** Основной свет */
   light: string;
+  /**
+   * Порог «свет виден с» (%) — калибровка основного света.
+   * Логическая яркость UI/сценариев пересчитывается в диапазон [value, 100].
+   */
+  lightVisibleMin: string;
   /** Ночник */
   nightlight: string;
   /** Шторы */
@@ -118,6 +123,7 @@ export interface IHaEntities {
 export const HA_ENTITIES: IHaEntities = {
   devices: {
     light: 'light.bedroom',
+    lightVisibleMin: 'input_number.bedroom_light_visible_min',
     nightlight: 'light.bedroom_nightlight',
     curtains: 'cover.bedroom_curtains',
     window: 'cover.bedroom_window',

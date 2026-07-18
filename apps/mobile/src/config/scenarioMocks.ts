@@ -167,6 +167,7 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
     },
     [HA_ENTITIES.system.homeMode]: { state: 'none' },
     [HA_ENTITIES.system.homeReadyForArrival]: { state: 'off' },
+    [HA_ENTITIES.devices.lightVisibleMin]: { state: '0' },
   },
 
   home: {

@@ -3,8 +3,14 @@ import { isBedroomClimateSliderId } from '@/config/bedroomClimateDevices';
 import { getHumidifierEntityCandidates } from '@/config/humidifierEntity';
 import { resolveBedroomDevices } from '@/config/resolveBedroomDevices';
 import type { IBedroomDeviceMapping } from '@/config/homeConfig.typings';
+import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
 import type { TLightColorValue } from '@/domain/lightColor.typings';
+import {
+  mapLogicalToDevicePct,
+  clampVisibleMin,
+  readVisibleMin,
+} from '@/domain/lightBrightnessScale';
 import {
   callHaService,
   fetchEntityStates,
@@ -31,10 +37,26 @@ export interface IBedroomDeviceServiceCall {
 /** Опции резолва команды устройству */
 export interface IResolveBedroomDeviceServiceCallOptions {
   /**
-   * Состояния HA для автофолбека увлажнителя.
-   * Если не переданы — выбирается primary / override.
+   * Состояния HA для автофолбека увлажнителя и порога видимости света.
+   * Если не переданы — выбирается primary / override; порог = 0.
    */
   states?: IHaEntityState[] | null;
+  /**
+   * Явный порог «свет виден с» (%). Если задан — сильнее states.
+   */
+  lightVisibleMin?: number;
+}
+
+function readLightVisibleMin(
+  options?: IResolveBedroomDeviceServiceCallOptions,
+): number {
+  if (typeof options?.lightVisibleMin === 'number') {
+    return clampVisibleMin(options.lightVisibleMin);
+  }
+  return readVisibleMin(
+    HA_ENTITIES.devices.lightVisibleMin,
+    (entityId) => options?.states?.find((s) => s.entityId === entityId)?.state,
+  );
 }
 
 function findDeviceMapping(
@@ -52,6 +74,7 @@ function findDeviceMapping(
 function resolveSliderAction(
   mapping: IBedroomDeviceMapping,
   value: number,
+  lightVisibleMin: number,
 ): IBedroomDeviceServiceCall {
   if (mapping.control !== 'slider') {
     throw new Error(`Device ${mapping.id} is not a slider`);
@@ -65,7 +88,8 @@ function resolveSliderAction(
         data: { entity_id: mapping.entity },
       };
     }
-    const brightness = Math.round((value / 100) * 255);
+    const devicePct = mapLogicalToDevicePct(value, lightVisibleMin);
+    const brightness = Math.round((devicePct / 100) * 255);
     return {
       domain: 'light',
       service: 'turn_on',
@@ -157,7 +181,7 @@ export function resolveBedroomDeviceServiceCall(
   const mapping = findDeviceMapping(deviceId, config, options?.states ?? null);
 
   if (action.kind === 'slider') {
-    return resolveSliderAction(mapping, action.value);
+    return resolveSliderAction(mapping, action.value, readLightVisibleMin(options));
   }
   if (action.kind === 'toggle') {
     return resolveToggleAction(mapping, action.isOn);
@@ -165,7 +189,10 @@ export function resolveBedroomDeviceServiceCall(
   if (action.kind === 'segment') {
     return resolveSegmentAction(mapping, action.optionId);
   }
-  return resolveColorLightAction(mapping, action.brightness, action.color);
+  if (action.kind === 'color_light') {
+    return resolveColorLightAction(mapping, action.brightness, action.color);
+  }
+  throw new Error(`Unsupported bedroom device action: ${action.kind}`);
 }
 
 /**
@@ -196,11 +223,15 @@ export async function setBedroomDevice(
   if (deviceId === 'humidifier') {
     states = await loadHumidifierResolveStates(baseUrl, token, config);
   }
+  if (deviceId === 'light' && action.kind === 'slider') {
+    states = await fetchEntityStates(baseUrl, token, [HA_ENTITIES.devices.lightVisibleMin]);
+  }
 
   const mapping = findDeviceMapping(deviceId, config, states);
 
   if (action.kind === 'slider' && mapping.id === 'light') {
-    await setLightBrightness(baseUrl, token, mapping.entity, action.value);
+    const devicePct = mapLogicalToDevicePct(action.value, readLightVisibleMin({ states }));
+    await setLightBrightness(baseUrl, token, mapping.entity, devicePct);
     return;
   }
   if (action.kind === 'slider' && isBedroomClimateSliderId(mapping.id)) {
@@ -228,6 +259,9 @@ export async function setBedroomDevice(
       domainColorToHaPayload(action.color),
     );
     return;
+  }
+  if (action.kind === 'visible_min') {
+    throw new Error('visible_min must go through setBedroomLightVisibleMin');
   }
 
   const { domain, service, data } = resolveBedroomDeviceServiceCall(deviceId, action, config, {

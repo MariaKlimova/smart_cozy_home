@@ -36,9 +36,18 @@ export interface IBedroomDeviceColorLightAction {
   color: TLightColorValue;
 }
 
+/** Калибровка порога «свет виден с» для основного света */
+export interface IBedroomDeviceVisibleMinAction {
+  /** Тип действия */
+  kind: 'visible_min';
+  /** Порог видимости 0–99 */
+  value: number;
+}
+
 /** Команда управления устройством спальни (domain id + значение) */
 export type TBedroomDeviceAction =
   | IBedroomDeviceSliderAction
   | IBedroomDeviceToggleAction
   | IBedroomDeviceSegmentAction
-  | IBedroomDeviceColorLightAction;
+  | IBedroomDeviceColorLightAction
+  | IBedroomDeviceVisibleMinAction;

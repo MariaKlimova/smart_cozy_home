@@ -25,6 +25,7 @@ export function DataSyncStatus({
   baseUrl,
   syncDebug,
   isRefreshing,
+  mocksEnabled,
   onRefresh,
 }: IDataSyncStatusProps) {
   const c = useThemeColors();
@@ -38,6 +39,11 @@ export function DataSyncStatus({
       <Text style={[typography.subtitle, { color: c.text }]}>{copy.settings.syncTitle}</Text>
       <Text style={[typography.caption, styles.row, { color: c.textMuted }]}>
         Подключение: {isConnected ? 'есть' : 'нет'}
+        {' · '}
+        {copy.settings.mocksStatus.replace(
+          '{state}',
+          mocksEnabled ? copy.settings.mocksOn : copy.settings.mocksOff,
+        )}
       </Text>
       {baseUrl && (
         <Text style={[typography.caption, styles.row, { color: c.textMuted }]}>

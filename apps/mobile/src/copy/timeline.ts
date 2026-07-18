@@ -1,3 +1,4 @@
+import { copy } from '@/copy/ru';
 import type { ITimelineEvent } from '@/domain/types';
 
 const PERSON_HOME: Record<string, string> = {
@@ -16,7 +17,10 @@ export function humanizeTimelineEvent(event: ITimelineEvent): string {
   if (event.kind === 'ritual' && event.ritualId && RITUAL_LABELS[event.ritualId]) {
     return RITUAL_LABELS[event.ritualId];
   }
-  return event.message;
+  if (event.message.trim().length > 0) {
+    return event.message;
+  }
+  return copy.timeline.genericEvent;
 }
 
 export function formatRelativeTime(iso: string): string {

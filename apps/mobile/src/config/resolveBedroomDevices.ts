@@ -105,6 +105,9 @@ export function getActiveBedroomDeviceEntityIds(
     if (device.entity.length > 0) {
       ids.push(device.entity);
     }
+    if (device.id === 'light') {
+      ids.push(HA_ENTITIES.devices.lightVisibleMin);
+    }
   }
 
   return [...new Set(ids)];

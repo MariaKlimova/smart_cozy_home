@@ -301,6 +301,45 @@ If the PR **removes** dead code — отметь в «Что проверено 
 
 ---
 
+## Чистота кода
+
+When reviewing any PR that adds or substantially changes hooks, lib, mappers,
+screens, or control Cards under `apps/mobile/**` (or orchestration scripts under
+`packages/ha-installer/**`):
+
+**Цель:** ловить то, что ломает сопровождение — God-объекты, скрытые side-effects,
+нечитаемые цепочки, жёсткую связанность — не стиль ради стиля.
+
+**Кандидаты:** новый модуль (не тест/styles/copy); ≥20 LOC net в хуке/lib/mapper/
+screen; оркестрация (`use*`, `prepare*`, `write*`, `map*`); файл ≥250 строк или
+PR добавляет новую зону ответственности в раздутый модуль.
+
+**Проверяй по каждому кандидату (отдельный проход, не хвост к дублям/мёртвому коду):**
+
+1. **SRP** — load + write + queue + UI-state в одном без оркестрации; `utils`/`helpers`-свалка.
+2. **Имя = поведение** — `load*`/`refresh*`/`prepare*`/`set*`/`map*` не должны молча писать в HA/store без JSDoc.
+3. **Проза** — цепочки 3+ шагов не прыгают по 4+ файлам без фасада.
+4. **Coupling** — одни ключи/device id размазаны по feature; скрытый чужой store.
+5. **Boy scout** — мёртвый export / one-liner / устаревший комментарий рядом с hunk.
+6. **Trade-offs** (очередь записей, silent catch после write, фасад хука) — не finding; отметь в «чисто».
+
+If the PR *adds* a new responsibility into an already God-sized module without extraction, then:
+
+- Add a **blocking** finding: «Ухудшение SRP — вынеси новую зону в отдельный модуль».
+
+If a function name lies about side-effects in a way that misleads callers (contract risk), then:
+
+- Add a **blocking** finding: «Имя врёт про side-effects — переименуй или задокументируй JSDoc».
+
+If God-module / utils dump / heavy chain / key coupling / boy-scout noise without worsening SRP in this PR, then:
+
+- Add a non-blocking finding с конкретным файлом и предложением выноса/чистки.
+
+Local Code Review agent **must** fill the «§3.5 проход» table (one row per candidate)
+even when there are zero clean-code findings — see `.cursor/agents/code-review.md`.
+
+---
+
 ## Зоны ревью по diff
 
 | Путь diff | Фокус |
@@ -314,4 +353,4 @@ If the PR **removes** dead code — отметь в «Что проверено 
 
 ## CI
 
-GitHub Actions job `quality` запускает `npm run typecheck` и `npm run lint`. Cloud Bugbot в Actions **не** запускается. Не комментируй стилистику, которую уже ловит ESLint, если это не архитектурный риск — **кроме** cross-file мёртвых exports и orphan-файлов (см. «Мёртвый код»).
+GitHub Actions job `quality` запускает `npm run typecheck` и `npm run lint`. Cloud Bugbot в Actions **не** запускается. Не комментируй стилистику, которую уже ловит ESLint, если это не архитектурный риск — **кроме** cross-file мёртвых exports и orphan-файлов (см. «Мёртвый код») и нарушений SRP / лживых имён из «Чистота кода».

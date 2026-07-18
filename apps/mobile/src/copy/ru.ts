@@ -154,6 +154,12 @@ export const copy = {
   rooms: {
     sectionTitle: 'Комнаты',
     openRoomA11y: 'Открыть',
+    offlineHint:
+      'Дом не подключён — список из настроек приложения. Актуальные данные появятся после связи с домом.',
+    /** Подсказка при ошибке sync без сырого текста ошибки */
+    syncErrorHint: 'Не удалось обновить данные — потяни экран, чтобы попробовать снова',
+    /** Суффикс времени последней синхронизации; {time} — локальное время */
+    lastSyncSuffix: ' · обновлено {time}',
   },
   presence: {
     sectionTitle: 'Кто дома',
@@ -162,6 +168,8 @@ export const copy = {
   timeline: {
     sectionTitle: 'День дома',
     empty: 'Пока тихо — событий нет',
+    /** Fallback, если у события нет текста */
+    genericEvent: 'Событие дома',
   },
   sleep: {
     screenTitle: 'Сон',
@@ -241,6 +249,10 @@ export const copy = {
     syncTitle: 'Проверка данных',
     syncRefresh: 'Обновить данные',
     syncRefreshing: 'Загружаем…',
+    /** Строка про mock-режим: {state} — «вкл» / «выкл» */
+    mocksStatus: 'Моки: {state}',
+    mocksOn: 'вкл',
+    mocksOff: 'выкл',
     haDevicesList: 'Список устройств',
     reconnect: 'Изменить подключение к дому',
     nightSchedule: {
@@ -287,6 +299,7 @@ export const copy = {
     unavailable: 'Сейчас недоступен',
     setupDevicesButton: 'Состав устройств',
     configureDeviceA11y: 'Настроить устройство',
+    lightVisibleMinLabel: 'Свет виден с',
     colorPresetA11y: 'Цвет {index}',
     emptyDevicesHint: 'Включи устройства в составе — тогда ими можно управлять здесь.',
     tabs: {

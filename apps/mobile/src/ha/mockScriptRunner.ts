@@ -1,5 +1,6 @@
 import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import { SCENARIO_DEFINITIONS } from '@/config/scenarios';
+import { mapLogicalToDevicePct, readVisibleMin } from '@/domain/lightBrightnessScale';
 import {
   applyMockHaService,
   readMockBooleanParam,
@@ -16,6 +17,19 @@ import { domainColorToHaPayload } from '@/ha/mappers/lightColorMapper';
 import { parseScenarioLightColor } from '@/ha/mappers/scenarioLightColor';
 
 const { devices, system, scenarioParams } = HA_ENTITIES;
+
+function readLightVisibleMin(): number {
+  return readVisibleMin(devices.lightVisibleMin, (entityId) =>
+    String(readMockNumberParam(entityId, 0)),
+  );
+}
+
+function setBedroomLightLogicalPercent(logicalPct: number): void {
+  setMockLightBrightnessPercent(
+    devices.light,
+    mapLogicalToDevicePct(logicalPct, readLightVisibleMin()),
+  );
+}
 
 const CLIMATE_ENTITIES = [
   devices.airConditioner,
@@ -48,10 +62,7 @@ function isDaytime(now: Date = new Date()): boolean {
 function runEveningScript(): void {
   const params = scenarioParams.evening;
   setMockLightBrightnessPercent(devices.nightlight, 0);
-  setMockLightBrightnessPercent(
-    devices.light,
-    readMockNumberParam(params.brightness, 15),
-  );
+  setBedroomLightLogicalPercent(readMockNumberParam(params.brightness, 15));
 
   if (readMockBooleanParam(params.curtains, true)) {
     setMockCoverPosition(devices.curtains, 0);
@@ -107,10 +118,7 @@ function runMorningScript(): void {
   resetSleepMaintainer();
   setMockLightBrightnessPercent(devices.nightlight, 0);
   setMockCoverPosition(devices.window, 0);
-  setMockLightBrightnessPercent(
-    devices.light,
-    readMockNumberParam(params.brightness, 80),
-  );
+  setBedroomLightLogicalPercent(readMockNumberParam(params.brightness, 80));
   setMockCoverPosition(devices.curtains, 100);
   setMockClimateTemperature(CLIMATE_ENTITIES, 21);
   setHomeMode('morning');
@@ -145,10 +153,7 @@ function runComingHomeScript(): void {
     CLIMATE_ENTITIES,
     readMockNumberParam(params.temperature, 21),
   );
-  setMockLightBrightnessPercent(
-    devices.light,
-    readMockNumberParam(params.brightness, 60),
-  );
+  setBedroomLightLogicalPercent(readMockNumberParam(params.brightness, 60));
 
   if (isDaytime()) {
     setMockCoverPosition(devices.curtains, 100);
@@ -161,10 +166,7 @@ function runComingHomeScript(): void {
 function runCozyScript(): void {
   const params = scenarioParams.cozy;
   setMockLightBrightnessPercent(devices.nightlight, 0);
-  setMockLightBrightnessPercent(
-    devices.light,
-    readMockNumberParam(params.brightness, 40),
-  );
+  setBedroomLightLogicalPercent(readMockNumberParam(params.brightness, 40));
   setMockCoverPosition(devices.curtains, 0);
   setMockClimateTemperature(
     CLIMATE_ENTITIES,
@@ -177,10 +179,7 @@ function runCozyScript(): void {
 function runFocusScript(): void {
   const params = scenarioParams.focus;
   setMockLightBrightnessPercent(devices.nightlight, 0);
-  setMockLightBrightnessPercent(
-    devices.light,
-    readMockNumberParam(params.brightness, 90),
-  );
+  setBedroomLightLogicalPercent(readMockNumberParam(params.brightness, 90));
   setMockCoverPosition(devices.curtains, 100);
   setMockClimateTemperature(
     CLIMATE_ENTITIES,

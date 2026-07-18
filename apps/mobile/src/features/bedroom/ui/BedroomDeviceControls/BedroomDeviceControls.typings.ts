@@ -19,6 +19,8 @@ export interface IBedroomDeviceControlsProps {
     brightness: number,
     colorPresetId: string,
   ) => Promise<boolean>;
+  /** Порог «свет виден с» для основного света */
+  onVisibleMinComplete?: (value: number) => Promise<boolean>;
   /** Настроить привязку устройства к HA */
   onConfigureDevice?: (deviceId: string) => void;
 }

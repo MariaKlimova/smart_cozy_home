@@ -4,9 +4,12 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "start:dev-client": "expo start --dev-client",
     "dev:ios": "expo run:ios",
-    "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:device": "expo run:ios --device",
+    "ios:device:release": "expo run:ios --device --configuration Release",
+    "android": "expo run:android",
     "web": "expo start --web",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

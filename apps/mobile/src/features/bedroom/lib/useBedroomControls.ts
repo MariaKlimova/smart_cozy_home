@@ -9,6 +9,10 @@ import {
 import type { TBedroomDeviceAction } from '@/domain/bedroomDeviceAction.typings';
 import type { IBedroomDeviceState } from '@/domain/bedroomDevice.typings';
 import { setBedroomDevice } from '@/domain/bedroomDeviceControl';
+import { setBedroomLightVisibleMin } from '@/domain/bedroomLightVisibleMin';
+import {
+  clampVisibleMin,
+} from '@/domain/lightBrightnessScale';
 import { fetchHaLightFavoriteColors } from '@/ha/entityRegistry';
 import { fetchEntityStates } from '@/ha/haClient';
 import { mapBedroomDevices, mapHaLightPresetsToDomain } from '@/ha/mappers/domainMapper';
@@ -46,6 +50,8 @@ export interface IUseBedroomControlsResult {
     brightness: number,
     colorPresetId: string,
   ) => Promise<boolean>;
+  /** Порог «свет виден с» для основного света; false — не применилось */
+  setLightVisibleMin: (value: number) => Promise<boolean>;
   /** Обновить состояния */
   refresh: () => Promise<void>;
 }
@@ -99,6 +105,24 @@ function patchSliderInCache(
       value: {
         ...device.value,
         current,
+      },
+    };
+  });
+}
+
+function patchSliderVisibleMinInCache(
+  devices: IBedroomDeviceState[] | undefined,
+  visibleMin: number,
+): IBedroomDeviceState[] | undefined {
+  if (!devices) return devices;
+  return devices.map((device) => {
+    if (device.id !== 'light') return device;
+    if (!device.value || !('current' in device.value)) return device;
+    return {
+      ...device,
+      value: {
+        ...device.value,
+        visibleMin,
       },
     };
   });
@@ -204,10 +228,19 @@ export function useBedroomControls(
           devicesQueryKey,
           patchSliderInCache(previousDevices, deviceId, action.value),
         );
+      } else if (action.kind === 'visible_min') {
+        queryClient.setQueryData(
+          devicesQueryKey,
+          patchSliderVisibleMinInCache(previousDevices, action.value),
+        );
       }
 
       try {
-        await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config);
+        if (action.kind === 'visible_min') {
+          await setBedroomLightVisibleMin(action.value, haBaseUrl, haToken, config);
+        } else {
+          await setBedroomDevice(deviceId, action, haBaseUrl, haToken, config);
+        }
 
         if (action.kind === 'toggle') {
           commitOptimisticAndSoftRefresh(
@@ -236,6 +269,16 @@ export function useBedroomControls(
             devicesQueryKey,
             previousDevices,
             (devices) => patchSliderInCache(devices, deviceId, action.value),
+          );
+          return true;
+        }
+
+        if (action.kind === 'visible_min') {
+          commitOptimisticAndSoftRefresh(
+            queryClient,
+            devicesQueryKey,
+            previousDevices,
+            (devices) => patchSliderVisibleMinInCache(devices, action.value),
           );
           return true;
         }
@@ -296,6 +339,13 @@ export function useBedroomControls(
     [query.data, runAction],
   );
 
+  const setLightVisibleMin = useCallback(
+    async (value: number) => {
+      return runAction('light', { kind: 'visible_min', value: clampVisibleMin(value) });
+    },
+    [runAction],
+  );
+
   const refresh = useCallback(async () => {
     await queryClient.invalidateQueries({
       queryKey: devicesQueryKey,
@@ -312,6 +362,7 @@ export function useBedroomControls(
     setToggle,
     setSegment,
     setColorLight,
+    setLightVisibleMin,
     refresh,
   };
 }

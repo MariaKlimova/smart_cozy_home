@@ -13,6 +13,9 @@ import type {
 } from '@/domain/types';
 import { fetchEntityStates, fetchLogbook, toggleLight } from '@/ha/haClient';
 import { resolveHaBackend } from '@/ha/haBackend';
+import { loadHomeConfig } from '@/config/homeConfig';
+import { useConnectionStore } from '@/store/connectionStore';
+import { useSleepScheduleStore } from '@/store/sleepScheduleStore';
 import {
   collectWatchedEntityIds,
   mapGentleNotifications,
@@ -25,9 +28,9 @@ import {
 } from '@/ha/mappers/domainMapper';
 import { mapAllScenarioSchedules, collectScenarioScheduleEntityIds } from '@/ha/mappers/mapScenarioSettings';
 import { mapScenarioHaState } from '@/ha/mappers/mapScenarioHaState';
-import { loadHomeConfig } from '@/config/homeConfig';
-import { useConnectionStore } from '@/store/connectionStore';
-import { useSleepScheduleStore } from '@/store/sleepScheduleStore';
+
+/** Комнаты из конфига без live-states (навигация доступна и offline) */
+const ROOMS_FROM_CONFIG = mapRooms([]);
 
 /** Опции синхронизации homeStore */
 export interface IHomeRefreshOptions {
@@ -85,7 +88,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
   scenarios: listScenarios(),
   activeScenarioId: null,
   preparedScenarioId: null,
-  rooms: [],
+  rooms: ROOMS_FROM_CONFIG,
   presence: [],
   timeline: [],
   gentleNotifications: [],
@@ -107,6 +110,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     );
     if (!haReady) {
       set({
+        rooms: ROOMS_FROM_CONFIG,
         syncDebug: {
           ...get().syncDebug,
           lastError: 'Нет подключения к Home Assistant',
@@ -191,6 +195,8 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       set({
+        // Не затираем уже показанные комнаты; если список пуст — из конфига
+        rooms: get().rooms.length > 0 ? get().rooms : ROOMS_FROM_CONFIG,
         syncDebug: {
           ...get().syncDebug,
           lastError: message,
