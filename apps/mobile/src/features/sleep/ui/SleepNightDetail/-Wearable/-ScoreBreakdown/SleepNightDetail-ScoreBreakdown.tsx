@@ -10,11 +10,14 @@ import { SLEEP_NIGHT_DETAIL_SCORE_BREAKDOWN } from './SleepNightDetail-ScoreBrea
 import type { ISleepNightDetailScoreBreakdownProps } from './SleepNightDetail-ScoreBreakdown.typings';
 import { styles } from './SleepNightDetail-ScoreBreakdown.styles';
 
+type TBreakdownIcon = 'moon' | 'zap' | 'activity' | 'clock';
+
 type TBreakdownRow = {
   key: string;
   label: string;
   value: number | null;
   collecting: boolean;
+  icon: TBreakdownIcon;
   explainComponent?: TSleepScoreExplainComponent;
 };
 
@@ -25,34 +28,40 @@ export function SleepNightDetailScoreBreakdown({
 }: ISleepNightDetailScoreBreakdownProps) {
   const c = useThemeColors();
 
-  const rows: TBreakdownRow[] = [
-    {
-      key: 'duration',
-      label: copy.sleep.wearableScoreDuration,
-      value: components.duration,
-      collecting: false,
-      explainComponent: 'duration' as const,
-    },
-    {
-      key: 'efficiency',
-      label: copy.sleep.wearableScoreEfficiency,
-      value: components.efficiency,
-      collecting: false,
-    },
-    {
-      key: 'continuity',
-      label: copy.sleep.wearableScoreContinuity,
-      value: components.continuity,
-      collecting: false,
-    },
-    {
-      key: 'consistency',
-      label: copy.sleep.wearableScoreConsistency,
-      value: components.consistency,
-      collecting: isColdStart || components.consistency === null,
-      explainComponent: 'consistency' as const,
-    },
-  ].filter((row) => {
+  const rows: TBreakdownRow[] = (
+    [
+      {
+        key: 'duration',
+        label: copy.sleep.wearableScoreDuration,
+        value: components.duration,
+        collecting: false,
+        icon: 'moon' as const,
+        explainComponent: 'duration' as const,
+      },
+      {
+        key: 'efficiency',
+        label: copy.sleep.wearableScoreEfficiency,
+        value: components.efficiency,
+        collecting: false,
+        icon: 'zap' as const,
+      },
+      {
+        key: 'continuity',
+        label: copy.sleep.wearableScoreContinuity,
+        value: components.continuity,
+        collecting: false,
+        icon: 'activity' as const,
+      },
+      {
+        key: 'consistency',
+        label: copy.sleep.wearableScoreConsistency,
+        value: components.consistency,
+        collecting: isColdStart || components.consistency === null,
+        icon: 'clock' as const,
+        explainComponent: 'consistency' as const,
+      },
+    ] satisfies TBreakdownRow[]
+  ).filter((row) => {
     if (row.collecting) {
       return true;
     }
@@ -70,7 +79,7 @@ export function SleepNightDetailScoreBreakdown({
           row.explainComponent !== undefined && onExplainComponent !== undefined;
 
         let valueContent = (
-          <Text style={[typography.caption, styles.value, { color: c.text }]}>
+          <Text style={[typography.body, styles.value, { color: c.text }]}>
             {copy.sleep.wearableScoreComponentValue.replace('{score}', String(row.value))}
           </Text>
         );
@@ -87,14 +96,11 @@ export function SleepNightDetailScoreBreakdown({
 
         const rowInner = (
           <>
-            <Text style={[typography.caption, styles.label, { color: c.textMuted }]}>
-              {row.label}
-            </Text>
+            <Feather name={row.icon} size={18} color={c.textMuted} />
+            <Text style={[typography.body, styles.label, { color: c.text }]}>{row.label}</Text>
             <View style={styles.valueRow}>
               {valueContent}
-              {canExplain ? (
-                <Feather name="info" size={14} color={c.textMuted} />
-              ) : null}
+              {canExplain ? <Feather name="chevron-right" size={16} color={c.textMuted} /> : null}
             </View>
           </>
         );
@@ -113,6 +119,7 @@ export function SleepNightDetailScoreBreakdown({
               style={({ pressed }) => [
                 styles.row,
                 styles.rowPressable,
+                { borderColor: c.border },
                 pressed ? { opacity: 0.7 } : null,
               ]}
             >
@@ -122,7 +129,7 @@ export function SleepNightDetailScoreBreakdown({
         }
 
         return (
-          <View key={row.key} style={styles.row}>
+          <View key={row.key} style={[styles.row, { borderColor: c.border }]}>
             {rowInner}
           </View>
         );

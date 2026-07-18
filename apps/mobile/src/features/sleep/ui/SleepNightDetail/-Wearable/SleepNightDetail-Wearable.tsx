@@ -10,7 +10,10 @@ import {
   formatWearableSleepDuration,
   formatWearableSourceName,
 } from '@/features/sleep/lib/formatWearableNightSummary';
-import { wearableQualityTierColor } from '@/features/sleep/lib/wearableQualityPresentation';
+import {
+  wearableQualityTierColor,
+  wearableQualityTierMutedBg,
+} from '@/features/sleep/lib/wearableQualityPresentation';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import type {
   TSleepScoreExplainComponent,
@@ -89,6 +92,8 @@ export function SleepNightDetailWearable({
     const trendQualityLabel = trend
       ? formatSleepScoreValue(trend.score, trend.tier)
       : null;
+    const showNormBar =
+      selectedSummary?.totalSleepMinutes !== undefined && selectedSummary.totalSleepMinutes > 0;
 
     return (
       <View testID={SLEEP_NIGHT_DETAIL_WEARABLE}>
@@ -123,34 +128,52 @@ export function SleepNightDetailWearable({
         )}
 
         {selectedNightScore && nightQualityLabel ? (
-          <View style={styles.qualitySection}>
+          <View
+            style={[
+              styles.nightScoreBar,
+              { backgroundColor: wearableQualityTierMutedBg(selectedNightScore.tier, c) },
+            ]}
+          >
             <Text style={[typography.caption, { color: c.textMuted }]}>
               {copy.sleep.wearableScoreNightLabel}
             </Text>
-            <View style={[styles.qualityBadge, { backgroundColor: c.accentMuted }]}>
-              <Text
-                style={[
-                  typography.subtitle,
-                  styles.qualityValue,
-                  { color: wearableQualityTierColor(selectedNightScore.tier, c) },
-                ]}
-              >
-                {nightQualityLabel}
-              </Text>
-            </View>
-            <Text style={[typography.caption, styles.methodology, { color: c.textMuted }]}>
-              {copy.sleep.wearableScoreMethodology}
+            <Text
+              style={[
+                typography.subtitle,
+                styles.nightScoreValue,
+                { color: wearableQualityTierColor(selectedNightScore.tier, c) },
+              ]}
+            >
+              {nightQualityLabel}
+            </Text>
+          </View>
+        ) : null}
+
+        {selectedNightScore ? (
+          <View style={styles.breakdownSection}>
+            <Text
+              style={[
+                typography.caption,
+                styles.breakdownTitle,
+                { color: c.textMuted },
+              ]}
+            >
+              {copy.sleep.wearableScoreBreakdownTitle}
             </Text>
             <SleepNightDetailScoreBreakdown
               components={selectedNightScore.components}
               isColdStart={selectedNightScore.isColdStart}
               onExplainComponent={setExplainComponent}
             />
-            {selectedNightScore.belowRecommendedNorm ? (
-              <Text style={[typography.caption, styles.belowNorm, { color: c.warning }]}>
-                {copy.sleep.wearableScoreBelowNorm}
-              </Text>
-            ) : null}
+          </View>
+        ) : null}
+
+        {selectedNightScore?.belowRecommendedNorm ? (
+          <View style={styles.belowNormRow}>
+            <Feather name="alert-circle" size={16} color={c.warning} />
+            <Text style={[typography.caption, styles.belowNormText, { color: c.warning }]}>
+              {copy.sleep.wearableScoreBelowNorm}
+            </Text>
           </View>
         ) : null}
 
@@ -168,48 +191,76 @@ export function SleepNightDetailWearable({
                 }
               }}
             />
-            <View style={[styles.trendBadge, { backgroundColor: c.accentMuted }]}>
+            <View
+              style={[
+                styles.trendBadge,
+                { backgroundColor: wearableQualityTierMutedBg(trend.tier, c) },
+              ]}
+            >
               <Text
-                style={[
-                  typography.body,
-                  { color: wearableQualityTierColor(trend.tier, c) },
-                ]}
+                style={[typography.body, { color: wearableQualityTierColor(trend.tier, c) }]}
               >
                 {trendQualityLabel}
               </Text>
             </View>
+
+            {showNormBar ? (
+              <View style={styles.normRow}>
+                <View
+                  accessibilityRole="progressbar"
+                  accessibilityValue={{
+                    min: 0,
+                    max: 100,
+                    now: Math.round(normProgress * 100),
+                  }}
+                  style={[styles.normTrack, { backgroundColor: c.border }]}
+                >
+                  <View
+                    style={[
+                      styles.normFill,
+                      {
+                        width: `${Math.round(normProgress * 100)}%`,
+                        backgroundColor: c.warning,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={[typography.caption, styles.normLabel, { color: c.textMuted }]}>
+                  {copy.sleep.wearableSleepNorm}
+                </Text>
+              </View>
+            ) : null}
           </View>
         ) : null}
 
-        {selectedSummary?.totalSleepMinutes !== undefined &&
-        selectedSummary.totalSleepMinutes > 0 ? (
-          <View style={styles.normSection}>
-            <Text style={[typography.caption, { color: c.textMuted }]}>
-              {copy.sleep.wearableSleepNorm}
-            </Text>
-            <View
-              accessibilityRole="progressbar"
-              accessibilityValue={{
-                min: 0,
-                max: 100,
-                now: Math.round(normProgress * 100),
-              }}
-              style={[styles.normTrack, { backgroundColor: c.border }]}
-            >
+        {!trend && showNormBar ? (
+          <View style={styles.normFallback}>
+            <View style={styles.normRow}>
               <View
-                style={[
-                  styles.normFill,
-                  {
-                    width: `${Math.round(normProgress * 100)}%`,
-                    backgroundColor: c.warning,
-                  },
-                ]}
-              />
+                accessibilityRole="progressbar"
+                accessibilityValue={{
+                  min: 0,
+                  max: 100,
+                  now: Math.round(normProgress * 100),
+                }}
+                style={[styles.normTrack, { backgroundColor: c.border }]}
+              >
+                <View
+                  style={[
+                    styles.normFill,
+                    {
+                      width: `${Math.round(normProgress * 100)}%`,
+                      backgroundColor: c.warning,
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={[typography.caption, styles.normLabel, { color: c.textMuted }]}>
+                {copy.sleep.wearableSleepNorm}
+              </Text>
             </View>
           </View>
         ) : null}
-
-        <View style={[styles.divider, { backgroundColor: c.border }]} />
 
         <View style={styles.footer}>
           <Feather name="watch" size={14} color={c.textMuted} />

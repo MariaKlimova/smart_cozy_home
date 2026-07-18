@@ -257,7 +257,7 @@ export const copy = {
     wearableScoreDurationAxis7: '7 ч',
     wearableScoreDurationAxis9: '9 ч',
     wearableScoreDurationAxis12: '12 ч',
-    wearableScoreDurationBonus: 'Близко к обычному режиму — бонус +{bonus}',
+    wearableScoreDurationBonus: 'Близко к обычной продолжительности сна — бонус +{bonus}',
     wearableScoreDurationBonusExact: 'Как обычно — бонус +{bonus}',
     wearableScoreDurationNoBaseline:
       'Персональный бонус появится, когда накопим неделю данных',

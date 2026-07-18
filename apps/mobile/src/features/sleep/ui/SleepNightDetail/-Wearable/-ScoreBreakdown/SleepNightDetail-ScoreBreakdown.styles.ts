@@ -5,13 +5,16 @@ import { radii, spacing, touchMin } from '@/theme/tokens';
 export const styles = StyleSheet.create({
   list: {
     gap: spacing.sm,
-    marginTop: spacing.md,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
+    gap: spacing.sm,
+    minHeight: touchMin,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   rowPressable: {
     minHeight: touchMin,
@@ -25,7 +28,7 @@ export const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   value: {
-    minWidth: 40,
+    minWidth: 28,
     textAlign: 'right',
   },
   collectingBadge: {

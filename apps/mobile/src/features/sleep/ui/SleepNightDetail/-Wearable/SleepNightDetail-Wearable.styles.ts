@@ -15,18 +15,34 @@ export const styles = StyleSheet.create({
   statValue: {
     lineHeight: 24,
   },
-  qualitySection: {
+  nightScoreBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    marginTop: spacing.md,
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
+  },
+  nightScoreValue: {
+    flexShrink: 0,
+  },
+  breakdownSection: {
     gap: spacing.sm,
     marginTop: spacing.md,
   },
-  qualityBadge: {
-    alignSelf: 'flex-start',
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+  breakdownTitle: {
+    letterSpacing: 0.4,
   },
-  qualityValue: {
-    lineHeight: 22,
+  belowNormRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  belowNormText: {
+    flex: 1,
   },
   trendSection: {
     gap: spacing.sm,
@@ -38,17 +54,13 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
-  methodology: {
-    marginTop: spacing.xs,
-  },
-  belowNorm: {
-    marginTop: spacing.sm,
-  },
-  normSection: {
+  normRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.sm,
-    marginTop: spacing.md,
   },
   normTrack: {
+    flex: 1,
     height: 10,
     borderRadius: radii.sm,
     overflow: 'hidden',
@@ -57,8 +69,10 @@ export const styles = StyleSheet.create({
     height: '100%',
     borderRadius: radii.sm,
   },
-  divider: {
-    height: StyleSheet.hairlineWidth,
+  normLabel: {
+    flexShrink: 0,
+  },
+  normFallback: {
     marginTop: spacing.md,
   },
   footer: {

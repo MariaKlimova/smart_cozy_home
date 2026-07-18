@@ -301,7 +301,7 @@ function ConsistencyScale({ avgStdMinutes }: { avgStdMinutes: number }) {
     '{minutes}',
     String(avgStdMinutes),
   );
-  let maxAxisLabel = copy.sleep.wearableScoreConsistencyAxis90;
+  let maxAxisLabel: string = copy.sleep.wearableScoreConsistencyAxis90;
   if (avgStdMinutes > CONSISTENCY_SCALE_MAX_MINUTES) {
     spreadLabel = copy.sleep.wearableScoreConsistencySpreadOver;
     maxAxisLabel = copy.sleep.wearableScoreConsistencyAxisOver90;
