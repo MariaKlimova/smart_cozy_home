@@ -1,0 +1,310 @@
+[
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/logRawHealthKitSleepSamples.ts",
+    "status": "DELETED_IN_TRANSCRIPT_but_recovered_pre_delete",
+    "bytes": 3281,
+    "lines": 97,
+    "recovery_rel": "DELETED_BEFORE_DELETE/apps/mobile/src/health/logRawHealthKitSleepSamples.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/logSleepScoreCalibration.ts",
+    "status": "DELETED_IN_TRANSCRIPT_but_recovered_pre_delete",
+    "bytes": 3629,
+    "lines": 109,
+    "recovery_rel": "DELETED_BEFORE_DELETE/apps/mobile/src/health/logSleepScoreCalibration.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/package.json",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3529,
+    "lines": 63,
+    "recovery_rel": "apps/mobile/package.json"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/copy/ru.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 18308,
+    "lines": 381,
+    "recovery_rel": "apps/mobile/src/copy/ru.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/lib/formatWearableNightSummary.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3669,
+    "lines": 116,
+    "recovery_rel": "apps/mobile/src/features/sleep/lib/formatWearableNightSummary.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/lib/useWearableSleepScore.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3554,
+    "lines": 110,
+    "recovery_rel": "apps/mobile/src/features/sleep/lib/useWearableSleepScore.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/SleepNightDetail-ScoreBreakdown.const.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 85,
+    "lines": 2,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/SleepNightDetail-ScoreBreakdown.const.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/SleepNightDetail-ScoreBreakdown.styles.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 686,
+    "lines": 37,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/SleepNightDetail-ScoreBreakdown.styles.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/SleepNightDetail-ScoreBreakdown.tsx",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3878,
+    "lines": 133,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/SleepNightDetail-ScoreBreakdown.tsx"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/SleepNightDetail-ScoreBreakdown.typings.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 539,
+    "lines": 12,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/SleepNightDetail-ScoreBreakdown.typings.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/index.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 187,
+    "lines": 3,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreBreakdown/index.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/SleepNightDetail-ScoreMethodSheet.const.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 90,
+    "lines": 2,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/SleepNightDetail-ScoreMethodSheet.const.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/SleepNightDetail-ScoreMethodSheet.styles.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 2619,
+    "lines": 128,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/SleepNightDetail-ScoreMethodSheet.styles.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/SleepNightDetail-ScoreMethodSheet.tsx",
+    "status": "COMPLETE_FINAL",
+    "bytes": 15626,
+    "lines": 495,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/SleepNightDetail-ScoreMethodSheet.tsx"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/SleepNightDetail-ScoreMethodSheet.typings.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 474,
+    "lines": 16,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/SleepNightDetail-ScoreMethodSheet.typings.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/index.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 195,
+    "lines": 3,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/-ScoreMethodSheet/index.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/SleepNightDetail-Wearable.const.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 242,
+    "lines": 7,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/SleepNightDetail-Wearable.const.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/SleepNightDetail-Wearable.styles.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 1551,
+    "lines": 81,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/SleepNightDetail-Wearable.styles.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/SleepNightDetail-Wearable.tsx",
+    "status": "COMPLETE_FINAL",
+    "bytes": 9409,
+    "lines": 278,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/SleepNightDetail-Wearable.tsx"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/SleepNightDetail-Wearable.typings.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 1177,
+    "lines": 30,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/-Wearable/SleepNightDetail-Wearable.typings.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/features/sleep/ui/SleepNightDetail/SleepNightDetail.tsx",
+    "status": "COMPLETE_FINAL",
+    "bytes": 8075,
+    "lines": 231,
+    "recovery_rel": "apps/mobile/src/features/sleep/ui/SleepNightDetail/SleepNightDetail.tsx"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/aggregateSleepScoreTrend.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 2175,
+    "lines": 64,
+    "recovery_rel": "apps/mobile/src/health/aggregateSleepScoreTrend.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/aggregateWearableNight.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3555,
+    "lines": 120,
+    "recovery_rel": "apps/mobile/src/health/aggregateWearableNight.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/bucketWearableSegmentsByNight.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3136,
+    "lines": 92,
+    "recovery_rel": "apps/mobile/src/health/bucketWearableSegmentsByNight.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/buildSleepScoreMethodDetails.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3262,
+    "lines": 99,
+    "recovery_rel": "apps/mobile/src/health/buildSleepScoreMethodDetails.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/buildWearableHistoryWindows.test.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 1836,
+    "lines": 52,
+    "recovery_rel": "apps/mobile/src/health/buildWearableHistoryWindows.test.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/buildWearableHistoryWindows.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 2352,
+    "lines": 68,
+    "recovery_rel": "apps/mobile/src/health/buildWearableHistoryWindows.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/computeConsistencyScore.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 1704,
+    "lines": 56,
+    "recovery_rel": "apps/mobile/src/health/computeConsistencyScore.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/computeContinuityScore.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 961,
+    "lines": 40,
+    "recovery_rel": "apps/mobile/src/health/computeContinuityScore.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/computeDurationScore.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3234,
+    "lines": 112,
+    "recovery_rel": "apps/mobile/src/health/computeDurationScore.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/computeEfficiencyScore.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 898,
+    "lines": 38,
+    "recovery_rel": "apps/mobile/src/health/computeEfficiencyScore.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/computeSleepScore.test.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 6166,
+    "lines": 197,
+    "recovery_rel": "apps/mobile/src/health/computeSleepScore.test.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/computeSleepScore.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 5287,
+    "lines": 161,
+    "recovery_rel": "apps/mobile/src/health/computeSleepScore.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/healthKitClient.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3382,
+    "lines": 99,
+    "recovery_rel": "apps/mobile/src/health/healthKitClient.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/healthKitSleep.typings.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 2501,
+    "lines": 62,
+    "recovery_rel": "apps/mobile/src/health/healthKitSleep.typings.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/loadWearableSleepHistory.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 2894,
+    "lines": 81,
+    "recovery_rel": "apps/mobile/src/health/loadWearableSleepHistory.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/mockWearableSleep.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 5845,
+    "lines": 179,
+    "recovery_rel": "apps/mobile/src/health/mockWearableSleep.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/sleepScore.const.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 2312,
+    "lines": 70,
+    "recovery_rel": "apps/mobile/src/health/sleepScore.const.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/sleepScore.typings.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 4683,
+    "lines": 127,
+    "recovery_rel": "apps/mobile/src/health/sleepScore.typings.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/sleepScoreFromSegments.test.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3502,
+    "lines": 111,
+    "recovery_rel": "apps/mobile/src/health/sleepScoreFromSegments.test.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/sleepScoreFromSegments.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 3809,
+    "lines": 119,
+    "recovery_rel": "apps/mobile/src/health/sleepScoreFromSegments.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/health/sleepScoreMath.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 1409,
+    "lines": 50,
+    "recovery_rel": "apps/mobile/src/health/sleepScoreMath.ts"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/ui/CalmSheet/CalmSheet.tsx",
+    "status": "COMPLETE_FINAL",
+    "bytes": 4179,
+    "lines": 144,
+    "recovery_rel": "apps/mobile/src/ui/CalmSheet/CalmSheet.tsx"
+  },
+  {
+    "abs_path": "/Users/mariaklimova/projects/smart_cozy_home/apps/mobile/src/ui/CalmSheet/CalmSheet.typings.ts",
+    "status": "COMPLETE_FINAL",
+    "bytes": 572,
+    "lines": 18,
+    "recovery_rel": "apps/mobile/src/ui/CalmSheet/CalmSheet.typings.ts"
+  }
+]
