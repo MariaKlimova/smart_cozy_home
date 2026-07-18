@@ -12,7 +12,7 @@ export interface IOnboardingScreenFieldProps {
   secure?: boolean;
   /** Placeholder */
   placeholder?: string;
-  /** Фокус — прокрутка формы */
+  /** Колбэк при фокусе поля */
   onFocus?: () => void;
   /** Тип клавиатуры */
   keyboardType?: 'default' | 'url';

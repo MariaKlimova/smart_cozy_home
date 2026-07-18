@@ -1,5 +1,10 @@
+import { spacing } from '@/theme/tokens';
+
 /** Локальные константы блока */
 export const SCREEN_LAYOUT = 'ScreenLayout' as const;
 
-/** Множитель нижнего отступа при keyboardAware */
-export const SCREEN_LAYOUT_KEYBOARD_PADDING_MULTIPLIER = 3;
+/**
+ * Зазор между фокусным полем / низом формы и клавиатурой.
+ * 8–16pt — обычный диапазон; md даёт спокойный «воздух» без большого пустого поля.
+ */
+export const SCREEN_LAYOUT_KEYBOARD_GAP = spacing.md;

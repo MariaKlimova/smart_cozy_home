@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
-import { Text, type ScrollView, type TextInput } from 'react-native';
+import { useState } from 'react';
+import { Text } from 'react-native';
 
 import { copy } from '@/copy/ru';
 import type { IConnectionProfile } from '@/domain/connection.typings';
@@ -35,20 +35,11 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
   const failureReason = useConnectionStore((s) => s.failureReason);
   const isLoading = useConnectionStore((s) => s.isLoading);
 
-  const scrollRef = useRef<ScrollView>(null);
-  const tokenInputRef = useRef<TextInput>(null);
-
   const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState<string>(ONBOARDING_DEFAULT_HOME_NAME);
   const [localUrl, setLocalUrl] = useState('');
   const [remoteUrl, setRemoteUrl] = useState('');
   const [token, setToken] = useState('');
-
-  function scrollFieldIntoView() {
-    requestAnimationFrame(() => {
-      scrollRef.current?.scrollToEnd({ animated: true });
-    });
-  }
 
   const connectErrorKey = failureReason ? connectionFailureMessageKey(failureReason) : null;
   const connectError = connectErrorKey ? copy.connection[connectErrorKey] : null;
@@ -83,7 +74,7 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
   }
 
   return (
-    <ScreenLayout ref={scrollRef} title={copy.onboarding.title} keyboardAware showConnectionBanner={false}>
+    <ScreenLayout title={copy.onboarding.title} keyboardAware showConnectionBanner={false}>
       <Text style={[typography.body, { color: c.textMuted }]}>{copy.onboarding.subtitle}</Text>
       <Text style={[typography.caption, { color: c.textMuted }]}>
         {copy.onboarding.remoteOnlyHint}
@@ -93,16 +84,13 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
         label={copy.onboarding.name}
         value={name}
         onChangeText={setName}
-        onFocus={scrollFieldIntoView}
       />
 
       <OnboardingScreenField
-        inputRef={tokenInputRef}
         label={copy.onboarding.token}
         value={token}
         onChangeText={setToken}
         secure
-        onFocus={scrollFieldIntoView}
         textContentType="password"
         autoComplete="off"
       />
@@ -112,7 +100,6 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
         value={remoteUrl}
         onChangeText={setRemoteUrl}
         placeholder={copy.onboarding.remoteUrlPlaceholder}
-        onFocus={scrollFieldIntoView}
         keyboardType="url"
         autoCapitalize="none"
       />
@@ -122,7 +109,6 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
         value={localUrl}
         onChangeText={setLocalUrl}
         placeholder={copy.onboarding.localUrlPlaceholder}
-        onFocus={scrollFieldIntoView}
         keyboardType="url"
         autoCapitalize="none"
       />
