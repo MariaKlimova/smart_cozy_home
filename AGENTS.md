@@ -40,4 +40,6 @@
 
 Вызов вручную: `/code-review`, `/ha-bridge <задача>` или «делегируй Code Review / HA Bridge …». Главный агент сам делегирует, когда видит совпадение по `description`.
 
+**Handoff Code Review → пользователь:** главный агент **не пересказывает** и **не сжимает** ответ Code Review. В чат уходит финальный markdown subagent’а целиком (включая «Сводка», «Все findings», категорийные таблицы, «§3.5 проход»). Допустимо лишь короткое вступление в 1 предложение («ревью готово») + ссылка на subagent; запрещено заменять таблицы своим bullet-summary.
+
 Остальные роли (Product Guardian, Calm Design, Mobile Craft, Domain Architect, Automation Composer) живут через **skills + rules + BUGBOT**; для ревью их правила подхватывает **Code Review** по зонам diff.

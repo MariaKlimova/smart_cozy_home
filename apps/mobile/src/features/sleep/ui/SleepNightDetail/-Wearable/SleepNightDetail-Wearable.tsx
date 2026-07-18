@@ -22,6 +22,7 @@ import type {
 import { CalmSegmented } from '@/ui/CalmSegmented';
 import { typography } from '@/theme/tokens';
 
+import { SleepNightDetailNormBar } from './-NormBar';
 import { SleepNightDetailScoreBreakdown } from './-ScoreBreakdown';
 import { SleepNightDetailScoreMethodSheet } from './-ScoreMethodSheet';
 import {
@@ -204,69 +205,24 @@ export function SleepNightDetailWearable({
               </Text>
             </View>
 
-            {showNormBar ? (
-              <View style={styles.normRow}>
-                <View
-                  accessibilityRole="progressbar"
-                  accessibilityValue={{
-                    min: 0,
-                    max: 100,
-                    now: Math.round(normProgress * 100),
-                  }}
-                  style={[styles.normTrack, { backgroundColor: c.border }]}
-                >
-                  <View
-                    style={[
-                      styles.normFill,
-                      {
-                        width: `${Math.round(normProgress * 100)}%`,
-                        backgroundColor: c.warning,
-                      },
-                    ]}
-                  />
-                </View>
-                <Text style={[typography.caption, styles.normLabel, { color: c.textMuted }]}>
-                  {copy.sleep.wearableSleepNorm}
-                </Text>
-              </View>
-            ) : null}
+            {showNormBar ? <SleepNightDetailNormBar progress={normProgress} /> : null}
           </View>
         ) : null}
 
         {!trend && showNormBar ? (
-          <View style={styles.normFallback}>
-            <View style={styles.normRow}>
-              <View
-                accessibilityRole="progressbar"
-                accessibilityValue={{
-                  min: 0,
-                  max: 100,
-                  now: Math.round(normProgress * 100),
-                }}
-                style={[styles.normTrack, { backgroundColor: c.border }]}
-              >
-                <View
-                  style={[
-                    styles.normFill,
-                    {
-                      width: `${Math.round(normProgress * 100)}%`,
-                      backgroundColor: c.warning,
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={[typography.caption, styles.normLabel, { color: c.textMuted }]}>
-                {copy.sleep.wearableSleepNorm}
-              </Text>
-            </View>
-          </View>
+          <SleepNightDetailNormBar progress={normProgress} withTopMargin />
         ) : null}
 
         <View style={styles.footer}>
           <Feather name="watch" size={14} color={c.textMuted} />
-          <Text style={[typography.caption, { color: c.textMuted }]}>
-            {`${copy.sleep.wearableSectionTitle} · ${sourceLabel}`}
-          </Text>
+          <View style={styles.footerText}>
+            <Text style={[typography.caption, { color: c.textMuted }]}>
+              {`${copy.sleep.wearableSectionTitle} · ${sourceLabel}`}
+            </Text>
+            <Text style={[typography.caption, { color: c.textMuted }]}>
+              {copy.sleep.wearableScoreMethodology}
+            </Text>
+          </View>
         </View>
 
         <SleepNightDetailScoreMethodSheet

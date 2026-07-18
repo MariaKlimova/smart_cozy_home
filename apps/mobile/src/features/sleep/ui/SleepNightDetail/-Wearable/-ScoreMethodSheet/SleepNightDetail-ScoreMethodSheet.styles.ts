@@ -2,16 +2,7 @@ import { StyleSheet } from 'react-native';
 
 import { radii, spacing } from '@/theme/tokens';
 
-export const DURATION_SCALE_MIN_MINUTES = 4 * 60;
-export const DURATION_SCALE_MAX_MINUTES = 12 * 60;
-export const DURATION_NORM_MIN_MINUTES = 7 * 60;
-export const DURATION_NORM_MAX_MINUTES = 9 * 60;
-
-export const CONSISTENCY_SCALE_MAX_MINUTES = 90;
-export const CONSISTENCY_GOOD_MAX_MINUTES = 15;
-
-/** Запас вокруг реального окна сна на графике, мин */
-export const SLEEP_CHART_PADDING_MINUTES = 60;
+import { NIGHT_DATE_COLUMN_WIDTH } from './SleepNightDetail-ScoreMethodSheet.const';
 
 export const styles = StyleSheet.create({
   content: {
@@ -74,9 +65,9 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     width: 16,
     height: 16,
-    borderRadius: 8,
+    borderRadius: radii.xs,
     borderWidth: 2,
-    marginLeft: -8,
+    marginLeft: -radii.xs,
     top: -3,
   },
   scaleLabels: {
@@ -121,12 +112,12 @@ export const styles = StyleSheet.create({
     minHeight: 28,
   },
   nightDate: {
-    width: 52,
+    width: NIGHT_DATE_COLUMN_WIDTH,
   },
   nightTrack: {
     flex: 1,
     height: 16,
-    borderRadius: 8,
+    borderRadius: radii.xs,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -134,11 +125,11 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: 2,
     bottom: 2,
-    borderRadius: 6,
+    borderRadius: radii.xxs,
   },
   nightAxis: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginLeft: 52 + spacing.sm,
+    marginLeft: NIGHT_DATE_COLUMN_WIDTH + spacing.sm,
   },
 });

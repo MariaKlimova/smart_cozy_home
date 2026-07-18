@@ -54,32 +54,15 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
   },
-  normRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  normTrack: {
-    flex: 1,
-    height: 10,
-    borderRadius: radii.sm,
-    overflow: 'hidden',
-  },
-  normFill: {
-    height: '100%',
-    borderRadius: radii.sm,
-  },
-  normLabel: {
-    flexShrink: 0,
-  },
-  normFallback: {
-    marginTop: spacing.md,
-  },
   footer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: spacing.sm,
     marginTop: spacing.md,
+  },
+  footerText: {
+    flex: 1,
+    gap: spacing.xxs,
   },
   emptySection: {
     gap: spacing.sm,

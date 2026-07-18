@@ -19,5 +19,11 @@ export function wearableQualityTierMutedBg(
   tier: TWearableSleepQualityTier,
   c: TThemeColors,
 ): string {
-  return `${wearableQualityTierColor(tier, c)}22`;
+  if (tier === 'excellent' || tier === 'good') {
+    return c.successMuted;
+  }
+  if (tier === 'fair') {
+    return c.warningMuted;
+  }
+  return c.dangerMuted;
 }

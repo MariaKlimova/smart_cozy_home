@@ -3,12 +3,10 @@ import { Platform } from 'react-native';
 import type { ISleepNightWindow } from '@/domain/sleepNight.typings';
 import type { INightSchedule } from '@/domain/nightSchedule.typings';
 import { DEFAULT_NIGHT_SCHEDULE } from '@/domain/nightSchedule';
-import { aggregateWearableNight } from '@/health/aggregateWearableNight';
 import { bucketWearableSegmentsByNight } from '@/health/bucketWearableSegmentsByNight';
 import { dedupeSleepSegments } from '@/health/dedupeSleepSegments';
 import type {
   ISleepWearableSegment,
-  IWearableSleepNightResult,
   TWearableMockPreset,
 } from '@/health/healthKitSleep.typings';
 import type { IWearableSleepHistoryResult } from '@/health/bucketWearableSegmentsByNight';
@@ -113,33 +111,6 @@ function buildSegmentsForPreset(
 
   void windowEnd;
   return buildDefaultNightSegments(windowStart);
-}
-
-/** Мок-результат wearable за ночное окно */
-export function loadMockWearableSleepNight(
-  preset: TWearableMockPreset,
-  windowStart: Date,
-  windowEnd: Date,
-): IWearableSleepNightResult {
-  if (preset === 'denied') {
-    return { status: 'denied' };
-  }
-
-  const rawSegments = buildSegmentsForPreset(preset, windowStart, windowEnd);
-  if (rawSegments.length === 0) {
-    return { status: 'no_data' };
-  }
-
-  const deduped = dedupeSleepSegments(rawSegments);
-  const summary = aggregateWearableNight(deduped);
-  if (summary === null) {
-    return { status: 'no_data' };
-  }
-
-  return {
-    status: 'available',
-    summary,
-  };
 }
 
 /** Мок-история за несколько ночей (для score / тренда) */

@@ -9,8 +9,11 @@ export const colors = {
     onAccent: '#FFFFFF',
     border: '#E5DFD8',
     success: '#7A9E7E',
+    successMuted: '#DCE8DD',
     warning: '#C4A35A',
+    warningMuted: '#F0E8D4',
     danger: '#B87070',
+    dangerMuted: '#EDE0E0',
   },
   dark: {
     background: '#1E1C1A',
@@ -22,8 +25,11 @@ export const colors = {
     onAccent: '#FFFFFF',
     border: '#3D3834',
     success: '#8FB393',
+    successMuted: '#2F3A30',
     warning: '#D4B86A',
+    warningMuted: '#3A3528',
     danger: '#C88484',
+    dangerMuted: '#3A2E2E',
   },
 } as const;
 
@@ -41,6 +47,8 @@ export const spacing = {
 } as const;
 
 export const radii = {
+  xxs: 6,
+  xs: 8,
   sm: 14,
   md: 16,
 } as const;

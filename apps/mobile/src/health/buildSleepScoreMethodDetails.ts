@@ -17,16 +17,11 @@ import type {
   ISleepScoreNightInput,
   ISleepScoreResult,
 } from '@/health/sleepScore.typings';
-import { median, sampleStdDev } from '@/health/sleepScoreMath';
-
-function rollingWindowNights(
-  nights: ISleepScoreNightInput[],
-  endIndex: number,
-  windowSize: number,
-): ISleepScoreNightInput[] {
-  const start = Math.max(0, endIndex - windowSize + 1);
-  return nights.slice(start, endIndex + 1);
-}
+import { sampleStdDev } from '@/health/sleepScoreMath';
+import {
+  resolveBaselineMinutes,
+  rollingWindowNights,
+} from '@/health/sleepScoreWindow';
 
 /** Детали методики duration + consistency для выбранной ночи */
 export function buildSleepScoreMethodDetails(
@@ -43,10 +38,7 @@ export function buildSleepScoreMethodDetails(
   const ageBand = sleepScoreAgeBand(ageYears);
   const clinicalScore = Math.round(clinicalDurationScore(night.totalSleepMinutes, ageBand));
   const window = rollingWindowNights(nights, nightIndex, SLEEP_SCORE_BASELINE_NIGHTS);
-  const baselineReady = window.length >= SLEEP_SCORE_BASELINE_NIGHTS;
-  const baselineMinutes = baselineReady
-    ? median(window.map((entry) => entry.totalSleepMinutes))
-    : undefined;
+  const baselineMinutes = resolveBaselineMinutes(nights, nightIndex);
   const appliedBaseline = !scoreResult.isColdStart && baselineMinutes !== undefined;
   const baselineModifier = appliedBaseline
     ? baselineDurationModifier(night.totalSleepMinutes, baselineMinutes)
