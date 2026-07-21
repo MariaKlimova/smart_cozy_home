@@ -29,17 +29,20 @@ function resolvePreferred(
   return 'auto';
 }
 
-export function OnboardingScreen(_props: IOnboardingScreenProps) {
+export function OnboardingScreen({ isEditing = false }: IOnboardingScreenProps) {
   const c = useThemeColors();
   const connect = useConnectionStore((s) => s.connect);
   const failureReason = useConnectionStore((s) => s.failureReason);
   const isLoading = useConnectionStore((s) => s.isLoading);
+  const existingProfile = useConnectionStore((s) => s.profile);
 
   const [isSaving, setIsSaving] = useState(false);
-  const [name, setName] = useState<string>(ONBOARDING_DEFAULT_HOME_NAME);
-  const [localUrl, setLocalUrl] = useState('');
-  const [remoteUrl, setRemoteUrl] = useState('');
-  const [token, setToken] = useState('');
+  const [name, setName] = useState(
+    () => existingProfile?.name ?? ONBOARDING_DEFAULT_HOME_NAME,
+  );
+  const [localUrl, setLocalUrl] = useState(() => existingProfile?.localUrl ?? '');
+  const [remoteUrl, setRemoteUrl] = useState(() => existingProfile?.remoteUrl ?? '');
+  const [token, setToken] = useState(() => existingProfile?.accessToken ?? '');
 
   const connectErrorKey = failureReason ? connectionFailureMessageKey(failureReason) : null;
   const connectError = connectErrorKey ? copy.connection[connectErrorKey] : null;
@@ -53,7 +56,7 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
     }
 
     const profile: IConnectionProfile = {
-      id: ONBOARDING_DEFAULT_PROFILE_ID,
+      id: existingProfile?.id ?? ONBOARDING_DEFAULT_PROFILE_ID,
       name: name.trim() || ONBOARDING_DEFAULT_HOME_NAME,
       localUrl: trimmedLocal || undefined,
       remoteUrl: trimmedRemote || undefined,
@@ -65,16 +68,26 @@ export function OnboardingScreen(_props: IOnboardingScreenProps) {
     try {
       await connect(profile);
       const { isConnected } = useConnectionStore.getState();
-      if (isConnected) {
-        router.replace('/(tabs)');
+      if (!isConnected) {
+        return;
       }
+      if (isEditing && router.canGoBack()) {
+        router.back();
+        return;
+      }
+      router.replace('/(tabs)');
     } finally {
       setIsSaving(false);
     }
   }
 
   return (
-    <ScreenLayout title={copy.onboarding.title} keyboardAware showConnectionBanner={false}>
+    <ScreenLayout
+      title={isEditing ? undefined : copy.onboarding.title}
+      variant={isEditing ? 'stack' : 'tab'}
+      keyboardAware
+      showConnectionBanner={false}
+    >
       <Text style={[typography.body, { color: c.textMuted }]}>{copy.onboarding.subtitle}</Text>
       <Text style={[typography.caption, { color: c.textMuted }]}>
         {copy.onboarding.remoteOnlyHint}
