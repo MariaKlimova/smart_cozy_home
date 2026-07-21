@@ -4,7 +4,7 @@ import { spacing } from '@/theme/tokens';
 export const SCREEN_LAYOUT = 'ScreenLayout' as const;
 
 /**
- * Зазор между фокусным полем / низом формы и клавиатурой.
- * 8–16pt — обычный диапазон; md даёт спокойный «воздух» без большого пустого поля.
+ * Зазор между фокусным полем и клавиатурой (KeyboardAwareScrollView.bottomOffset).
+ * xl (32) — заметный «воздух», поле не липнет к клавиатуре.
  */
-export const SCREEN_LAYOUT_KEYBOARD_GAP = spacing.md;
+export const SCREEN_LAYOUT_KEYBOARD_GAP = spacing.xl;

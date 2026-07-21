@@ -1,12 +1,16 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useGlobalSearchParams, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { copy } from '@/copy/ru';
+import {
+  ONBOARDING_EDIT_PARAM,
+  ONBOARDING_EDIT_VALUE,
+} from '@/features/onboarding/ui/OnboardingScreen';
 import { AppProviders } from '@/providers/AppProviders';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useBedroomSensorStore } from '@/store/bedroomSensorStore';
@@ -62,23 +66,29 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const router = useRouter();
   const segments = useSegments();
+  const searchParams = useGlobalSearchParams();
   const hasHydrated = useConnectionStore((s) => s.hasHydrated);
   const isConnected = useConnectionStore((s) => s.isConnected);
   const profile = useConnectionStore((s) => s.profile);
 
+  const editParam = searchParams[ONBOARDING_EDIT_PARAM];
+  const editValue = Array.isArray(editParam) ? editParam[0] : editParam;
+  const isEditingConnection = editValue === ONBOARDING_EDIT_VALUE;
+
   // Редирект только после hydrate (см. connectionStore): иначе profile=null
   // на холодном старте уводит на onboarding и даёт мигание экранов.
   // Onboarding — только без сохранённого профиля; офлайн с профилем остаётся на табах.
+  // Режим edit=1 (смена подключения из настроек) не перехватываем.
   useEffect(() => {
     if (!hasHydrated) return;
     const inOnboarding = segments[0] === 'onboarding';
     const needsOnboarding = !profile;
     if (needsOnboarding && !inOnboarding) {
       router.replace('/onboarding');
-    } else if (profile && isConnected && inOnboarding) {
+    } else if (profile && isConnected && inOnboarding && !isEditingConnection) {
       router.replace('/(tabs)');
     }
-  }, [hasHydrated, isConnected, profile, segments, router]);
+  }, [hasHydrated, isConnected, isEditingConnection, profile, segments, router]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
