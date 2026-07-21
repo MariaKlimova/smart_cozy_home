@@ -2,7 +2,10 @@ import { StyleSheet } from 'react-native';
 
 import { radii, spacing, touchMin, typography } from '@/theme/tokens';
 
-import { ACTIVE_SCENARIO_BANNER_ICON_SIZE } from './ActiveScenarioBanner.const';
+import {
+  ACTIVE_SCENARIO_BANNER_ICON_SIZE,
+  ACTIVE_SCENARIO_BANNER_POWER_SIZE,
+} from './ActiveScenarioBanner.const';
 
 export const styles = StyleSheet.create({
   root: {
@@ -30,5 +33,12 @@ export const styles = StyleSheet.create({
   },
   caption: {
     ...typography.caption,
+  },
+  powerSlot: {
+    width: ACTIVE_SCENARIO_BANNER_POWER_SIZE,
+    height: ACTIVE_SCENARIO_BANNER_POWER_SIZE,
+    borderRadius: ACTIVE_SCENARIO_BANNER_POWER_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -112,7 +112,7 @@ export const copy = {
     writeFailed: 'Не получилось сохранить настройку',
     running: 'Запускаем…',
     preparing: 'Готовим дом…',
-    activeNow: 'Сейчас активен',
+    activeNow: 'Нажмите, чтобы выключить',
     prepared: 'Дом готов к тебе',
     settingsA11y: 'Настроить сценарий',
     settingsPlaceholder: 'Настройки появятся в следующем обновлении',
