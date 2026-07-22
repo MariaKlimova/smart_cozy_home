@@ -18,6 +18,7 @@ import { ActiveScenarioBanner } from '@/features/now/ui/ActiveScenarioBanner';
 import { AdjustSheet } from '@/features/now/ui/AdjustSheet';
 import { BedroomStateCard } from '@/features/now/ui/BedroomStateCard';
 import { NowHomeSection } from '@/features/now/ui/NowHomeSection';
+import { NowRoomConditions } from '@/features/now/ui/NowRoomConditions';
 import { useScheduleClockTick } from '@/features/scenarios/lib/useScheduleClockTick';
 import { useGentleNotifications } from '@/hooks/useGentleNotifications';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -168,6 +169,8 @@ export default function NowScreen() {
           onDismiss={handleDismiss}
         />
       ))}
+
+      <NowRoomConditions enabled={haReady && !showSetupCta} />
     </ScreenLayout>
 
     <AdjustSheet

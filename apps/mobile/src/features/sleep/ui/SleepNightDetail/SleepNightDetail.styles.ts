@@ -1,8 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { radii, spacing, typography } from '@/theme/tokens';
-
-const INSIGHT_LINE_HEIGHT = Math.ceil(typography.body.fontSize * 1.35);
+import { radii, spacing } from '@/theme/tokens';
 
 export const styles = StyleSheet.create({
   container: {
@@ -32,14 +30,6 @@ export const styles = StyleSheet.create({
   scoreBadgeText: {
     lineHeight: 20,
   },
-  roomSection: {
-    gap: spacing.sm,
-  },
-  roomCard: {
-    borderRadius: radii.md,
-    padding: spacing.md,
-    gap: spacing.md,
-  },
   detailsButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -48,8 +38,5 @@ export const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.xs,
     borderRadius: radii.sm,
-  },
-  insight: {
-    lineHeight: INSIGHT_LINE_HEIGHT,
   },
 });

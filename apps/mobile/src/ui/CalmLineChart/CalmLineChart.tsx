@@ -170,7 +170,7 @@ export function CalmLineChart({
             y={plotTop}
             width={chartWidth}
             height={chartHeight}
-            fill={c.accentMuted}
+            fill={normBand ? c.accentMuted : c.border}
             opacity={CALM_LINE_CHART_PLOT_BG_OPACITY}
           />
 

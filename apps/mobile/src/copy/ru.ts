@@ -57,6 +57,9 @@ export const copy = {
       turnOnHumidifier: 'Включить увлажнитель',
       turnOnLight: 'Включить свет',
     },
+    roomConditionsPeriod: 'последние 24 часа',
+    roomConditionsEmpty: 'Пока нет данных за сутки',
+    roomConditionsError: 'Не получилось загрузить график',
   },
   quickActions: {
     manualControl: 'Ручное управление',
