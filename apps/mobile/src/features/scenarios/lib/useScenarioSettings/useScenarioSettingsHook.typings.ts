@@ -35,6 +35,8 @@ export interface IUseScenarioSettingsResult {
   setBoolean: (key: string, value: boolean) => Promise<boolean>;
   /** Записать цветовой параметр */
   setColor: (key: string, color: TLightColorValue) => Promise<boolean>;
+  /** Записать текстовый параметр */
+  setText: (key: string, value: string) => Promise<boolean>;
   /** Включить/выключить расписание */
   setScheduleEnabled: (enabled: boolean) => Promise<boolean>;
   /** Включить/выключить день */

@@ -174,4 +174,3 @@ scenarios_ha:
     entity: input_select.home_mode
   prepared:
     entity: input_boolean.home_ready_for_arrival
-  exit_home_mode_option: none

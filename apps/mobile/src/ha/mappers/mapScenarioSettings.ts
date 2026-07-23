@@ -106,6 +106,22 @@ function readColorState(
   return { color: parsed.color, displayRgb: parsed.displayRgb, isAvailable: true };
 }
 
+function readTextState(
+  stateMap: Map<string, IHaEntityState>,
+  entityId: string,
+): { value: string; isAvailable: boolean } {
+  const state = stateMap.get(entityId);
+  if (!isEntityAvailable(state)) {
+    return { value: '', isAvailable: false };
+  }
+  const raw = state!.state;
+  // HA input_text иногда отдаёт литерал "none" как пустое значение
+  if (raw === 'none') {
+    return { value: '', isAvailable: true };
+  }
+  return { value: raw, isAvailable: true };
+}
+
 /** entity_id helpers параметров сценария */
 export function getScenarioParamEntityIds(scenarioId: string): string[] {
   const paramsKey = resolveParamsKey(scenarioId);
@@ -255,6 +271,20 @@ export function mapScenarioSettings(
       };
     });
 
+  const texts = fieldDefs
+    .filter((f) => f.kind === 'text')
+    .map((field) => {
+      const entityId = getScenarioFieldEntityId(scenarioId, field.key);
+      const maxLength = field.maxLength ?? 255;
+      if (!entityId) {
+        missingFieldKeys.push(field.key);
+        return { key: field.key, value: '', maxLength, isAvailable: false };
+      }
+      const { value, isAvailable } = readTextState(stateMap, entityId);
+      if (!isAvailable) missingFieldKeys.push(field.key);
+      return { key: field.key, value, maxLength, isAvailable };
+    });
+
   let schedule: IScenarioWeeklySchedule = {
     ...createDefaultWeeklySchedule(defaultScheduleTime),
     isAvailable: false,
@@ -274,6 +304,7 @@ export function mapScenarioSettings(
     numbers,
     booleans,
     colors,
+    texts,
     schedule,
     missingFieldKeys,
   };

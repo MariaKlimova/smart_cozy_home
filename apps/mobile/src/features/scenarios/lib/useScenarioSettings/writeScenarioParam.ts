@@ -59,3 +59,17 @@ export async function writeScenarioColor(
     setTextValue(ctx.haBaseUrl, ctx.haToken, entityId, serializeScenarioLightColor(color)),
   );
 }
+
+/** Записать текстовый helper (plain string в input_text) */
+export async function writeScenarioText(
+  ctx: IWriteScenarioParamContext,
+  key: string,
+  value: string,
+): Promise<boolean> {
+  const entityId = getScenarioFieldEntityId(ctx.scenarioId, key);
+  if (!entityId) return false;
+  const trimmed = value.trim();
+  return ctx.executeWrite(key, () =>
+    setTextValue(ctx.haBaseUrl, ctx.haToken, entityId, trimmed),
+  );
+}

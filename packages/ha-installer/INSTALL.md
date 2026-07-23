@@ -27,13 +27,14 @@
 
 `/homeassistant/packages/ha-installer/scripts.yaml` → пакет уже в нужном месте.
 
-Нужны **три YAML-файла**:
+Нужны **три YAML-файла пакета** (+ опционально intents для Алисы):
 
 ```
 packages/ha-installer/
   inputs.yaml
   scripts.yaml
   automations.yaml
+  yandex_station_intents.yaml   # SH-58, подключается отдельно (см. § Алиса)
 ```
 
 (относительно корня File editor: `/homeassistant` или `/config`)
@@ -48,26 +49,17 @@ MD-файлы (`DEVICES.md`, `SCENARIOS.md`, `INSTALL.md`) — по желани
 2. Установить **File editor** → включить **Запуск при загрузке** → **Запустить**
 3. Открыть веб-интерфейс File editor (корень обычно `/homeassistant` или `/config` — смотри путь в шапке редактора)
 4. Создать папки: `packages` → внутри `ha-installer`
-5. Создать три файла (`inputs.yaml`, `scripts.yaml`, `automations.yaml`) и вставить содержимое из репозитория → **Сохранить**
+5. Создать файлы и вставить содержимое из репозитория → **Сохранить**:
+   - обязательно: `inputs.yaml`, `scripts.yaml`, `automations.yaml`
+   - для Алисы (SH-58): ещё **`yandex_station_intents.yaml`** (тот же каталог `packages/ha-installer/`)
 
-При обновлении пакета — заменить содержимое тех же трёх файлов из актуального git.
+При обновлении пакета — заменить содержимое тех же файлов из актуального git (включая `yandex_station_intents.yaml`, если Алиса уже подключена).
 
 ---
 
 ## 2. Подключить в `configuration.yaml`
 
-В корне конфигурации (`configuration.yaml` рядом с папкой `packages`) добавьте (или дополните) секцию:
-
-```yaml
-homeassistant:
-  packages: !include_dir_named packages/ha-installer/
-```
-
-Путь в `!include…` — **относительно корня конфига**, без `/homeassistant` и без `/config`.
-
-Если блок `homeassistant:` уже есть — добавьте только строку `packages:` **внутрь** него, не создавая второй ключ.
-
-Если packages уже используются с другим путём:
+В корне конфигурации (`configuration.yaml` рядом с папкой `packages`) подключите **три** файла пакета явно — так `yandex_station_intents.yaml` не попадёт в packages (у него другой формат, top-level ключ `intents:`):
 
 ```yaml
 homeassistant:
@@ -76,6 +68,12 @@ homeassistant:
     smart_cozy_scripts: !include packages/ha-installer/scripts.yaml
     smart_cozy_automations: !include packages/ha-installer/automations.yaml
 ```
+
+Путь в `!include…` — **относительно корня конфига**, без `/homeassistant` и без `/config`.
+
+Если блок `homeassistant:` уже есть — добавьте только `packages:` **внутрь** него, не создавая второй ключ.
+
+> Не используйте `packages: !include_dir_named packages/ha-installer/`, если в папке лежит `yandex_station_intents.yaml`: HA попытается загрузить его как package и проверка конфига упадёт.
 
 ---
 
@@ -99,7 +97,76 @@ homeassistant:
 
 ---
 
-## 4. Маппинг устройств
+## 4. Алиса (опционально)
+
+Голосовой запуск тех же 7 сценариев + плейлисты на станции.
+
+Порядок важен: сначала скачать компоненты в HACS и **добавить интеграции в UI**, затем yaml и reload. Одного `!include` в `configuration.yaml` недостаточно — без записи в «Устройства и службы» сценарии в УДЯ не появятся.
+
+### 4.1. HACS — скачать компоненты
+
+1. [AlexxIT/YandexStation](https://github.com/AlexxIT/YandexStation) — управление станцией (`media_player`, плейлисты)
+2. [dext0r/ha-yandex-station-intents](https://github.com/dext0r/ha-yandex-station-intents) — перехват фраз → сценарии УДЯ
+
+В HACS: ⋯ → Пользовательские репозитории → добавить оба (тип **Интеграция**) → найти → **Скачать** → **перезапустить Home Assistant**.
+
+### 4.2. Добавить интеграции в UI (обязательно)
+
+Скачивание в HACS только кладёт код. Нужно ещё подключить аккаунт:
+
+1. **Настройки → Устройства и службы → Интеграции → Добавить интеграцию**
+2. Найти **Yandex Station** → добавить → авторизовать аккаунт Яндекса (браузер / QR)
+3. Снова **Добавить интеграцию** → **Yandex.Station Intents**  
+   (если нет в списке — обнови страницу или подожди после restart после HACS)
+4. Авторизовать тот же аккаунт Яндекса
+5. Entity станции в спальне переименовать в `media_player.bedroom_station`  
+   (**Настройки → Сущности**)
+
+Без шага 3 yaml с фразами загрузится, но в УДЯ сценарии `---…` **не создадутся**.
+
+### 4.3. Файл фраз на HA
+
+Скопировать из репозитория:
+
+`packages/ha-installer/yandex_station_intents.yaml`
+
+(рядом с `inputs.yaml` / `scripts.yaml` / `automations.yaml`).
+
+### 4.4. Include в `configuration.yaml`
+
+**Отдельной строкой на верхнем уровне**, не внутри `homeassistant:` и не внутри `packages:`:
+
+```yaml
+homeassistant:
+  packages:
+    smart_cozy_inputs: !include packages/ha-installer/inputs.yaml
+    smart_cozy_scripts: !include packages/ha-installer/scripts.yaml
+    smart_cozy_automations: !include packages/ha-installer/automations.yaml
+
+yandex_station_intents: !include packages/ha-installer/yandex_station_intents.yaml
+```
+
+Не использовать `packages: !include_dir_named packages/ha-installer/` — иначе HA попытается загрузить intents как package (`Integration 'intents' not found`).
+
+### 4.5. Перезагрузить YAML и проверить УДЯ
+
+1. **Инструменты разработчика → YAML → Проверить конфигурацию**
+2. **Инструменты разработчика → YAML → Перезагрузить** конфигурацию **Yandex.Station Intents**  
+   (или полный restart HA). Просто «Проверить конфигурацию» фразы в УДЯ не пушит.
+3. Смотри **Настройки → Система → Журнал сервера** — ошибки `yandex_station_intents` / `403` означают, что sync с УДЯ не прошёл (часто лечится обновлением компонента в HACS).
+4. Подождать 30–60 сек. В приложении Яндекса → Умный дом → **Сценарии** должны появиться пункты вроде `---Включи вечер` (префикс `---` не трогать и не переименовывать).
+
+**После любой правки `yandex_station_intents.yaml`:** скопировать файл → снова п. 2–4. Если сценариев нет: **Действия → `yandex_station_intents.sync`** с `full: true`.
+
+**Диагностика голоса:** **События → слушать `yandex_intent`** → сказать фразу колонке. Нет события = фраза не в УДЯ / не тот сценарий.
+
+Фразы и `action` — в [`yandex_station_intents.yaml`](./yandex_station_intents.yaml). Подробности — [`SCENARIOS.md`](./SCENARIOS.md) § «Алиса».
+
+Плейлисты: helpers `input_text.*_playlist` (пусто = стоп музыки при входе в сценарий); настраиваются из приложения. Включение — `script.play_bedroom_playlist` (`media_content_type: command`). Выход из режима (приложение / «Алиса, выключи режим») — `script.exit_home_mode`.
+
+---
+
+## 5. Маппинг устройств
 
 Пакет **не создаёт** лампы и датчики. Реальные entities переименовывают под id из [`DEVICES.md`](./DEVICES.md).
 
@@ -123,7 +190,7 @@ Helper `input_number.bedroom_light_visible_min` пакет **создаёт са
 
 ---
 
-## 5. Проверка сценария «Вечер»
+## 6. Проверка сценария «Вечер»
 
 Делайте проверки **через Действия** — так же вызывает приложение (`script.turn_on`). Запуск кнопкой ▶ на странице скрипта тоже должен работать; расхождение между ними — сигнал, что что-то не так.
 
@@ -147,13 +214,13 @@ Helper `input_number.bedroom_light_visible_min` пакет **создаёт са
 
 `script.morning` поднимает яркость **софтовым ramp** (шаги + `delay`, без transition), длительность — `morning_warmup_minutes`.
 
-Повторный тап по активному режиму в приложении: `home_mode = none` **и** `script.turn_off` на script режима — иначе delay-шаги продолжатся после «отжима» в UI.
+Повторный тап по активному режиму в приложении (или голос «выключи режим»): `script.exit_home_mode` — `home_mode = none`, `script.turn_off` на scripts режимов и стоп музыки — иначе delay-шаги продолжатся после «отжима» в UI.
 
 Краткий тест Утра: поставьте `morning_warmup_minutes = 5`, запустите `script.morning`, убедитесь в росте яркости; `script.turn_off` на `script.morning` — следующие шаги не должны приходить.
 
 ---
 
-## 6. Onboarding приложения
+## 7. Onboarding приложения
 
 1. HA: профиль (внизу слева) → **Долгосрочные токены доступа** → создать токен (скопировать сразу)
 2. Dev-сборка с реальным HA. По умолчанию моки **выключены**; для явного режима:
@@ -192,7 +259,12 @@ Helper `input_number.bedroom_light_visible_min` пакет **создаёт са
 
 ## Чеклист передачи клиенту
 
-- [ ] Пакет в `packages/ha-installer/` в корне конфига (три YAML; в File editor часто `/homeassistant/packages/…`), packages подключены в `configuration.yaml`, HA перезапущен
+- [ ] Пакет в `packages/ha-installer/` в корне конфига (`inputs` / `scripts` / `automations`; для Алисы ещё `yandex_station_intents.yaml`), packages подключены явно в `configuration.yaml`, HA перезапущен
+- [ ] (Алиса) HACS: скачаны Yandex Station + Yandex.Station Intents
+- [ ] (Алиса) **Устройства и службы → Добавить интеграцию** для обеих, аккаунт Яндекса авторизован
+- [ ] (Алиса) `yandex_station_intents:` на верхнем уровне `configuration.yaml`, файл yaml на месте
+- [ ] (Алиса) YAML перезагружен для Yandex.Station Intents; в УДЯ есть сценарии `---…` (не `XA …`)
+- [ ] (Алиса) `media_player.bedroom_station` смаплен
 - [ ] `input_select.home_mode`, `input_number.bedroom_light_visible_min` и 7 scripts видны в Состояниях
 - [ ] `script.evening` через **Действия** → `home_mode = evening`
 - [ ] `light.bedroom` смаплен; свет реагирует на «Вечер»

@@ -5,6 +5,7 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { MockHaRuntime } from '@/ha/MockHaRuntime';
 import { ConnectionLifecycle } from './ConnectionLifecycle';
+import { HomeSyncLifecycle } from './HomeSyncLifecycle';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,6 +20,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
       <QueryClientProvider client={client}>
         <MockHaRuntime />
         <ConnectionLifecycle />
+        <HomeSyncLifecycle />
         {children}
       </QueryClientProvider>
     </KeyboardProvider>

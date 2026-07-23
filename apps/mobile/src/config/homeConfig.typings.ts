@@ -72,8 +72,6 @@ export interface IScenariosHaMapping {
   home_mode: IHaEntityRef;
   /** input_boolean — дом подготовлен к приезду */
   prepared: IHaEntityRef;
-  /** option в home_mode при выходе из режима */
-  exit_home_mode_option: string;
 }
 
 /** Мягкое уведомление в конфиге */

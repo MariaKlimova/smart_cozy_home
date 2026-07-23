@@ -51,6 +51,7 @@ describe('mapScenarioSettings', () => {
       [
         { entityId: params.brightness, state: '80', attributes: {} },
         { entityId: params.warmupMinutes, state: '20', attributes: {} },
+        { entityId: params.playlist, state: '', attributes: {} },
         { entityId: params.scheduleConfig, state: json, attributes: {} },
       ],
       '07:00',
@@ -60,6 +61,35 @@ describe('mapScenarioSettings', () => {
     assert.equal(settings.schedule.weekdays.mon.time, '07:15');
     assert.equal(settings.schedule.isAvailable, true);
     assert.equal(settings.colors.length, 0);
+    assert.equal(settings.texts.length, 1);
+    assert.equal(settings.texts[0]?.key, 'playlist');
+    assert.equal(settings.texts[0]?.value, '');
+    assert.equal(settings.texts[0]?.isAvailable, true);
+  });
+
+  it('maps playlist text field', () => {
+    const params = HA_ENTITIES.scenarioParams.evening;
+    const json = serializeWeeklyScheduleJson(createUniformWeeklySchedule(false, '22:30', '22:30'));
+
+    const settings = mapScenarioSettings(
+      'evening',
+      [
+        { entityId: params.brightness, state: '15', attributes: {} },
+        { entityId: params.temperature, state: '18', attributes: {} },
+        { entityId: params.curtains, state: 'on', attributes: {} },
+        { entityId: params.humidifier, state: 'on', attributes: {} },
+        { entityId: params.playlist, state: 'джаз для сна', attributes: {} },
+        { entityId: params.scheduleConfig, state: json, attributes: {} },
+      ],
+      '22:30',
+    );
+
+    assert.equal(settings.texts.length, 1);
+    assert.equal(settings.texts[0]?.key, 'playlist');
+    assert.equal(settings.texts[0]?.value, 'джаз для сна');
+    assert.equal(settings.texts[0]?.maxLength, 255);
+    assert.equal(settings.texts[0]?.isAvailable, true);
+    assert.ok(!settings.missingFieldKeys.includes('playlist'));
   });
 
   it('maps sleep nightlight color with presets', () => {
@@ -89,6 +119,7 @@ describe('mapScenarioSettings', () => {
           state: '{"rgb_color":[134,168,249]}',
           attributes: {},
         },
+        { entityId: params.playlist, state: '', attributes: {} },
         {
           entityId: params.scheduleConfig,
           state: serializeWeeklyScheduleJson(createUniformWeeklySchedule(false, '23:00', '23:00')),
@@ -103,6 +134,7 @@ describe('mapScenarioSettings', () => {
     assert.equal(settings.colors[0]?.key, 'nightlightColor');
     assert.equal(settings.colors[0]?.colorPresetId, 'color-1');
     assert.equal(settings.colors[0]?.isAvailable, true);
+    assert.equal(settings.texts[0]?.key, 'playlist');
   });
 });
 

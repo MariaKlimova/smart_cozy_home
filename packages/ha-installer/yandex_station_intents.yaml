@@ -1,0 +1,84 @@
+# SH-58: голосовые фразы Алисы → те же script.*, что и приложение.
+# Подключение в configuration.yaml (не через packages:):
+#   yandex_station_intents: !include packages/ha-installer/yandex_station_intents.yaml
+#
+# После правки файла: Developer Tools → YAML → перезагрузить Yandex.Station Intents
+# (или полный restart HA), затем при необходимости действие yandex_station_intents.sync
+# с full: true. В УДЯ сценарии с префиксом --- — не переименовывать.
+#
+# Требует HACS-интеграцию dext0r/ha-yandex-station-intents.
+# Фразы — только кириллица, цифры и пробелы; без слова «Алиса».
+# Запуск сценария — через action (primary + extra_phrases).
+
+intents:
+  Включи вечер:
+    extra_phrases:
+      - Режим вечер
+      - Вечерний режим
+      - Включи режим вечер
+    say_phrase: Хорошо, включаю вечер
+    action:
+      action: script.evening
+
+  Спокойной ночи:
+    extra_phrases:
+      - Режим сон
+      - Время спать
+      - Включи режим сон
+    say_phrase: Приятных снов
+    action:
+      action: script.sleep
+
+  Доброе утро:
+    extra_phrases:
+      - Режим утро
+      - Время вставать
+      - Включи режим утро
+    say_phrase: Доброе утро
+    action:
+      action: script.morning
+
+  Я уехал:
+    extra_phrases:
+      - Режим уехали
+      - Ухожу из дома
+      - Включи режим уехали
+    say_phrase: Дом на паузе
+    action:
+      action: script.away
+
+  Еду домой:
+    extra_phrases:
+      - Скоро буду
+      - Готовь дом
+      - Включи режим еду домой
+    say_phrase: Готовлю дом
+    action:
+      action: script.coming_home
+
+  Включи уют:
+    extra_phrases:
+      - Режим уют
+      - Сделай уютно
+      - Включи режим уют
+    say_phrase: Делаю уютно
+    action:
+      action: script.cozy
+
+  Включи фокус:
+    extra_phrases:
+      - Режим фокус
+      - Время работать
+      - Включи режим фокус
+    say_phrase: Включаю фокус
+    action:
+      action: script.focus
+
+  Выключи режим:
+    extra_phrases:
+      - Отключи режим
+      - Выйди из режима
+      - Режим выключить
+    say_phrase: Хорошо
+    action:
+      action: script.exit_home_mode

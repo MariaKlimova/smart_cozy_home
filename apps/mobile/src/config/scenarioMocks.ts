@@ -126,6 +126,7 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
     [HA_ENTITIES.scenarioParams.evening.temperature]: { state: '18' },
     [HA_ENTITIES.scenarioParams.evening.curtains]: { state: 'on' },
     [HA_ENTITIES.scenarioParams.evening.humidifier]: { state: 'on' },
+    [HA_ENTITIES.scenarioParams.evening.playlist]: { state: '' },
     [HA_ENTITIES.scenarioParams.evening.scheduleConfig]: {
       state: mockScheduleState(false, '22:30'),
     },
@@ -136,11 +137,13 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
     [HA_ENTITIES.scenarioParams.sleep.nightlightColor]: {
       state: '{"rgb_color":[242,145,61]}',
     },
+    [HA_ENTITIES.scenarioParams.sleep.playlist]: { state: '' },
     [HA_ENTITIES.scenarioParams.sleep.scheduleConfig]: {
       state: mockScheduleState(false, '23:00'),
     },
     [HA_ENTITIES.scenarioParams.morning.brightness]: { state: '80' },
     [HA_ENTITIES.scenarioParams.morning.warmupMinutes]: { state: '20' },
+    [HA_ENTITIES.scenarioParams.morning.playlist]: { state: '' },
     [HA_ENTITIES.scenarioParams.morning.scheduleConfig]: {
       state: mockScheduleState(false, '07:00'),
     },
@@ -157,11 +160,13 @@ export const SCENARIO_MOCKS: IScenarioMocks = {
     },
     [HA_ENTITIES.scenarioParams.cozy.brightness]: { state: '40' },
     [HA_ENTITIES.scenarioParams.cozy.temperature]: { state: '21' },
+    [HA_ENTITIES.scenarioParams.cozy.playlist]: { state: '' },
     [HA_ENTITIES.scenarioParams.cozy.scheduleConfig]: {
       state: mockScheduleState(false, '20:00'),
     },
     [HA_ENTITIES.scenarioParams.focus.brightness]: { state: '90' },
     [HA_ENTITIES.scenarioParams.focus.temperature]: { state: '19' },
+    [HA_ENTITIES.scenarioParams.focus.playlist]: { state: '' },
     [HA_ENTITIES.scenarioParams.focus.scheduleConfig]: {
       state: mockScheduleState(false, '09:00'),
     },

@@ -198,8 +198,20 @@ const SCENARIO_RUNNERS: Record<string, () => void> = {
   focus: runFocusScript,
 };
 
+function runExitHomeModeScript(): void {
+  // Как script.exit_home_mode: сброс режима + остановка sleep-maintainer (аналог turn_off scripts).
+  // Стоп музыки на станции в mock нет — только HA media_player.
+  resetSleepMaintainer();
+  setHomeMode('none');
+}
+
 /** Выполнить упрощённый sequence script.* в mock-store */
 export function runMockScript(scriptEntityId: string): void {
+  if (scriptEntityId === HA_ENTITIES.scripts.exitHomeMode) {
+    runExitHomeModeScript();
+    return;
+  }
+
   const scenarioId = SCRIPT_TO_SCENARIO_ID.get(scriptEntityId);
   if (!scenarioId) {
     return;

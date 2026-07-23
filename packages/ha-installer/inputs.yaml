@@ -88,6 +88,37 @@ input_text:
     initial: '{"version":1,"enabled":false,"weekdays":{"mon":[false,"09:00"],"tue":[false,"09:00"],"wed":[false,"09:00"],"thu":[false,"09:00"],"fri":[false,"09:00"],"sat":[false,"09:00"],"sun":[false,"09:00"]}}'
     max: 255
 
+  # Плейлисты (SH-58): пусто = музыка не включается. Станция ищет через «включи {название}».
+  evening_playlist:
+    name: Плейлист вечера
+    initial: ""
+    max: 255
+    icon: mdi:playlist-music
+
+  sleep_playlist:
+    name: Плейлист сна
+    initial: ""
+    max: 255
+    icon: mdi:playlist-music
+
+  morning_playlist:
+    name: Плейлист утра
+    initial: ""
+    max: 255
+    icon: mdi:playlist-music
+
+  cozy_playlist:
+    name: Плейлист уюта
+    initial: ""
+    max: 255
+    icon: mdi:playlist-music
+
+  focus_playlist:
+    name: Плейлист фокуса
+    initial: ""
+    max: 255
+    icon: mdi:playlist-music
+
 input_number:
   # Калибровка основного света спальни (логические % сценариев/UI → железо)
   bedroom_light_visible_min:

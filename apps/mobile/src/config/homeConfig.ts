@@ -135,7 +135,6 @@ export const HOME_CONFIG: IHomeConfig = {
   scenarios_ha: {
     home_mode: { entity: HA_ENTITIES.system.homeMode },
     prepared: { entity: HA_ENTITIES.system.homeReadyForArrival },
-    exit_home_mode_option: 'none',
   },
 };
 

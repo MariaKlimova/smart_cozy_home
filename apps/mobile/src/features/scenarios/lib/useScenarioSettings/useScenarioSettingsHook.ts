@@ -20,6 +20,7 @@ import {
   writeScenarioBoolean,
   writeScenarioColor,
   writeScenarioNumber,
+  writeScenarioText,
 } from './writeScenarioParam';
 import { createScenarioScheduleWriter } from './writeScenarioSchedule';
 
@@ -142,6 +143,11 @@ export function useScenarioSettings(
     [paramWriteCtx],
   );
 
+  const setText = useCallback(
+    (key: string, value: string) => writeScenarioText(paramWriteCtx, key, value),
+    [paramWriteCtx],
+  );
+
   const dismissWriteError = useCallback(() => {
     setWriteError(undefined);
   }, []);
@@ -157,6 +163,7 @@ export function useScenarioSettings(
     setNumber,
     setBoolean,
     setColor,
+    setText,
     setScheduleEnabled: scheduleWriter.setScheduleEnabled,
     setWeekdayEnabled: scheduleWriter.setWeekdayEnabled,
     setWeekdayTime: scheduleWriter.setWeekdayTime,

@@ -35,6 +35,7 @@
 | `sensor.bedroom_temperature`  | Датчик температуры                                                            |
 | `sensor.bedroom_humidity`     | Датчик влажности                                                              |
 | `sensor.bedroom_pressure`     | Датчик атмосферного давления (mmHg / мм рт. ст.)                              |
+| `media_player.bedroom_station`| Яндекс.Станция в спальне (плейлисты сценариев; опционально)                  |
 
 Сценарии отправляют `climate.set_temperature` на все три climate-entity спальни. HA применяет команду только к доступным устройствам; отсутствующие entity игнорируются без ошибки.
 
@@ -64,7 +65,8 @@
 3. Закрывает шторы если `input_boolean.evening_curtains = true` (`cover.close_cover`)
 4. Устанавливает целевую температуру `input_number.evening_temperature` (`climate.set_temperature`)
 5. Включает увлажнитель если `input_boolean.evening_humidifier = true` (`humidifier.bedroom` или фолбек `switch.bedroom_humidifier`)
-6. Записывает `input_select.home_mode = evening`
+6. Если `input_text.evening_playlist` не пуст — `script.play_bedroom_playlist` → музыка на `media_player.bedroom_station` (`command`, «Включи плейлист {название}»); если пуст — `script.stop_bedroom_music`
+7. Записывает `input_select.home_mode = evening`
 
 **Helpers — параметры:**
 
@@ -74,6 +76,7 @@
 | `input_number.evening_temperature` | number  | 18     | 16  | 24   | 0.5 |
 | `input_boolean.evening_curtains`   | boolean | true   | —   | —    | —   |
 | `input_boolean.evening_humidifier` | boolean | true   | —   | —    | —   |
+| `input_text.evening_playlist`      | text    | ""     | —   | 255  | —   |
 
 **Helpers — расписание:**
 
@@ -95,7 +98,8 @@
 2. Если `input_boolean.sleep_nightlight = true` — включает ночник на яркость, затем (если в helper валидный цвет) задаёт цвет вместе с яркостью; иначе выключает ночник. Пустой/битый `sleep_nightlight_color` не мешает включению по яркости. Приложение при открытии настроек само записывает дефолтный цвет, если helper пуст.
 3. Открывает окно если `input_boolean.sleep_window = true` (`cover.open_cover` на `cover.bedroom_window`)
 4. Устанавливает ночную температуру `input_number.sleep_temperature` (`climate.set_temperature`)
-5. Записывает `input_select.home_mode = sleep`
+5. Если `input_text.sleep_playlist` не пуст — `script.play_bedroom_playlist` → музыка на `media_player.bedroom_station`; если пуст — стоп музыки
+6. Записывает `input_select.home_mode = sleep`
 
 **Helpers — параметры:**
 
@@ -106,6 +110,7 @@
 | `input_boolean.sleep_nightlight`           | boolean | true   | —   | —    | —   |
 | `input_number.sleep_nightlight_brightness` | number  | 8      | 1   | 100  | 1   |
 | `input_text.sleep_nightlight_color`        | text (JSON HA payload) | `{"rgb_color":[242,145,61]}` | — | — | — |
+| `input_text.sleep_playlist`                | text    | ""     | —   | 255  | —   |
 
 **Helpers — расписание:**
 
@@ -145,6 +150,7 @@
 5. Открывает шторы (`cover.open_cover`)
 6. Устанавливает дневную температуру 21° (`climate.set_temperature`, значение фиксированное)
 7. Продолжает подъём яркости до `input_number.morning_brightness` за `input_number.morning_warmup_minutes` минут
+8. Если `input_text.morning_playlist` не пуст — `script.play_bedroom_playlist` → музыка на `media_player.bedroom_station` (после ramp); если пуст — стоп музыки
 
 Каждый шаг яркости идёт через `script.bedroom_set_light_logical` (калибровка `input_number.bedroom_light_visible_min`: логические % → железо `[min, 100]`).
 
@@ -156,6 +162,7 @@
 | ------------------------------------- | ------ | ------ | --- | ---- | --- |
 | `input_number.morning_brightness`     | number | 80     | 10  | 100  | 1   |
 | `input_number.morning_warmup_minutes` | number | 20     | 5   | 60   | 5   |
+| `input_text.morning_playlist`         | text   | ""     | —   | 255  | —   |
 
 **Helpers — расписание:**
 
@@ -178,8 +185,9 @@
 3. Закрывает окно (`cover.close_cover` на `cover.bedroom_window`)
 4. Снижает температуру до `input_number.away_temperature` (`climate.set_temperature`)
 5. Выключает увлажнитель (`humidifier.bedroom` или фолбек `switch.bedroom_humidifier`)
-6. Сбрасывает `input_boolean.home_ready_for_arrival = false`
-7. Записывает `input_select.home_mode = away`
+6. Останавливает музыку на `media_player.bedroom_station` (`script.stop_bedroom_music`)
+7. Сбрасывает `input_boolean.home_ready_for_arrival = false`
+8. Записывает `input_select.home_mode = away`
 
 **Helpers — параметры:**
 
@@ -201,8 +209,9 @@
 3. Устанавливает целевую температуру `input_number.coming_home_temperature` (`climate.set_temperature`)
 4. Включает свет на яркость `input_number.coming_home_brightness` с тёплой цветовой температурой (`light.turn_on`)
 5. Открывает шторы если на улице день (условие по `sun.sun`: `state = above_horizon`)
-6. Записывает `input_boolean.home_ready_for_arrival = true`
-7. Записывает `input_select.home_mode = none` (режим нейтральный — дом готовится, не спит)
+6. Останавливает музыку на `media_player.bedroom_station` (`script.stop_bedroom_music`)
+7. Записывает `input_boolean.home_ready_for_arrival = true`
+8. Записывает `input_select.home_mode = none` (режим нейтральный — дом готовится, не спит)
 
 **Helpers — параметры:**
 
@@ -227,7 +236,8 @@
 3. Закрывает шторы (`cover.close_cover`)
 4. Устанавливает температуру `input_number.cozy_temperature` (`climate.set_temperature`)
 5. Включает увлажнитель (`humidifier.bedroom` или фолбек `switch.bedroom_humidifier`)
-6. Записывает `input_select.home_mode = cozy`
+6. Если `input_text.cozy_playlist` не пуст — `script.play_bedroom_playlist` → музыка на `media_player.bedroom_station`; если пуст — стоп музыки
+7. Записывает `input_select.home_mode = cozy`
 
 **Helpers — параметры:**
 
@@ -235,6 +245,7 @@
 | ------------------------------- | ------ | ------ | --- | ---- | --- |
 | `input_number.cozy_brightness`  | number | 40     | 5   | 80   | 5   |
 | `input_number.cozy_temperature` | number | 21     | 18  | 24   | 0.5 |
+| `input_text.cozy_playlist`      | text   | ""     | —   | 255  | —   |
 
 ---
 
@@ -248,7 +259,8 @@
 2. Включает свет на `input_number.focus_brightness` с холодной цветовой температурой (`light.turn_on` с `color_temp: 153` mireds)
 3. Открывает шторы (`cover.open_cover`) — естественный свет
 4. Устанавливает температуру `input_number.focus_temperature` (`climate.set_temperature`)
-5. Записывает `input_select.home_mode = focus`
+5. Если `input_text.focus_playlist` не пуст — `script.play_bedroom_playlist` → музыка на `media_player.bedroom_station`; если пуст — стоп музыки
+6. Записывает `input_select.home_mode = focus`
 
 **Helpers — параметры:**
 
@@ -256,6 +268,39 @@
 | -------------------------------- | ------ | ------ | --- | ---- | --- |
 | `input_number.focus_brightness`  | number | 90     | 50  | 100  | 5   |
 | `input_number.focus_temperature` | number | 19     | 17  | 22   | 0.5 |
+| `input_text.focus_playlist`      | text   | ""     | —   | 255  | —   |
+
+---
+
+## Алиса (SH-58)
+
+Голос запускает **те же** 7 `script.*`, что и кнопки в приложении, плюс `script.exit_home_mode` для выхода из активного режима. Параметры (яркость, температура, плейлист) редактируются только через приложение / helpers — Алиса их не меняет.
+
+**Интеграции (HACS + UI):**
+
+1. [AlexxIT/YandexStation](https://github.com/AlexxIT/YandexStation) — локальное управление станцией (`media_player`, play_media `command`)
+2. [dext0r/ha-yandex-station-intents](https://github.com/dext0r/ha-yandex-station-intents) — перехват фраз → `action` на `script.*`
+
+После скачивания в HACS обязательно: **Настройки → Устройства и службы → Добавить интеграцию** → **Yandex Station** и **Yandex.Station Intents** → авторизация Яндекса. Без этого шага yaml с фразами не создаст сценарии в УДЯ.
+
+Пошагово: [`INSTALL.md`](./INSTALL.md) §4. Конфиг фраз: [`yandex_station_intents.yaml`](./yandex_station_intents.yaml) — include на верхнем уровне `configuration.yaml`, **не** через `packages:`.
+
+Запуск идёт через `action` в intents (primary + `extra_phrases`), без отдельных `automation.*_alice` — иначе extra_phrases не попали бы в triggers.
+
+| Сценарий | Пример фразы (после «Алиса, …») |
+|----------|----------------------------------|
+| Вечер | включи вечер / режим вечер / включи режим вечер |
+| Сон | спокойной ночи / режим сон / включи режим сон |
+| Утро | доброе утро / режим утро / включи режим утро |
+| Уехали | я уехал / режим уехали / включи режим уехали |
+| Еду домой | еду домой / скоро буду / включи режим еду домой |
+| Уют | включи уют / режим уют / включи режим уют |
+| Фокус | включи фокус / режим фокус / включи режим фокус |
+| Выход | выключи режим / отключи режим / выйди из режима |
+
+Полный список — [`yandex_station_intents.yaml`](./yandex_station_intents.yaml). Совпадение **точное** (без лишних слов вроде «сценарий»). Максимум 3 `extra_phrases` на интент.
+
+Музыка при смене режима: `script.play_bedroom_playlist` включает плейлист, если helper не пуст; иначе (и у away / coming_home / exit) — `script.stop_bedroom_music` (`command` «Стоп» на станции).
 
 ---
 

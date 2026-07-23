@@ -1,6 +1,6 @@
-import { loadHomeConfig } from '@/config/homeConfig';
+import { HA_ENTITIES } from '@/config/scenarioHaMapping';
 import { getScenarioDefinition } from '@/config/scenarios';
-import { runHaScript, setInputSelectOption, stopHaScript } from '@/ha/haClient';
+import { runHaScript, stopHaScript } from '@/ha/haClient';
 
 /** Остановить HA-script сценария, если он ещё выполняется (ramp/delay) */
 export async function stopScenarioScript(
@@ -42,16 +42,9 @@ export async function runScenario(
 }
 
 /**
- * Выход из активного режима: home_mode → none и остановка script режима.
- * Без stop script длинные sequence (утро) продолжают шаги после «отжима» в UI.
+ * Выход из активного режима: тот же script.exit_home_mode, что и голос Алисы
+ * (home_mode → none, stop scripts режимов, стоп музыки на станции).
  */
-export async function exitActiveScenario(
-  baseUrl: string,
-  token: string,
-  activeScenarioId: string,
-): Promise<void> {
-  const config = loadHomeConfig();
-  const { home_mode, exit_home_mode_option } = config.scenarios_ha;
-  await setInputSelectOption(baseUrl, token, home_mode.entity, exit_home_mode_option);
-  await stopScenarioScript(activeScenarioId, baseUrl, token);
+export async function exitActiveScenario(baseUrl: string, token: string): Promise<void> {
+  await runHaScript(baseUrl, token, HA_ENTITIES.scripts.exitHomeMode);
 }
