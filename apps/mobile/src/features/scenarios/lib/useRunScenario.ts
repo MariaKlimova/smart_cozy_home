@@ -81,7 +81,7 @@ export function useRunScenario(): IUseRunScenarioResult {
         setScenarioState(scenarioId, 'running');
         clearError();
         try {
-          await exitActiveScenario(haBaseUrl, haToken, scenarioId);
+          await exitActiveScenario(haBaseUrl, haToken);
           setScenarioActivation(null, preparedScenarioId);
           await refresh({ silent: true });
         } catch {

@@ -10,6 +10,7 @@ import {
 } from '@/ha/haMockStore';
 import { mapPresence } from '@/ha/mappers/domainMapper';
 import { mapScenarioHaState } from '@/ha/mappers/mapScenarioHaState';
+import { getSleepMaintainerPhase } from '@/ha/mockSleepMaintainer';
 import { runMockScript } from '@/ha/mockScriptRunner';
 
 describe('runMockScript', () => {
@@ -55,6 +56,17 @@ describe('runMockScript', () => {
 
     assert.equal(getMockEntitySnapshot(HA_ENTITIES.system.homeMode)?.state, 'none');
     assert.equal(getMockEntitySnapshot(HA_ENTITIES.system.homeReadyForArrival)?.state, 'on');
+  });
+
+  it('exit_home_mode resets home_mode and stops sleep maintainer', () => {
+    updateMockEntityState(HA_ENTITIES.scenarioParams.sleep.window, 'on');
+    runMockScript(HA_ENTITIES.scripts.sleep);
+    assert.equal(getMockEntitySnapshot(HA_ENTITIES.system.homeMode)?.state, 'sleep');
+    assert.equal(getSleepMaintainerPhase(), 'ventilating');
+
+    runMockScript(HA_ENTITIES.scripts.exitHomeMode);
+    assert.equal(getMockEntitySnapshot(HA_ENTITIES.system.homeMode)?.state, 'none');
+    assert.equal(getSleepMaintainerPhase(), null);
   });
 
   it('sleep turns light off and sets sleep mode', () => {

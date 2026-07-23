@@ -25,8 +25,15 @@
 | `sensor.bedroom_humidity` | Датчик влажности | bedroom sensors UI |
 | `sensor.bedroom_pressure` | Датчик атмосферного давления (**мм рт. ст. / mmHg**, не hPa) | bedroom sensors UI / Now card |
 | `binary_sensor.bedroom_occupancy` | Присутствие в спальне | automation sleep_air_quality |
+| `media_player.bedroom_station` | Яндекс.Станция в спальне (плейлисты сценариев, SH-58) | scripts evening/sleep/morning/cozy/focus |
 | `weather.forecast_home_assistant` | Температура на улице (`attributes.temperature`) | блок «Снаружи», физика mock |
 | `sun.sun` | Следующий восход / закат (`next_rising`, `next_setting`) | блок «Снаружи»: «Восход в …» / «Закат в …» |
+
+### Яндекс.Станция (SH-58)
+
+Опционально. После установки [Yandex.Station](https://github.com/AlexxIT/YandexStation) переименовать entity станции в спальне в `media_player.bedroom_station`.
+
+Скрипты Вечер / Сон / Утро / Уют / Фокус вызывают `script.play_bedroom_playlist`: если `input_text.*_playlist` не пуст — `media_player.play_media` (`media_content_type: command`, «Включи плейлист {название}»); иначе — `script.stop_bedroom_music` (`command` «Стоп»). Away / coming_home / `script.exit_home_mode` всегда останавливают музыку той же командой. Тип `text` у Yandex.Station — только озвучка, не команда. Без станции шаг с `continue_on_error` не валит сценарий.
 
 ### Climate в сценариях
 

@@ -44,6 +44,18 @@ export interface IScenarioColorSetting {
   isAvailable: boolean;
 }
 
+/** Текстовый параметр сценария (например плейлист) */
+export interface IScenarioTextSetting {
+  /** Ключ поля, например playlist */
+  key: string;
+  /** Текущее значение */
+  value: string;
+  /** Максимальная длина (лимит HA input_text) */
+  maxLength: number;
+  /** Entity доступна в HA */
+  isAvailable: boolean;
+}
+
 /** Настройки одного сценария для UI */
 export interface IScenarioSettings {
   /** id сценария */
@@ -54,6 +66,8 @@ export interface IScenarioSettings {
   booleans: IScenarioBooleanSetting[];
   /** Цветовые параметры */
   colors: IScenarioColorSetting[];
+  /** Текстовые параметры */
+  texts: IScenarioTextSetting[];
   /** Недельное расписание */
   schedule: IScenarioWeeklySchedule;
   /** Ключи полей, недоступных в HA */

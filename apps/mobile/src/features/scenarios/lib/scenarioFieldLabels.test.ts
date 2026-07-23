@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import type { IScenarioFieldDefinition } from '@/config/scenarioSettingsFields';
-import { getScenarioFieldLabel } from '@/features/scenarios/lib/scenarioFieldLabels';
+import { getScenarioFieldLabel, getScenarioSettingsFieldCopy } from '@/features/scenarios/lib/scenarioFieldLabels';
 import {
   isSchedulePendingKey,
   toScheduleData,
@@ -17,6 +17,21 @@ describe('getScenarioFieldLabel', () => {
       copyKey: 'brightness',
     };
     assert.equal(getScenarioFieldLabel(field), 'Яркость');
+  });
+
+  it('returns playlist label', () => {
+    const field: IScenarioFieldDefinition = {
+      key: 'playlist',
+      kind: 'text',
+      copyKey: 'playlist',
+    };
+    assert.equal(getScenarioFieldLabel(field), 'Плейлист');
+  });
+
+  it('resolves optional settings field copy keys', () => {
+    assert.equal(getScenarioSettingsFieldCopy('playlistHint'), 'Пусто — без музыки. Алиса скажет «включи плейлист …»');
+    assert.equal(getScenarioSettingsFieldCopy('playlistPlaceholder'), 'Например: вечерний джаз');
+    assert.equal(getScenarioSettingsFieldCopy(undefined), undefined);
   });
 
   it('falls back to copyKey when missing in copy', () => {

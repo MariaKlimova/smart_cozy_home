@@ -1,7 +1,7 @@
 import { copy } from '@/copy/ru';
 
 /** Тип поля настроек сценария */
-export type TScenarioFieldKind = 'number' | 'boolean' | 'color';
+export type TScenarioFieldKind = 'number' | 'boolean' | 'color' | 'text';
 
 const MINUTES_UNIT = copy.units.minutesShort;
 
@@ -26,7 +26,23 @@ export interface IScenarioFieldDefinition {
   step?: number;
   /** Единица для number */
   unit?: string;
+  /** Максимальная длина для text (лимит HA input_text) */
+  maxLength?: number;
+  /** Ключ подсказки в copy.scenarios.settingsFields (text) */
+  hintCopyKey?: string;
+  /** Ключ placeholder в copy.scenarios.settingsFields (text) */
+  placeholderCopyKey?: string;
 }
+
+/** Общее text-поле плейлиста (SH-58) */
+const PLAYLIST_FIELD: IScenarioFieldDefinition = {
+  key: 'playlist',
+  kind: 'text',
+  copyKey: 'playlist',
+  maxLength: 255,
+  hintCopyKey: 'playlistHint',
+  placeholderCopyKey: 'playlistPlaceholder',
+};
 
 /** Поля параметров по id сценария (без расписания) */
 export const SCENARIO_FIELD_DEFINITIONS: Record<string, IScenarioFieldDefinition[]> = {
@@ -35,6 +51,7 @@ export const SCENARIO_FIELD_DEFINITIONS: Record<string, IScenarioFieldDefinition
     { key: 'temperature', kind: 'number', copyKey: 'temperature', min: 15, max: 25, step: 0.5, unit: '°C' },
     { key: 'curtains', kind: 'boolean', copyKey: 'curtains' },
     { key: 'humidifier', kind: 'boolean', copyKey: 'humidifier' },
+    PLAYLIST_FIELD,
   ],
   sleep: [
     { key: 'temperature', kind: 'number', copyKey: 'nightTemperature', min: 15, max: 22, step: 0.5, unit: '°C' },
@@ -56,10 +73,12 @@ export const SCENARIO_FIELD_DEFINITIONS: Record<string, IScenarioFieldDefinition
       copyKey: 'nightlightColor',
       dependsOnKey: 'nightlight',
     },
+    PLAYLIST_FIELD,
   ],
   morning: [
     { key: 'brightness', kind: 'number', copyKey: 'brightness', min: 1, max: 100, step: 1, unit: '%' },
     { key: 'warmupMinutes', kind: 'number', copyKey: 'warmupMinutes', min: 5, max: 60, step: 5, unit: MINUTES_UNIT },
+    PLAYLIST_FIELD,
   ],
   away: [
     { key: 'temperature', kind: 'number', copyKey: 'awayTemperature', min: 12, max: 20, step: 0.5, unit: '°C' },
@@ -73,10 +92,12 @@ export const SCENARIO_FIELD_DEFINITIONS: Record<string, IScenarioFieldDefinition
   cozy: [
     { key: 'brightness', kind: 'number', copyKey: 'brightness', min: 1, max: 100, step: 1, unit: '%' },
     { key: 'temperature', kind: 'number', copyKey: 'temperature', min: 18, max: 26, step: 0.5, unit: '°C' },
+    PLAYLIST_FIELD,
   ],
   focus: [
     { key: 'brightness', kind: 'number', copyKey: 'brightness', min: 1, max: 100, step: 1, unit: '%' },
     { key: 'temperature', kind: 'number', copyKey: 'temperature', min: 18, max: 24, step: 0.5, unit: '°C' },
+    PLAYLIST_FIELD,
   ],
 };
 

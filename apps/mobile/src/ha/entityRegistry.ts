@@ -6,6 +6,7 @@ import {
 
 import { USE_HA_MOCKS } from '@/ha/haClient';
 import { getMockLightFavoriteColors } from '@/ha/haMockStore';
+import { normalizeHaBaseUrl, withHaTimeout } from '@/ha/haWsUtils';
 
 const ENTITY_REGISTRY_TIMEOUT_MS = 10_000;
 
@@ -252,26 +253,6 @@ export function getDefaultHaLightColorPresets(
   return colors;
 }
 
-function normalizeBaseUrl(baseUrl: string): string {
-  return baseUrl.replace(/\/$/, '');
-}
-
-async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<T>((_, reject) => {
-        timer = setTimeout(() => reject(new Error(message)), ms);
-      }),
-    ]);
-  } finally {
-    if (timer !== undefined) {
-      clearTimeout(timer);
-    }
-  }
-}
-
 /**
  * Читает запись entity registry через `home-assistant-js-websocket`
  * (единый протокол auth/WS, не сырой WebSocket).
@@ -281,17 +262,17 @@ async function getEntityRegistryEntry(
   token: string,
   entityId: string,
 ): Promise<IEntityRegistryEntry | undefined> {
-  const auth = createLongLivedTokenAuth(normalizeBaseUrl(baseUrl), token);
+  const auth = createLongLivedTokenAuth(normalizeHaBaseUrl(baseUrl), token);
   const connectPromise = createConnection({ auth });
   let connection: Connection | undefined;
 
   try {
-    connection = await withTimeout(
+    connection = await withHaTimeout(
       connectPromise,
       ENTITY_REGISTRY_TIMEOUT_MS,
       'HA entity registry request timed out',
     );
-    return await withTimeout(
+    return await withHaTimeout(
       connection.sendMessagePromise<IEntityRegistryEntry>({
         type: 'config/entity_registry/get',
         entity_id: entityId,

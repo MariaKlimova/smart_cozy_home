@@ -17,7 +17,7 @@ import { loadHomeConfig } from '@/config/homeConfig';
 import { useConnectionStore } from '@/store/connectionStore';
 import { useSleepScheduleStore } from '@/store/sleepScheduleStore';
 import {
-  collectWatchedEntityIds,
+  collectHomeSyncEntityIds,
   mapGentleNotifications,
   mapLightsSummary,
   mapPresence,
@@ -26,7 +26,7 @@ import {
   mapTemperature,
   mapTimelineFromLogbook,
 } from '@/ha/mappers/domainMapper';
-import { mapAllScenarioSchedules, collectScenarioScheduleEntityIds } from '@/ha/mappers/mapScenarioSettings';
+import { mapAllScenarioSchedules } from '@/ha/mappers/mapScenarioSettings';
 import { mapScenarioHaState } from '@/ha/mappers/mapScenarioHaState';
 
 /** Комнаты из конфига без live-states (навигация доступна и offline) */
@@ -125,9 +125,7 @@ export const useHomeStore = create<IHomeStore>((set, get) => ({
     }
 
     try {
-      const entityIds = [
-        ...new Set([...collectWatchedEntityIds(), ...collectScenarioScheduleEntityIds()]),
-      ];
+      const entityIds = collectHomeSyncEntityIds();
       const states = await fetchEntityStates(haBaseUrl, haToken, entityIds);
       const receivedIds = new Set(states.map((s) => s.entityId));
       const missingEntityIds = entityIds.filter((id) => !receivedIds.has(id));

@@ -6,6 +6,7 @@ import type {
     IRoom,
     ITimelineEvent,
 } from '@/domain/types';
+import { collectScenarioScheduleEntityIds } from '@/ha/mappers/mapScenarioSettings';
 import type { IHaEntityState } from '@/ha/types';
 
 function stateMap(states: IHaEntityState[]): Map<string, IHaEntityState> {
@@ -142,6 +143,11 @@ export function collectWatchedEntityIds(): string[] {
   ids.add(config.scenarios_ha.home_mode.entity);
   ids.add(config.scenarios_ha.prepared.entity);
   return [...ids];
+}
+
+/** Watched + schedule helpers — один список для REST refresh и WS subscription */
+export function collectHomeSyncEntityIds(): string[] {
+  return [...new Set([...collectWatchedEntityIds(), ...collectScenarioScheduleEntityIds()])];
 }
 
 export {

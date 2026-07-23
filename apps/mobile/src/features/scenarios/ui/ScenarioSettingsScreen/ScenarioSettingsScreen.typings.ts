@@ -28,6 +28,8 @@ export interface IScenarioSettingsScreenProps {
   onBooleanChange: (key: string, value: boolean) => Promise<boolean>;
   /** Записать цветовой параметр */
   onColorChange: (key: string, color: TLightColorValue) => Promise<boolean>;
+  /** Записать текстовый параметр */
+  onTextChange: (key: string, value: string) => Promise<boolean>;
   /** Включить/выключить расписание */
   onScheduleEnabledChange: (enabled: boolean) => Promise<boolean>;
   /** Переключить день */

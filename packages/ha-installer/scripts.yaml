@@ -76,6 +76,90 @@ script:
             {% set logical = brightness_logical | int(0) %}
             {{ (floor + (logical / 100) * (100 - floor)) | round | int }}
 
+  # SH-58: text = TTS; command = голосовая команда (Yandex.Station).
+  stop_bedroom_music:
+    alias: Музыка — стоп на станции спальни
+    description: >-
+      Останавливает музыку на media_player.bedroom_station голосовой командой
+      (как и включение плейлиста). media_stop для Яндекс.Музыки через command часто не срабатывает.
+    mode: parallel
+    sequence:
+      - continue_on_error: true
+        service: media_player.play_media
+        target:
+          entity_id: media_player.bedroom_station
+        data:
+          media_content_type: command
+          media_content_id: Стоп
+
+  play_bedroom_playlist:
+    alias: Плейлист — станция спальни
+    description: >-
+      Если helper плейлиста не пуст — play_media command на media_player.bedroom_station;
+      иначе останавливает музыку (смена сценария без плейлиста)
+    mode: parallel
+    fields:
+      playlist_entity:
+        name: Entity input_text плейлиста
+        required: true
+        selector:
+          entity:
+            domain: input_text
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ states(playlist_entity)
+                     not in ['unknown', 'unavailable', 'none', ''] }}
+            sequence:
+              - continue_on_error: true
+                service: media_player.play_media
+                target:
+                  entity_id: media_player.bedroom_station
+                data:
+                  media_content_type: command
+                  media_content_id: "Включи плейлист {{ states(playlist_entity) }}"
+        default:
+          - continue_on_error: true
+            service: script.turn_on
+            target:
+              entity_id: script.stop_bedroom_music
+
+  # Выход из любого режима (приложение + Алиса): none + stop scripts + музыка.
+  exit_home_mode:
+    alias: Выйти из режима
+    description: >-
+      Сбрасывает home_mode в none, останавливает script режимов
+      (чтобы не продолжался morning ramp) и музыку на станции
+    mode: single
+    sequence:
+      - alias: Сбрасываем режим
+        service: input_select.select_option
+        target:
+          entity_id: input_select.home_mode
+        data:
+          option: none
+
+      - alias: Останавливаем scripts режимов
+        continue_on_error: true
+        service: script.turn_off
+        target:
+          entity_id:
+            - script.evening
+            - script.sleep
+            - script.morning
+            - script.away
+            - script.coming_home
+            - script.cozy
+            - script.focus
+
+      - alias: Останавливаем музыку
+        continue_on_error: true
+        service: script.turn_on
+        target:
+          entity_id: script.stop_bedroom_music
+
   evening:
     alias: Вечер
     description: Подготовка ко сну — плавно гасит свет, закрывает шторы, снижает температуру
@@ -133,6 +217,12 @@ script:
             service: script.turn_on
             target:
               entity_id: script.bedroom_humidifier_on
+
+      - alias: Включаем плейлист если задан
+        continue_on_error: true
+        service: script.play_bedroom_playlist
+        data:
+          playlist_entity: input_text.evening_playlist
 
   sleep:
     alias: Сон
@@ -219,6 +309,12 @@ script:
             - climate.bedroom_ventilation
         data:
           temperature: "{{ states('input_number.sleep_temperature') | float }}"
+
+      - alias: Включаем плейлист если задан
+        continue_on_error: true
+        service: script.play_bedroom_playlist
+        data:
+          playlist_entity: input_text.sleep_playlist
 
   morning:
     alias: Утро
@@ -310,6 +406,12 @@ script:
                         ] | min | int
                       }}
 
+      - alias: Включаем плейлист если задан
+        continue_on_error: true
+        service: script.play_bedroom_playlist
+        data:
+          playlist_entity: input_text.morning_playlist
+
   away:
     alias: Уехали
     description: Переводит дом в режим ожидания — выключает всё и снижает температуру
@@ -370,6 +472,12 @@ script:
         target:
           entity_id: script.bedroom_humidifier_off
 
+      - alias: Останавливаем музыку — у away нет плейлиста
+        continue_on_error: true
+        service: script.turn_on
+        target:
+          entity_id: script.stop_bedroom_music
+
   coming_home:
     alias: Еду домой
     description: Готовит дом к прибытию — прогревает и включает свет
@@ -427,6 +535,12 @@ script:
             target:
               entity_id: cover.bedroom_curtains
 
+      - alias: Останавливаем музыку — у еду домой нет плейлиста
+        continue_on_error: true
+        service: script.turn_on
+        target:
+          entity_id: script.stop_bedroom_music
+
   cozy:
     alias: Уют
     description: Расслабленный вечер — тёплый мягкий свет, комфортная температура
@@ -474,6 +588,12 @@ script:
         target:
           entity_id: script.bedroom_humidifier_on
 
+      - alias: Включаем плейлист если задан
+        continue_on_error: true
+        service: script.play_bedroom_playlist
+        data:
+          playlist_entity: input_text.cozy_playlist
+
   focus:
     alias: Фокус
     description: Режим работы — яркий холодный свет, бодрящая температура
@@ -514,3 +634,9 @@ script:
             - climate.bedroom_ventilation
         data:
           temperature: "{{ states('input_number.focus_temperature') | float }}"
+
+      - alias: Включаем плейлист если задан
+        continue_on_error: true
+        service: script.play_bedroom_playlist
+        data:
+          playlist_entity: input_text.focus_playlist

@@ -2,7 +2,7 @@ import { ActivityIndicator, Text, View } from 'react-native';
 
 import { getScenarioFieldDefinitions } from '@/config/scenarioSettingsFields';
 import { copy } from '@/copy/ru';
-import { getScenarioFieldLabel } from '@/features/scenarios/lib/scenarioFieldLabels';
+import { getScenarioFieldLabel, getScenarioSettingsFieldCopy } from '@/features/scenarios/lib/scenarioFieldLabels';
 import { ScenarioWeeklySchedule } from '@/features/scenarios/ui/ScenarioWeeklySchedule';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { CalmButton } from '@/ui/CalmButton';
@@ -13,6 +13,7 @@ import { spacing, typography } from '@/theme/tokens';
 import { ScenarioSettingsScreenBooleanField } from './ScenarioSettingsScreen-BooleanField';
 import { ScenarioSettingsScreenColorField } from './ScenarioSettingsScreen-ColorField';
 import { ScenarioSettingsScreenNumberField } from './ScenarioSettingsScreen-NumberField';
+import { ScenarioSettingsScreenTextField } from './ScenarioSettingsScreen-TextField';
 import type { IScenarioSettingsScreenProps } from './ScenarioSettingsScreen.typings';
 import { styles } from './ScenarioSettingsScreen.styles';
 
@@ -29,6 +30,7 @@ export function ScenarioSettingsScreen({
   onNumberChange,
   onBooleanChange,
   onColorChange,
+  onTextChange,
   onScheduleEnabledChange,
   onWeekdayEnabledChange,
   onWeekdayTimeChange,
@@ -108,6 +110,22 @@ export function ScenarioSettingsScreen({
                       setting={colorSetting}
                       isPending={pendingFieldKey === field.key}
                       onSelect={(color) => onColorChange(field.key, color)}
+                    />
+                  );
+                }
+
+                if (field.kind === 'text') {
+                  const textSetting = settings.texts.find((item) => item.key === field.key);
+                  if (!textSetting) return null;
+                  return (
+                    <ScenarioSettingsScreenTextField
+                      key={field.key}
+                      label={getScenarioFieldLabel(field)}
+                      hint={getScenarioSettingsFieldCopy(field.hintCopyKey)}
+                      setting={textSetting}
+                      isPending={pendingFieldKey === field.key}
+                      placeholder={getScenarioSettingsFieldCopy(field.placeholderCopyKey)}
+                      onComplete={(value) => onTextChange(field.key, value)}
                     />
                   );
                 }

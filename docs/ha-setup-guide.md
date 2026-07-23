@@ -20,7 +20,7 @@
 | Действие | Как |
 |----------|-----|
 | Запуск сценария | `script.turn_on` (`script.evening`, …) |
-| Выход из режима | `home_mode = none` + `script.turn_off` на script режима |
+| Выход из режима | `script.exit_home_mode` (`home_mode = none` + `script.turn_off` режимов + стоп музыки) |
 | Active / prepared | Чтение `input_select.home_mode`, `input_boolean.home_ready_for_arrival` |
 | Параметры (яркость, температура, …) | Запись в `input_number.*` / `input_boolean.*` |
 | Калибровка яркости света | `input_number.bedroom_light_visible_min` |

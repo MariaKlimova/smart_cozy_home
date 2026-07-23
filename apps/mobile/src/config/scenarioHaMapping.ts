@@ -76,8 +76,25 @@ export const SCENARIO_ID_TO_HA_ENTITY_KEY: Record<string, TScenarioHaEntityKey> 
   focus: 'focus',
 };
 
-/** Scripts сценариев */
-export type IHaScriptEntities = Record<TScenarioHaEntityKey, string>;
+/** Scripts сценариев и выхода из режима */
+export interface IHaScriptEntities {
+  /** script.evening */
+  evening: string;
+  /** script.sleep */
+  sleep: string;
+  /** script.morning */
+  morning: string;
+  /** script.away */
+  away: string;
+  /** script.coming_home */
+  comingHome: string;
+  /** script.cozy */
+  cozy: string;
+  /** script.focus */
+  focus: string;
+  /** script.exit_home_mode — сброс режима (приложение + Алиса) */
+  exitHomeMode: string;
+}
 
 /** Ключи helpers параметров сценария в HA */
 export type TScenarioHaParamKey =
@@ -91,6 +108,7 @@ export type TScenarioHaParamKey =
   | 'nightlightColor'
   | 'warmupMinutes'
   | 'minutes'
+  | 'playlist'
   | 'scheduleConfig';
 
 /**
@@ -154,6 +172,7 @@ export const HA_ENTITIES: IHaEntities = {
     comingHome: 'script.coming_home',
     cozy: 'script.cozy',
     focus: 'script.focus',
+    exitHomeMode: 'script.exit_home_mode',
   },
 
   scenarioParams: {
@@ -162,6 +181,7 @@ export const HA_ENTITIES: IHaEntities = {
       temperature: 'input_number.evening_temperature',
       curtains: 'input_boolean.evening_curtains',
       humidifier: 'input_boolean.evening_humidifier',
+      playlist: 'input_text.evening_playlist',
       scheduleConfig: 'input_text.evening_schedule',
     },
     sleep: {
@@ -170,11 +190,13 @@ export const HA_ENTITIES: IHaEntities = {
       nightlight: 'input_boolean.sleep_nightlight',
       nightlightBrightness: 'input_number.sleep_nightlight_brightness',
       nightlightColor: 'input_text.sleep_nightlight_color',
+      playlist: 'input_text.sleep_playlist',
       scheduleConfig: 'input_text.sleep_schedule',
     },
     morning: {
       brightness: 'input_number.morning_brightness',
       warmupMinutes: 'input_number.morning_warmup_minutes',
+      playlist: 'input_text.morning_playlist',
       scheduleConfig: 'input_text.morning_schedule',
     },
     away: {
@@ -191,11 +213,13 @@ export const HA_ENTITIES: IHaEntities = {
     cozy: {
       brightness: 'input_number.cozy_brightness',
       temperature: 'input_number.cozy_temperature',
+      playlist: 'input_text.cozy_playlist',
       scheduleConfig: 'input_text.cozy_schedule',
     },
     focus: {
       brightness: 'input_number.focus_brightness',
       temperature: 'input_number.focus_temperature',
+      playlist: 'input_text.focus_playlist',
       scheduleConfig: 'input_text.focus_schedule',
     },
   },
