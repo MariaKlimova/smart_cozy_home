@@ -4,7 +4,7 @@ import {
   SLEEP_METRIC_CHART_SCALES,
   SLEEP_METRIC_NORMS,
 } from '@/domain/sleepMetricNorms';
-import type { ISleepNightWindow, ISleepSensorSample } from '@/domain/sleepNight.typings';
+import type { ISleepSensorSample } from '@/domain/sleepNight.typings';
 import type {
   ICalmLineChartPoint,
   ICalmLineChartNormBand,
@@ -14,18 +14,26 @@ import type {
 
 import { getSleepMetricValue } from './getSleepMetricValue';
 
+/** Временное окно для построения графика условий */
+export interface IRoomMetricTimeRange {
+  /** Начало окна */
+  startAt: Date;
+  /** Конец окна */
+  endAt: Date;
+}
+
 function formatTimeLabel(date: Date): string {
   return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
 
-/** Строит точки графика для метрики за ночь */
-export function buildSleepMetricChartPoints(
+/** Строит точки графика для метрики в заданном окне */
+export function buildRoomMetricChartPoints(
   samples: ISleepSensorSample[],
-  window: ISleepNightWindow,
+  range: IRoomMetricTimeRange,
   metricId: TSleepMetricId,
 ): ICalmLineChartPoint[] {
-  const startMs = window.startAt.getTime();
-  const endMs = window.endAt.getTime();
+  const startMs = range.startAt.getTime();
+  const endMs = range.endAt.getTime();
   const durationMs = Math.max(endMs - startMs, 1);
 
   return samples
@@ -41,19 +49,19 @@ export function buildSleepMetricChartPoints(
     .filter((point): point is ICalmLineChartPoint => point !== null);
 }
 
-/** Подписи оси X: начало, середина и конец ночи */
-export function buildSleepNightXLabels(window: ISleepNightWindow): ICalmLineChartXLabel[] {
-  const midMs = window.startAt.getTime() + (window.endAt.getTime() - window.startAt.getTime()) / 2;
+/** Подписи оси X: начало, середина и конец окна */
+export function buildRoomRangeXLabels(range: IRoomMetricTimeRange): ICalmLineChartXLabel[] {
+  const midMs = range.startAt.getTime() + (range.endAt.getTime() - range.startAt.getTime()) / 2;
 
   return [
-    { x: 0, label: formatTimeLabel(window.startAt) },
+    { x: 0, label: formatTimeLabel(range.startAt) },
     { x: 0.5, label: formatTimeLabel(new Date(midMs)) },
-    { x: 1, label: formatTimeLabel(window.endAt) },
+    { x: 1, label: formatTimeLabel(range.endAt) },
   ];
 }
 
 /** Домен оси Y: дефолтная шкала, расширяется только при выходе данных за неё */
-export function buildSleepMetricYDomain(
+export function buildRoomMetricYDomain(
   points: ICalmLineChartPoint[],
   metricId: TSleepMetricId,
 ): ICalmLineChartYDomain {
@@ -77,7 +85,7 @@ export function buildSleepMetricYDomain(
 }
 
 /** Полоса нормы и зоны отклонений для графика */
-export function buildSleepMetricNormBand(metricId: TSleepMetricId): ICalmLineChartNormBand {
+export function buildRoomMetricNormBand(metricId: TSleepMetricId): ICalmLineChartNormBand {
   if (metricId === 'co2') {
     return {
       max: SLEEP_CO2_NORM_MAX_PPM,
@@ -105,6 +113,6 @@ export function buildSleepMetricNormBand(metricId: TSleepMetricId): ICalmLineCha
 }
 
 /** Единица измерения метрики */
-export function getSleepMetricUnit(metricId: TSleepMetricId): string {
+export function getRoomMetricUnit(metricId: TSleepMetricId): string {
   return SLEEP_METRIC_NORMS[metricId].unit;
 }
